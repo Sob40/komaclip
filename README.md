@@ -23,9 +23,10 @@ bin/rails db:prepare
 bin/dev
 ```
 
-## Architecture
+## Documentation
 
-See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+- [Architecture](docs/ARCHITECTURE.md)
+- [MVP strategic inventory](docs/MVP_STRATEGIC_INVENTORY.md)
 
 ## Guiding Rule
 
