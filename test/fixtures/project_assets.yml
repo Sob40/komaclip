@@ -1,0 +1,23 @@
+one:
+  project: one
+  user: one
+  kind: source_page
+  status: ready
+  filename: page-01.png
+  content_type: image/png
+  byte_size: 204800
+  checksum: checksum-one
+  storage_key: test/projects/one/source/page-01.png
+  metadata: {}
+
+two:
+  project: two
+  user: two
+  kind: source_page
+  status: ready
+  filename: pagina-01.png
+  content_type: image/png
+  byte_size: 204800
+  checksum: checksum-two
+  storage_key: test/projects/two/source/pagina-01.png
+  metadata: {}

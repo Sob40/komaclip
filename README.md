@@ -29,6 +29,7 @@ bin/dev
 - [MVP strategic inventory](docs/MVP_STRATEGIC_INVENTORY.md)
 - [Schemas and catalogs](docs/SCHEMAS_AND_CATALOGS.md)
 - [Internationalization](docs/I18N.md)
+- [Product models](docs/PRODUCT_MODELS.md)
 
 ## Guiding Rule
 

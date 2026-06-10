@@ -1,0 +1,15 @@
+one:
+  project: one
+  project_asset: one
+  position: 1
+  label: Opening panel
+  crop: {}
+  metadata: {}
+
+two:
+  project: two
+  project_asset: two
+  position: 1
+  label: Panel inicial
+  crop: {}
+  metadata: {}

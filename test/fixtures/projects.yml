@@ -1,0 +1,13 @@
+one:
+  user: one
+  title: First webtoon launch
+  content_locale: en
+  status: draft
+  metadata: {}
+
+two:
+  user: two
+  title: Segundo teaser
+  content_locale: es
+  status: active
+  metadata: {}

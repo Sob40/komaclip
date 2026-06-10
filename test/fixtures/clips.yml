@@ -1,0 +1,17 @@
+one:
+  project: one
+  title: Launch hook
+  position: 1
+  status: draft
+  duration_ms: 8000
+  scene_contract: {}
+  metadata: {}
+
+two:
+  project: two
+  title: Gancho inicial
+  position: 1
+  status: ready
+  duration_ms: 8000
+  scene_contract: {}
+  metadata: {}

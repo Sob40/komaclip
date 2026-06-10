@@ -1,0 +1,27 @@
+one:
+  project: one
+  clip: one
+  user: one
+  status: queued
+  renderer: pixi
+  scene_contract: {}
+  output_key:
+  error_code:
+  error_message:
+  duration_ms:
+  completed_at:
+  metadata: {}
+
+two:
+  project: two
+  clip: two
+  user: two
+  status: succeeded
+  renderer: pixi
+  scene_contract: {}
+  output_key: test/renders/two/clip.mp4
+  error_code:
+  error_message:
+  duration_ms: 8000
+  completed_at: 2026-06-11 00:00:00
+  metadata: {}

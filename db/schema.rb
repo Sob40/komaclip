@@ -10,9 +10,48 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_10_215500) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_10_221111) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "clip_renders", force: :cascade do |t|
+    t.bigint "clip_id", null: false
+    t.datetime "completed_at"
+    t.datetime "created_at", null: false
+    t.integer "duration_ms"
+    t.string "error_code"
+    t.text "error_message"
+    t.jsonb "metadata", default: {}, null: false
+    t.string "output_key"
+    t.bigint "project_id", null: false
+    t.string "renderer", default: "pixi", null: false
+    t.jsonb "scene_contract", default: {}, null: false
+    t.string "status", default: "queued", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["clip_id"], name: "index_clip_renders_on_clip_id"
+    t.index ["output_key"], name: "index_clip_renders_on_output_key", unique: true
+    t.index ["project_id", "status"], name: "index_clip_renders_on_project_id_and_status"
+    t.index ["project_id"], name: "index_clip_renders_on_project_id"
+    t.index ["status", "created_at"], name: "index_clip_renders_on_status_and_created_at"
+    t.index ["user_id", "status"], name: "index_clip_renders_on_user_id_and_status"
+    t.index ["user_id"], name: "index_clip_renders_on_user_id"
+  end
+
+  create_table "clips", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "duration_ms", default: 0, null: false
+    t.jsonb "metadata", default: {}, null: false
+    t.integer "position", null: false
+    t.bigint "project_id", null: false
+    t.jsonb "scene_contract", default: {}, null: false
+    t.string "status", default: "draft", null: false
+    t.string "title", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_id", "position"], name: "index_clips_on_project_id_and_position", unique: true
+    t.index ["project_id", "status"], name: "index_clips_on_project_id_and_status"
+    t.index ["project_id"], name: "index_clips_on_project_id"
+  end
 
   create_table "identities", force: :cascade do |t|
     t.string "avatar_url"
@@ -25,6 +64,53 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_10_215500) do
     t.bigint "user_id", null: false
     t.index ["provider", "uid"], name: "index_identities_on_provider_and_uid", unique: true
     t.index ["user_id"], name: "index_identities_on_user_id"
+  end
+
+  create_table "panels", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.jsonb "crop", default: {}, null: false
+    t.string "label"
+    t.jsonb "metadata", default: {}, null: false
+    t.integer "position", null: false
+    t.bigint "project_asset_id", null: false
+    t.bigint "project_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_asset_id"], name: "index_panels_on_project_asset_id"
+    t.index ["project_id", "position"], name: "index_panels_on_project_id_and_position", unique: true
+    t.index ["project_id"], name: "index_panels_on_project_id"
+  end
+
+  create_table "project_assets", force: :cascade do |t|
+    t.bigint "byte_size", null: false
+    t.string "checksum"
+    t.string "content_type", null: false
+    t.datetime "created_at", null: false
+    t.string "filename", null: false
+    t.string "kind", null: false
+    t.jsonb "metadata", default: {}, null: false
+    t.bigint "project_id", null: false
+    t.string "status", default: "pending", null: false
+    t.string "storage_key"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["project_id", "kind"], name: "index_project_assets_on_project_id_and_kind"
+    t.index ["project_id", "status"], name: "index_project_assets_on_project_id_and_status"
+    t.index ["project_id"], name: "index_project_assets_on_project_id"
+    t.index ["storage_key"], name: "index_project_assets_on_storage_key", unique: true
+    t.index ["user_id"], name: "index_project_assets_on_user_id"
+  end
+
+  create_table "projects", force: :cascade do |t|
+    t.string "content_locale", default: "en", null: false
+    t.datetime "created_at", null: false
+    t.jsonb "metadata", default: {}, null: false
+    t.string "status", default: "draft", null: false
+    t.string "title", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["user_id", "status"], name: "index_projects_on_user_id_and_status"
+    t.index ["user_id", "updated_at"], name: "index_projects_on_user_id_and_updated_at"
+    t.index ["user_id"], name: "index_projects_on_user_id"
   end
 
   create_table "sessions", force: :cascade do |t|
@@ -50,6 +136,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_10_215500) do
     t.index ["polar_customer_id"], name: "index_users_on_polar_customer_id", unique: true
   end
 
+  add_foreign_key "clip_renders", "clips"
+  add_foreign_key "clip_renders", "projects"
+  add_foreign_key "clip_renders", "users"
+  add_foreign_key "clips", "projects"
   add_foreign_key "identities", "users"
+  add_foreign_key "panels", "project_assets"
+  add_foreign_key "panels", "projects"
+  add_foreign_key "project_assets", "projects"
+  add_foreign_key "project_assets", "users"
+  add_foreign_key "projects", "users"
   add_foreign_key "sessions", "users"
 end
