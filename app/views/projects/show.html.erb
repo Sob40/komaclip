@@ -1,0 +1,36 @@
+<main class="mx-auto max-w-6xl px-6 py-10">
+  <header class="flex items-start justify-between gap-6">
+    <div>
+      <%= link_to t("projects.show.back"), dashboard_path, class: "text-sm font-semibold text-zinc-600 underline" %>
+      <h1 class="mt-3 text-3xl font-bold tracking-tight text-zinc-950"><%= @project.title %></h1>
+      <p class="mt-2 text-sm leading-6 text-zinc-600">
+        <%= t(".meta", content_locale: t("content_locales.#{@project.content_locale}"), status: t("project_statuses.#{@project.status}")) %>
+      </p>
+    </div>
+    <%= button_to t("navigation.sign_out"), session_path, method: :delete, class: "rounded-md border border-zinc-300 px-4 py-2 text-sm font-semibold text-zinc-900 hover:bg-zinc-50" %>
+  </header>
+
+  <section class="mt-10 grid gap-4 sm:grid-cols-4">
+    <div class="rounded-md border border-zinc-200 p-4">
+      <p class="text-sm font-semibold text-zinc-500"><%= t(".assets") %></p>
+      <p class="mt-2 text-3xl font-bold text-zinc-950"><%= @project.project_assets.size %></p>
+    </div>
+    <div class="rounded-md border border-zinc-200 p-4">
+      <p class="text-sm font-semibold text-zinc-500"><%= t(".panels") %></p>
+      <p class="mt-2 text-3xl font-bold text-zinc-950"><%= @project.panels.size %></p>
+    </div>
+    <div class="rounded-md border border-zinc-200 p-4">
+      <p class="text-sm font-semibold text-zinc-500"><%= t(".clips") %></p>
+      <p class="mt-2 text-3xl font-bold text-zinc-950"><%= @project.clips.size %></p>
+    </div>
+    <div class="rounded-md border border-zinc-200 p-4">
+      <p class="text-sm font-semibold text-zinc-500"><%= t(".renders") %></p>
+      <p class="mt-2 text-3xl font-bold text-zinc-950"><%= @project.clip_renders.size %></p>
+    </div>
+  </section>
+
+  <section class="mt-10 rounded-lg border border-dashed border-zinc-300 p-8">
+    <h2 class="text-lg font-semibold text-zinc-950"><%= t(".next_title") %></h2>
+    <p class="mt-2 max-w-2xl text-sm leading-6 text-zinc-600"><%= t(".next_body") %></p>
+  </section>
+</main>

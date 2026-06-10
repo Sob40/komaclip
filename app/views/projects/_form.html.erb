@@ -1,0 +1,23 @@
+<%= form_with model: project, class: "space-y-5" do |form| %>
+  <% if project.errors.any? %>
+    <div class="rounded-md bg-red-50 p-3 text-sm text-red-700">
+      <%= project.errors.full_messages.to_sentence %>
+    </div>
+  <% end %>
+
+  <div>
+    <%= form.label :title, t("projects.form.title_label"), class: "block text-sm font-medium text-zinc-900" %>
+    <%= form.text_field :title, required: true, autofocus: true, maxlength: 120, placeholder: t("projects.form.title_placeholder"), class: "mt-2 w-full rounded-md border border-zinc-300 px-3 py-2" %>
+  </div>
+
+  <div>
+    <%= form.label :content_locale, t("projects.form.content_locale_label"), class: "block text-sm font-medium text-zinc-900" %>
+    <%= form.select :content_locale, content_locale_options, {}, class: "mt-2 w-full rounded-md border border-zinc-300 px-3 py-2" %>
+    <p class="mt-2 text-sm leading-6 text-zinc-600"><%= t("projects.form.content_locale_hint") %></p>
+  </div>
+
+  <div class="flex items-center gap-3">
+    <%= form.submit t("projects.form.submit"), class: "rounded-md bg-zinc-950 px-4 py-2.5 text-sm font-semibold text-white hover:bg-zinc-800" %>
+    <%= link_to t("navigation.cancel"), dashboard_path, class: "rounded-md border border-zinc-300 px-4 py-2.5 text-sm font-semibold text-zinc-900 hover:bg-zinc-50" %>
+  </div>
+<% end %>

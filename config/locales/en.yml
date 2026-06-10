@@ -7,9 +7,23 @@ en:
     es: "ES"
 
   navigation:
+    cancel: "Cancel"
     create_account: "Create account"
     sign_in: "Sign in"
     sign_out: "Sign out"
+
+  content_locales:
+    en: "English"
+    es: "Spanish"
+
+  project_statuses:
+    active: "Active"
+    archived: "Archived"
+    draft: "Draft"
+
+  time:
+    formats:
+      short: "%b %-d, %Y"
 
   forms:
     email: "Email"
@@ -29,6 +43,7 @@ en:
     password_reset: "Password has been reset."
     password_reset_invalid: "Password reset link is invalid or has expired."
     password_reset_sent: "Password reset instructions sent if an account exists for that email address."
+    project_created: "Project created."
     rate_limited: "Try again later."
 
   home:
@@ -39,8 +54,40 @@ en:
   dashboard:
     show:
       title: "Workspace"
-      foundation_title: "Editor foundation ready"
-      foundation_body: "Projects, Pixi rendering, storage, credits, Polar billing, and AI direction will be built from here."
+      new_project: "New project"
+      projects_title: "Projects"
+      projects_body: "Create and manage the comic or webtoon promos you are preparing."
+      project_count:
+        one: "1 project"
+        other: "%{count} projects"
+      table:
+        project: "Project"
+        content_locale: "Content"
+        status: "Status"
+        updated: "Updated"
+      empty_title: "Start your first promo project"
+      empty_body: "A project keeps assets, panels, clips, Pixi scene contracts, and renders together under your account."
+      empty_action: "Create project"
+
+  projects:
+    form:
+      title_label: "Project title"
+      title_placeholder: "Volume 1 launch reel"
+      content_locale_label: "Content language"
+      content_locale_hint: "This controls generated copy for the project. It is separate from the interface language."
+      submit: "Create project"
+    new:
+      title: "New project"
+      body: "Set up the workspace for one comic or webtoon promo. Uploads, panels, clips, and renders will attach to this project."
+    show:
+      back: "Back to workspace"
+      meta: "%{content_locale} content · %{status}"
+      assets: "Assets"
+      panels: "Panels"
+      clips: "Clips"
+      renders: "Renders"
+      next_title: "Project shell ready"
+      next_body: "The next step is secure upload and panel extraction. For now, this project is owned, localized, and ready for editor data."
 
   registrations:
     new:
@@ -69,6 +116,9 @@ en:
 
   activerecord:
     attributes:
+      project:
+        content_locale: "Content language"
+        title: "Project title"
       user:
         email_address: "Email"
         password: "Password"

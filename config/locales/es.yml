@@ -7,9 +7,23 @@ es:
     es: "ES"
 
   navigation:
+    cancel: "Cancelar"
     create_account: "Crear cuenta"
     sign_in: "Iniciar sesión"
     sign_out: "Cerrar sesión"
+
+  content_locales:
+    en: "Inglés"
+    es: "Español"
+
+  project_statuses:
+    active: "Activo"
+    archived: "Archivado"
+    draft: "Borrador"
+
+  time:
+    formats:
+      short: "%-d %b %Y"
 
   forms:
     email: "Email"
@@ -29,6 +43,7 @@ es:
     password_reset: "La contraseña se ha actualizado."
     password_reset_invalid: "El enlace para restablecer la contraseña no es válido o ha caducado."
     password_reset_sent: "Te enviaremos instrucciones si existe una cuenta con ese email."
+    project_created: "Proyecto creado."
     rate_limited: "Inténtalo de nuevo más tarde."
 
   home:
@@ -39,8 +54,40 @@ es:
   dashboard:
     show:
       title: "Espacio de trabajo"
-      foundation_title: "Base del editor preparada"
-      foundation_body: "Desde aquí construiremos proyectos, render Pixi, almacenamiento, créditos, pagos con Polar y dirección con IA."
+      new_project: "Nuevo proyecto"
+      projects_title: "Proyectos"
+      projects_body: "Crea y gestiona las promos de cómics o webtoons que estás preparando."
+      project_count:
+        one: "1 proyecto"
+        other: "%{count} proyectos"
+      table:
+        project: "Proyecto"
+        content_locale: "Contenido"
+        status: "Estado"
+        updated: "Actualizado"
+      empty_title: "Empieza tu primer proyecto promocional"
+      empty_body: "Un proyecto agrupa assets, viñetas, clips, contratos de escena Pixi y renders dentro de tu cuenta."
+      empty_action: "Crear proyecto"
+
+  projects:
+    form:
+      title_label: "Título del proyecto"
+      title_placeholder: "Reel de lanzamiento del volumen 1"
+      content_locale_label: "Idioma del contenido"
+      content_locale_hint: "Controla el copy generado para el proyecto. Es independiente del idioma de la interfaz."
+      submit: "Crear proyecto"
+    new:
+      title: "Nuevo proyecto"
+      body: "Prepara el espacio de trabajo para una promo de cómic o webtoon. Uploads, viñetas, clips y renders se asociarán a este proyecto."
+    show:
+      back: "Volver al workspace"
+      meta: "Contenido en %{content_locale} · %{status}"
+      assets: "Assets"
+      panels: "Viñetas"
+      clips: "Clips"
+      renders: "Renders"
+      next_title: "Base del proyecto preparada"
+      next_body: "El siguiente paso es subida segura y extracción de viñetas. De momento, este proyecto ya tiene propietario, idioma y estructura para el editor."
 
   registrations:
     new:
@@ -69,6 +116,9 @@ es:
 
   activerecord:
     attributes:
+      project:
+        content_locale: "Idioma del contenido"
+        title: "Título del proyecto"
       user:
         email_address: "Email"
         password: "Contraseña"

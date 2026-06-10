@@ -3,6 +3,7 @@ Rails.application.routes.draw do
     resource :session
     resource :registration, only: %i[ new create ]
     resources :passwords, param: :token
+    resources :projects, only: %i[ new create show ]
 
     get "app", to: "dashboard#show", as: :dashboard
 

@@ -11,4 +11,8 @@ module ApplicationHelper
   def locale_link_label(locale)
     t("locales.#{locale}")
   end
+
+  def content_locale_options
+    Project::CONTENT_LOCALES.map { |locale| [ t("content_locales.#{locale}"), locale ] }
+  end
 end
