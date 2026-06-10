@@ -13,19 +13,19 @@
   <section class="mt-10 grid gap-4 sm:grid-cols-4">
     <div class="rounded-md border border-zinc-200 p-4">
       <p class="text-sm font-semibold text-zinc-500"><%= t(".assets") %></p>
-      <p class="mt-2 text-3xl font-bold text-zinc-950"><%= @project.project_assets.size %></p>
+      <p class="mt-2 text-3xl font-bold text-zinc-950"><%= @project_assets.size %></p>
     </div>
     <div class="rounded-md border border-zinc-200 p-4">
       <p class="text-sm font-semibold text-zinc-500"><%= t(".panels") %></p>
-      <p class="mt-2 text-3xl font-bold text-zinc-950"><%= @project.panels.size %></p>
+      <p class="mt-2 text-3xl font-bold text-zinc-950"><%= @panels.size %></p>
     </div>
     <div class="rounded-md border border-zinc-200 p-4">
       <p class="text-sm font-semibold text-zinc-500"><%= t(".clips") %></p>
-      <p class="mt-2 text-3xl font-bold text-zinc-950"><%= @project.clips.size %></p>
+      <p class="mt-2 text-3xl font-bold text-zinc-950"><%= @clips_count %></p>
     </div>
     <div class="rounded-md border border-zinc-200 p-4">
       <p class="text-sm font-semibold text-zinc-500"><%= t(".renders") %></p>
-      <p class="mt-2 text-3xl font-bold text-zinc-950"><%= @project.clip_renders.size %></p>
+      <p class="mt-2 text-3xl font-bold text-zinc-950"><%= @renders_count %></p>
     </div>
   </section>
 
@@ -51,7 +51,7 @@
         </div>
       </div>
 
-      <% if @project.project_assets.any? %>
+      <% if @project_assets.any? %>
         <div class="mt-6 overflow-hidden rounded-md border border-zinc-200">
           <table class="w-full text-left text-sm">
             <thead class="bg-zinc-50 text-xs font-semibold uppercase text-zinc-500">
@@ -63,7 +63,7 @@
               </tr>
             </thead>
             <tbody class="divide-y divide-zinc-200">
-              <% @project.project_assets.order(created_at: :desc).each do |asset| %>
+              <% @project_assets.each do |asset| %>
                 <tr class="hover:bg-zinc-50">
                   <td class="px-4 py-4 font-semibold text-zinc-950">
                     <%= link_to asset.filename, project_asset_path(project_id: @project, id: asset), class: "underline" %>
@@ -103,5 +103,44 @@
         <%= form.submit t(".upload_submit"), class: "w-full rounded-md bg-zinc-950 px-4 py-2.5 text-sm font-semibold text-white hover:bg-zinc-800" %>
       <% end %>
     </aside>
+  </section>
+
+  <section class="mt-10">
+    <div>
+      <h2 class="text-lg font-semibold text-zinc-950"><%= t(".panels_title") %></h2>
+      <p class="mt-2 max-w-2xl text-sm leading-6 text-zinc-600"><%= t(".panels_body") %></p>
+    </div>
+
+    <% if @panels.any? %>
+      <div class="mt-6 overflow-hidden rounded-md border border-zinc-200">
+        <table class="w-full text-left text-sm">
+          <thead class="bg-zinc-50 text-xs font-semibold uppercase text-zinc-500">
+            <tr>
+              <th class="px-4 py-3"><%= t(".panels_table.position") %></th>
+              <th class="px-4 py-3"><%= t(".panels_table.label") %></th>
+              <th class="px-4 py-3"><%= t(".panels_table.source") %></th>
+              <th class="px-4 py-3"><%= t(".panels_table.crop") %></th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-zinc-200">
+            <% @panels.each do |panel| %>
+              <tr class="hover:bg-zinc-50">
+                <td class="px-4 py-4 text-zinc-600"><%= panel.position %></td>
+                <td class="px-4 py-4 font-semibold text-zinc-950">
+                  <%= link_to panel.label, project_panel_path(project_id: @project, id: panel), class: "underline" %>
+                </td>
+                <td class="px-4 py-4 text-zinc-600"><%= panel.project_asset.filename %></td>
+                <td class="px-4 py-4 text-zinc-600"><%= t(".full_page_crop") %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <div class="mt-6 rounded-lg border border-dashed border-zinc-300 p-8">
+        <h3 class="text-lg font-semibold text-zinc-950"><%= t(".panels_empty_title") %></h3>
+        <p class="mt-2 max-w-2xl text-sm leading-6 text-zinc-600"><%= t(".panels_empty_body") %></p>
+      </div>
+    <% end %>
   </section>
 </main>

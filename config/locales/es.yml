@@ -85,6 +85,8 @@ es:
     password_reset_sent: "Te enviaremos instrucciones si existe una cuenta con ese email."
     asset_deleted: "Asset eliminado."
     asset_uploaded: "Asset subido."
+    panel_created: "Viñeta creada."
+    panel_deleted: "Viñeta eliminada."
     project_created: "Proyecto creado."
     rate_limited: "Inténtalo de nuevo más tarde."
 
@@ -145,6 +147,16 @@ es:
       upload_file: "Archivo de imagen"
       upload_hint: "JPG, PNG o WebP. Máximo 25 MB."
       upload_submit: "Subir asset"
+      panels_title: "Viñetas"
+      panels_body: "Las viñetas son crops ordenados derivados de los assets del proyecto. La primera extracción crea una viñeta de página completa."
+      panels_table:
+        position: "Posición"
+        label: "Etiqueta"
+        source: "Fuente"
+        crop: "Crop"
+      full_page_crop: "Página completa"
+      panels_empty_title: "Todavía no hay viñetas extraídas"
+      panels_empty_body: "Abre una página fuente y crea la primera viñeta de página completa."
 
   project_assets:
     show:
@@ -154,7 +166,19 @@ es:
       storage_key: "Storage key"
       uploaded: "Subido"
       checksum: "Checksum"
+      create_panel: "Crear viñeta"
       download: "Descargar"
+      delete: "Eliminar"
+
+  panels:
+    default_label: "Viñeta %{position}"
+    show:
+      back: "Volver al proyecto"
+      meta: "Posición %{position} · %{source}"
+      source_asset: "Asset fuente"
+      crop_unit: "Unidad del crop"
+      crop_origin: "Origen del crop"
+      crop_size: "Tamaño del crop"
       delete: "Eliminar"
 
   registrations:
@@ -190,6 +214,10 @@ es:
       project_asset:
         file: "Archivo"
         kind: "Tipo de asset"
+      panel:
+        crop: "Crop"
+        label: "Etiqueta"
+        project_asset: "Asset fuente"
       user:
         email_address: "Email"
         password: "Contraseña"

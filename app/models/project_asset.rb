@@ -29,6 +29,10 @@ class ProjectAsset < ApplicationRecord
   validate :file_size_is_allowed
   validate :user_matches_project
 
+  def extractable_panel_source?
+    status == "ready" && %w[source_page panel_image].include?(kind)
+  end
+
   private
 
     def sync_file_metadata

@@ -55,6 +55,8 @@ en:
     password_reset_sent: "Password reset instructions sent if an account exists for that email address."
     asset_deleted: "Asset deleted."
     asset_uploaded: "Asset uploaded."
+    panel_created: "Panel created."
+    panel_deleted: "Panel deleted."
     project_created: "Project created."
     rate_limited: "Try again later."
 
@@ -115,6 +117,16 @@ en:
       upload_file: "Image file"
       upload_hint: "JPG, PNG, or WebP. Maximum 25 MB."
       upload_submit: "Upload asset"
+      panels_title: "Panels"
+      panels_body: "Panels are ordered crops derived from project assets. The first extraction creates a full-page panel."
+      panels_table:
+        position: "Position"
+        label: "Label"
+        source: "Source"
+        crop: "Crop"
+      full_page_crop: "Full page"
+      panels_empty_title: "No panels extracted yet"
+      panels_empty_body: "Open a source page asset and create the first full-page panel."
 
   project_assets:
     show:
@@ -124,7 +136,19 @@ en:
       storage_key: "Storage key"
       uploaded: "Uploaded"
       checksum: "Checksum"
+      create_panel: "Create panel"
       download: "Download"
+      delete: "Delete"
+
+  panels:
+    default_label: "Panel %{position}"
+    show:
+      back: "Back to project"
+      meta: "Position %{position} · %{source}"
+      source_asset: "Source asset"
+      crop_unit: "Crop unit"
+      crop_origin: "Crop origin"
+      crop_size: "Crop size"
       delete: "Delete"
 
   registrations:
@@ -160,6 +184,10 @@ en:
       project_asset:
         file: "File"
         kind: "Asset kind"
+      panel:
+        crop: "Crop"
+        label: "Label"
+        project_asset: "Source asset"
       user:
         email_address: "Email"
         password: "Password"

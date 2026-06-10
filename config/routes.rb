@@ -5,10 +5,14 @@ Rails.application.routes.draw do
     resources :passwords, param: :token
     resources :projects, only: %i[ new create show ] do
       resources :assets, controller: "project_assets", only: %i[ create show destroy ] do
+        resources :panels, only: :create
+
         member do
           get :download
         end
       end
+
+      resources :panels, only: %i[ show destroy ]
     end
 
     get "app", to: "dashboard#show", as: :dashboard

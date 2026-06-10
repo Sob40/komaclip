@@ -1,0 +1,43 @@
+<main class="mx-auto max-w-4xl px-6 py-10">
+  <header class="flex items-start justify-between gap-6">
+    <div>
+      <%= link_to t(".back"), project_path(id: @project), class: "text-sm font-semibold text-zinc-600 underline" %>
+      <h1 class="mt-3 text-3xl font-bold tracking-tight text-zinc-950"><%= @panel.label %></h1>
+      <p class="mt-2 text-sm leading-6 text-zinc-600">
+        <%= t(".meta", position: @panel.position, source: @panel.project_asset.filename) %>
+      </p>
+    </div>
+    <%= button_to t("navigation.sign_out"), session_path, method: :delete, class: "rounded-md border border-zinc-300 px-4 py-2 text-sm font-semibold text-zinc-900 hover:bg-zinc-50" %>
+  </header>
+
+  <% if flash[:notice] %>
+    <div class="mt-8 rounded-md bg-green-50 p-3 text-sm text-green-700"><%= flash[:notice] %></div>
+  <% end %>
+
+  <section class="mt-10 rounded-md border border-zinc-200 p-5">
+    <dl class="grid gap-4 text-sm sm:grid-cols-2">
+      <div>
+        <dt class="font-semibold text-zinc-500"><%= t(".source_asset") %></dt>
+        <dd class="mt-1 text-zinc-950">
+          <%= link_to @panel.project_asset.filename, project_asset_path(project_id: @project, id: @panel.project_asset), class: "underline" %>
+        </dd>
+      </div>
+      <div>
+        <dt class="font-semibold text-zinc-500"><%= t(".crop_unit") %></dt>
+        <dd class="mt-1 text-zinc-950"><%= @panel.crop.fetch("unit") %></dd>
+      </div>
+      <div>
+        <dt class="font-semibold text-zinc-500"><%= t(".crop_origin") %></dt>
+        <dd class="mt-1 text-zinc-950"><%= "#{@panel.crop.fetch("x")}, #{@panel.crop.fetch("y")}" %></dd>
+      </div>
+      <div>
+        <dt class="font-semibold text-zinc-500"><%= t(".crop_size") %></dt>
+        <dd class="mt-1 text-zinc-950"><%= "#{@panel.crop.fetch("width")} x #{@panel.crop.fetch("height")}" %></dd>
+      </div>
+    </dl>
+
+    <div class="mt-8">
+      <%= button_to t(".delete"), project_panel_path(project_id: @project, id: @panel), method: :delete, class: "rounded-md border border-red-700 px-4 py-2.5 text-sm font-semibold text-red-700 hover:bg-red-50" %>
+    </div>
+  </section>
+</main>

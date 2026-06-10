@@ -10,6 +10,14 @@
     <%= button_to t("navigation.sign_out"), session_path, method: :delete, class: "rounded-md border border-zinc-300 px-4 py-2 text-sm font-semibold text-zinc-900 hover:bg-zinc-50" %>
   </header>
 
+  <% if flash[:alert] %>
+    <div class="mt-8 rounded-md bg-red-50 p-3 text-sm text-red-700"><%= flash[:alert] %></div>
+  <% end %>
+
+  <% if flash[:notice] %>
+    <div class="mt-8 rounded-md bg-green-50 p-3 text-sm text-green-700"><%= flash[:notice] %></div>
+  <% end %>
+
   <section class="mt-10 rounded-md border border-zinc-200 p-5">
     <dl class="grid gap-4 text-sm sm:grid-cols-2">
       <div>
@@ -31,6 +39,9 @@
     </dl>
 
     <div class="mt-8 flex items-center gap-3">
+      <% if @asset.extractable_panel_source? %>
+        <%= button_to t(".create_panel"), project_asset_panels_path(project_id: @project, asset_id: @asset), method: :post, class: "rounded-md bg-zinc-950 px-4 py-2.5 text-sm font-semibold text-white hover:bg-zinc-800" %>
+      <% end %>
       <%= link_to t(".download"), download_project_asset_path(project_id: @project, id: @asset), class: "rounded-md bg-zinc-950 px-4 py-2.5 text-sm font-semibold text-white hover:bg-zinc-800" %>
       <%= button_to t(".delete"), project_asset_path(project_id: @project, id: @asset), method: :delete, class: "rounded-md border border-red-700 px-4 py-2.5 text-sm font-semibold text-red-700 hover:bg-red-50" %>
     </div>

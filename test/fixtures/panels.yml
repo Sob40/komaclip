@@ -3,7 +3,12 @@ one:
   project_asset: one
   position: 1
   label: Opening panel
-  crop: {}
+  crop:
+    unit: normalized
+    x: 0.0
+    y: 0.0
+    width: 1.0
+    height: 1.0
   metadata: {}
 
 two:
@@ -11,5 +16,10 @@ two:
   project_asset: two
   position: 1
   label: Panel inicial
-  crop: {}
+  crop:
+    unit: normalized
+    x: 0.0
+    y: 0.0
+    width: 1.0
+    height: 1.0
   metadata: {}

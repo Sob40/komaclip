@@ -31,6 +31,7 @@ bin/dev
 - [Internationalization](docs/I18N.md)
 - [Product models](docs/PRODUCT_MODELS.md)
 - [Storage](docs/STORAGE.md)
+- [Panel extraction](docs/PANEL_EXTRACTION.md)
 
 ## Guiding Rule
 
