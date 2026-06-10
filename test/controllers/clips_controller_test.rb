@@ -51,6 +51,7 @@ class ClipsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "h1", clip.title
+    assert_select "script[src*='clip_preview']"
     assert_select "[data-controller='clip-preview']"
     assert_select "script[type='application/json']", /komaclip.scene.v1/
     assert_select "pre", /komaclip.scene.v1/

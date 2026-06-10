@@ -4,7 +4,5 @@
 
 import { application } from "./application"
 
-import ClipPreviewController from "./clip_preview_controller"
 import HelloController from "./hello_controller"
-application.register("clip-preview", ClipPreviewController)
 application.register("hello", HelloController)
