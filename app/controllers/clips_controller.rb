@@ -27,6 +27,7 @@ class ClipsController < ApplicationController
   end
 
   def show
+    @preview_payload = preview_payload
   end
 
   def destroy
@@ -46,5 +47,23 @@ class ClipsController < ApplicationController
 
     def next_position
       @project.clips.maximum(:position).to_i + 1
+    end
+
+    def preview_payload
+      contract = @clip.scene_contract.deep_dup
+      asset_ids = contract.fetch("shots", []).map { |shot| shot.fetch("assetId") }.uniq
+      assets = @project.project_assets.with_attached_file.where(id: asset_ids).index_by(&:id)
+
+      {
+        contract: contract,
+        assets: assets.transform_values do |asset|
+          {
+            id: asset.id,
+            filename: asset.filename,
+            contentType: asset.content_type,
+            url: asset.file.attached? ? rails_blob_url(asset.file, disposition: "inline") : nil
+          }
+        end
+      }
     end
 end

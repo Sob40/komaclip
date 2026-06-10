@@ -51,7 +51,23 @@ class ClipsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "h1", clip.title
+    assert_select "[data-controller='clip-preview']"
+    assert_select "script[type='application/json']", /komaclip.scene.v1/
     assert_select "pre", /komaclip.scene.v1/
+  end
+
+  test "show signs asset urls only in preview payload" do
+    project = users(:one).projects.create!(title: "Signed preview project", content_locale: "en")
+    asset = create_asset_for(users(:one), project)
+    project.panels.create!(project_asset: asset, position: 1, label: "Attached panel")
+    clip = create_clip_for(project)
+    sign_in_as(users(:one))
+
+    get project_clip_path(project_id: project, id: clip)
+
+    assert_response :success
+    assert_select "script[type='application/json']", /rails\/active_storage/
+    refute_includes JSON.generate(clip.reload.scene_contract), "rails/active_storage"
   end
 
   test "show rejects another user's clip" do
@@ -85,5 +101,17 @@ class ClipsControllerTest < ActionDispatch::IntegrationTest
         duration_ms: SceneContracts::InitialClipBuilder::DEFAULT_DURATION_MS,
         scene_contract: SceneContracts::InitialClipBuilder.new(project: project, panels: panels).build
       )
+    end
+
+    def create_asset_for(user, project)
+      project.project_assets.create!(
+        user: user,
+        kind: "source_page",
+        file: sample_image_upload
+      )
+    end
+
+    def sample_image_upload
+      Rack::Test::UploadedFile.new(Rails.root.join("test/fixtures/files/sample-page.png"), "image/png")
     end
 end
