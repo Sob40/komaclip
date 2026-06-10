@@ -1,0 +1,110 @@
+require "test_helper"
+
+class ProjectAssetsControllerTest < ActionDispatch::IntegrationTest
+  test "create requires authentication" do
+    post project_assets_path(project_id: projects(:one)), params: {
+      project_asset: { kind: "source_page", file: sample_image_upload }
+    }
+
+    assert_redirected_to new_session_path
+  end
+
+  test "create attaches image asset to owned project" do
+    sign_in_as(users(:one))
+
+    assert_difference -> { projects(:one).project_assets.count }, 1 do
+      post project_assets_path(project_id: projects(:one)), params: {
+        project_asset: { kind: "source_page", file: sample_image_upload }
+      }
+    end
+
+    asset = projects(:one).project_assets.order(:created_at).last
+    assert_equal users(:one), asset.user
+    assert_equal "sample-page.png", asset.filename
+    assert_equal "image/png", asset.content_type
+    assert_equal "ready", asset.status
+    assert asset.file.attached?
+    assert_redirected_to project_path(id: projects(:one))
+  end
+
+  test "create rejects unsupported file type" do
+    sign_in_as(users(:one))
+
+    assert_no_difference -> { projects(:one).project_assets.count } do
+      post project_assets_path(project_id: projects(:one)), params: {
+        project_asset: { kind: "source_page", file: text_upload }
+      }
+    end
+
+    assert_redirected_to project_path(id: projects(:one))
+    follow_redirect!
+    assert_select "div", /JPG, PNG, or WebP/
+  end
+
+  test "create rejects another user's project" do
+    sign_in_as(users(:one))
+
+    post project_assets_path(project_id: projects(:two)), params: {
+      project_asset: { kind: "source_page", file: sample_image_upload }
+    }
+
+    assert_response :not_found
+  end
+
+  test "show renders owned asset" do
+    asset = create_asset_for(users(:one), projects(:one))
+    sign_in_as(users(:one))
+
+    get project_asset_path(project_id: projects(:one), id: asset)
+
+    assert_response :success
+    assert_select "h1", "sample-page.png"
+  end
+
+  test "show rejects another user's asset" do
+    sign_in_as(users(:one))
+
+    get project_asset_path(project_id: projects(:two), id: project_assets(:two))
+
+    assert_response :not_found
+  end
+
+  test "download redirects to a signed blob URL" do
+    asset = create_asset_for(users(:one), projects(:one))
+    sign_in_as(users(:one))
+
+    get download_project_asset_path(project_id: projects(:one), id: asset)
+
+    assert_response :redirect
+    assert_includes response.location, "/rails/active_storage/"
+  end
+
+  test "destroy removes owned asset" do
+    asset = create_asset_for(users(:one), projects(:one))
+    sign_in_as(users(:one))
+
+    assert_difference -> { projects(:one).project_assets.count }, -1 do
+      delete project_asset_path(project_id: projects(:one), id: asset)
+    end
+
+    assert_redirected_to project_path(id: projects(:one))
+  end
+
+  private
+
+    def create_asset_for(user, project)
+      project.project_assets.create!(
+        user: user,
+        kind: "source_page",
+        file: sample_image_upload
+      )
+    end
+
+    def sample_image_upload
+      Rack::Test::UploadedFile.new(Rails.root.join("test/fixtures/files/sample-page.png"), "image/png")
+    end
+
+    def text_upload
+      Rack::Test::UploadedFile.new(Rails.root.join("test/fixtures/files/sample-not-image.txt"), "text/plain")
+    end
+end

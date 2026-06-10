@@ -28,7 +28,6 @@ module Komaclip
     # Common ones are `templates`, `generators`, or `middleware`, for example.
     config.autoload_lib(ignore: %w[assets tasks])
 
-    config.active_job.queue_adapter = :sidekiq
     config.middleware.use Rack::Attack
     config.i18n.available_locales = %i[en es]
     config.i18n.default_locale = :en

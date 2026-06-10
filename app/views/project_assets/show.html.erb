@@ -1,0 +1,38 @@
+<main class="mx-auto max-w-4xl px-6 py-10">
+  <header class="flex items-start justify-between gap-6">
+    <div>
+      <%= link_to t(".back"), project_path(id: @project), class: "text-sm font-semibold text-zinc-600 underline" %>
+      <h1 class="mt-3 text-3xl font-bold tracking-tight text-zinc-950"><%= @asset.filename %></h1>
+      <p class="mt-2 text-sm leading-6 text-zinc-600">
+        <%= t(".meta", kind: t("project_asset_kinds.#{@asset.kind}"), size: number_to_human_size(@asset.byte_size), status: t("project_asset_statuses.#{@asset.status}")) %>
+      </p>
+    </div>
+    <%= button_to t("navigation.sign_out"), session_path, method: :delete, class: "rounded-md border border-zinc-300 px-4 py-2 text-sm font-semibold text-zinc-900 hover:bg-zinc-50" %>
+  </header>
+
+  <section class="mt-10 rounded-md border border-zinc-200 p-5">
+    <dl class="grid gap-4 text-sm sm:grid-cols-2">
+      <div>
+        <dt class="font-semibold text-zinc-500"><%= t(".content_type") %></dt>
+        <dd class="mt-1 text-zinc-950"><%= @asset.content_type %></dd>
+      </div>
+      <div>
+        <dt class="font-semibold text-zinc-500"><%= t(".storage_key") %></dt>
+        <dd class="mt-1 break-all text-zinc-950"><%= @asset.storage_key %></dd>
+      </div>
+      <div>
+        <dt class="font-semibold text-zinc-500"><%= t(".uploaded") %></dt>
+        <dd class="mt-1 text-zinc-950"><%= l(@asset.created_at, format: :short) %></dd>
+      </div>
+      <div>
+        <dt class="font-semibold text-zinc-500"><%= t(".checksum") %></dt>
+        <dd class="mt-1 break-all text-zinc-950"><%= @asset.checksum %></dd>
+      </div>
+    </dl>
+
+    <div class="mt-8 flex items-center gap-3">
+      <%= link_to t(".download"), download_project_asset_path(project_id: @project, id: @asset), class: "rounded-md bg-zinc-950 px-4 py-2.5 text-sm font-semibold text-white hover:bg-zinc-800" %>
+      <%= button_to t(".delete"), project_asset_path(project_id: @project, id: @asset), method: :delete, class: "rounded-md border border-red-700 px-4 py-2.5 text-sm font-semibold text-red-700 hover:bg-red-50" %>
+    </div>
+  </section>
+</main>

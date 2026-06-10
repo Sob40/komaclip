@@ -16,4 +16,20 @@ class ProjectAssetTest < ActiveSupport::TestCase
     assert_not asset.valid?
     assert_includes asset.errors[:byte_size], "must be greater than 0"
   end
+
+  test "syncs metadata from attached file" do
+    asset = ProjectAsset.create!(
+      project: projects(:one),
+      user: users(:one),
+      kind: "source_page",
+      file: Rack::Test::UploadedFile.new(Rails.root.join("test/fixtures/files/sample-page.png"), "image/png")
+    )
+
+    assert_equal "sample-page.png", asset.filename
+    assert_equal "image/png", asset.content_type
+    assert_equal "ready", asset.status
+    assert asset.byte_size.positive?
+    assert asset.storage_key.present?
+    assert asset.checksum.present?
+  end
 end

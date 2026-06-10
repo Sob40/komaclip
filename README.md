@@ -30,6 +30,7 @@ bin/dev
 - [Schemas and catalogs](docs/SCHEMAS_AND_CATALOGS.md)
 - [Internationalization](docs/I18N.md)
 - [Product models](docs/PRODUCT_MODELS.md)
+- [Storage](docs/STORAGE.md)
 
 ## Guiding Rule
 

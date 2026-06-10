@@ -15,4 +15,8 @@ module ApplicationHelper
   def content_locale_options
     Project::CONTENT_LOCALES.map { |locale| [ t("content_locales.#{locale}"), locale ] }
   end
+
+  def project_asset_kind_options
+    ProjectAsset::KINDS.map { |kind| [ t("project_asset_kinds.#{kind}"), kind ] }
+  end
 end

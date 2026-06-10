@@ -21,9 +21,49 @@ es:
     archived: "Archivado"
     draft: "Borrador"
 
+  project_asset_kinds:
+    panel_image: "Viñeta"
+    reference_image: "Imagen de referencia"
+    source_page: "Página fuente"
+
+  project_asset_statuses:
+    failed: "Fallido"
+    pending: "Pendiente"
+    ready: "Listo"
+
   time:
     formats:
       short: "%-d %b %Y"
+
+  date:
+    abbr_month_names:
+      -
+      - ene
+      - feb
+      - mar
+      - abr
+      - may
+      - jun
+      - jul
+      - ago
+      - sept
+      - oct
+      - nov
+      - dic
+    month_names:
+      -
+      - enero
+      - febrero
+      - marzo
+      - abril
+      - mayo
+      - junio
+      - julio
+      - agosto
+      - septiembre
+      - octubre
+      - noviembre
+      - diciembre
 
   forms:
     email: "Email"
@@ -43,6 +83,8 @@ es:
     password_reset: "La contraseña se ha actualizado."
     password_reset_invalid: "El enlace para restablecer la contraseña no es válido o ha caducado."
     password_reset_sent: "Te enviaremos instrucciones si existe una cuenta con ese email."
+    asset_deleted: "Asset eliminado."
+    asset_uploaded: "Asset subido."
     project_created: "Proyecto creado."
     rate_limited: "Inténtalo de nuevo más tarde."
 
@@ -88,6 +130,32 @@ es:
       renders: "Renders"
       next_title: "Base del proyecto preparada"
       next_body: "El siguiente paso es subida segura y extracción de viñetas. De momento, este proyecto ya tiene propietario, idioma y estructura para el editor."
+      assets_title: "Assets subidos"
+      assets_body: "Mantén páginas fuente e imágenes de referencia privadas dentro de este proyecto."
+      assets_table:
+        file: "Archivo"
+        kind: "Tipo"
+        size: "Tamaño"
+        status: "Estado"
+      assets_empty_title: "Todavía no hay assets"
+      assets_empty_body: "Sube la primera página o viñeta para empezar a preparar este proyecto para extracción."
+      upload_title: "Subir imagen"
+      upload_body: "Los archivos se asocian a este proyecto y usarán object storage privado en producción."
+      upload_kind: "Tipo de asset"
+      upload_file: "Archivo de imagen"
+      upload_hint: "JPG, PNG o WebP. Máximo 25 MB."
+      upload_submit: "Subir asset"
+
+  project_assets:
+    show:
+      back: "Volver al proyecto"
+      meta: "%{kind} · %{size} · %{status}"
+      content_type: "Content type"
+      storage_key: "Storage key"
+      uploaded: "Subido"
+      checksum: "Checksum"
+      download: "Descargar"
+      delete: "Eliminar"
 
   registrations:
     new:
@@ -119,6 +187,9 @@ es:
       project:
         content_locale: "Idioma del contenido"
         title: "Título del proyecto"
+      project_asset:
+        file: "Archivo"
+        kind: "Tipo de asset"
       user:
         email_address: "Email"
         password: "Contraseña"

@@ -22,7 +22,7 @@ entitlements or output state.
 | Model | Purpose |
 | --- | --- |
 | `Project` | Creator workspace for a comic/webtoon promo job. Owns content language and lifecycle. |
-| `ProjectAsset` | Uploaded or generated media reference. Will point to private object storage. |
+| `ProjectAsset` | Uploaded media reference backed by Active Storage and private object storage. |
 | `Panel` | Ordered panel derived from a project asset. Stores crop/focus metadata. |
 | `Clip` | Ordered social clip scene plan. Stores the scene contract used by Pixi. |
 | `ClipRender` | Server-owned render request/output state for a clip. |
@@ -50,4 +50,3 @@ before accessing assets, clips, or renders.
 `ClipRender` is a request/output record, not the renderer implementation. Render
 execution belongs in Sidekiq jobs. The only renderer accepted for the MVP is
 `pixi`, matching the decision that Pixi is the visual source of truth.
-

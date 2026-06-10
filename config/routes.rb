@@ -3,7 +3,13 @@ Rails.application.routes.draw do
     resource :session
     resource :registration, only: %i[ new create ]
     resources :passwords, param: :token
-    resources :projects, only: %i[ new create show ]
+    resources :projects, only: %i[ new create show ] do
+      resources :assets, controller: "project_assets", only: %i[ create show destroy ] do
+        member do
+          get :download
+        end
+      end
+    end
 
     get "app", to: "dashboard#show", as: :dashboard
 

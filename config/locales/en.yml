@@ -21,6 +21,16 @@ en:
     archived: "Archived"
     draft: "Draft"
 
+  project_asset_kinds:
+    panel_image: "Panel image"
+    reference_image: "Reference image"
+    source_page: "Source page"
+
+  project_asset_statuses:
+    failed: "Failed"
+    pending: "Pending"
+    ready: "Ready"
+
   time:
     formats:
       short: "%b %-d, %Y"
@@ -43,6 +53,8 @@ en:
     password_reset: "Password has been reset."
     password_reset_invalid: "Password reset link is invalid or has expired."
     password_reset_sent: "Password reset instructions sent if an account exists for that email address."
+    asset_deleted: "Asset deleted."
+    asset_uploaded: "Asset uploaded."
     project_created: "Project created."
     rate_limited: "Try again later."
 
@@ -88,6 +100,32 @@ en:
       renders: "Renders"
       next_title: "Project shell ready"
       next_body: "The next step is secure upload and panel extraction. For now, this project is owned, localized, and ready for editor data."
+      assets_title: "Uploaded assets"
+      assets_body: "Keep source pages and reference images private under this project."
+      assets_table:
+        file: "File"
+        kind: "Kind"
+        size: "Size"
+        status: "Status"
+      assets_empty_title: "No assets yet"
+      assets_empty_body: "Upload the first comic page or panel image to start preparing this project for extraction."
+      upload_title: "Upload image"
+      upload_body: "Files are attached to this project and will use private object storage in production."
+      upload_kind: "Asset kind"
+      upload_file: "Image file"
+      upload_hint: "JPG, PNG, or WebP. Maximum 25 MB."
+      upload_submit: "Upload asset"
+
+  project_assets:
+    show:
+      back: "Back to project"
+      meta: "%{kind} · %{size} · %{status}"
+      content_type: "Content type"
+      storage_key: "Storage key"
+      uploaded: "Uploaded"
+      checksum: "Checksum"
+      download: "Download"
+      delete: "Delete"
 
   registrations:
     new:
@@ -119,6 +157,9 @@ en:
       project:
         content_locale: "Content language"
         title: "Project title"
+      project_asset:
+        file: "File"
+        kind: "Asset kind"
       user:
         email_address: "Email"
         password: "Password"
