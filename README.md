@@ -28,6 +28,7 @@ bin/dev
 - [Architecture](docs/ARCHITECTURE.md)
 - [MVP strategic inventory](docs/MVP_STRATEGIC_INVENTORY.md)
 - [Schemas and catalogs](docs/SCHEMAS_AND_CATALOGS.md)
+- [Internationalization](docs/I18N.md)
 
 ## Guiding Rule
 

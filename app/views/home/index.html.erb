@@ -1,13 +1,13 @@
 <main class="mx-auto flex min-h-screen max-w-5xl flex-col justify-center px-6 py-16">
   <p class="text-sm font-semibold uppercase tracking-wide text-zinc-500">KomaClip</p>
   <h1 class="mt-4 max-w-3xl text-4xl font-bold tracking-tight text-zinc-950 sm:text-6xl">
-    Create social promo clips from comics and webtoons.
+    <%= t(".headline") %>
   </h1>
   <p class="mt-6 max-w-2xl text-lg leading-8 text-zinc-600">
-    A professional editor for turning panels, pages, and process assets into short promotional reels.
+    <%= t(".subhead") %>
   </p>
   <div class="mt-10 flex gap-3">
-    <%= link_to "Create account", new_registration_path, class: "rounded-md bg-zinc-950 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-zinc-800" %>
-    <%= link_to "Sign in", new_session_path, class: "rounded-md border border-zinc-300 px-4 py-2.5 text-sm font-semibold text-zinc-900 hover:bg-zinc-50" %>
+    <%= link_to t("navigation.create_account"), new_registration_path, class: "rounded-md bg-zinc-950 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-zinc-800" %>
+    <%= link_to t("navigation.sign_in"), new_session_path, class: "rounded-md border border-zinc-300 px-4 py-2.5 text-sm font-semibold text-zinc-900 hover:bg-zinc-50" %>
   </div>
 </main>

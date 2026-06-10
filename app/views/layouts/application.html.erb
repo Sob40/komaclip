@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html lang="<%= I18n.locale %>">
   <head>
-    <title><%= content_for(:title) || "Komaclip" %></title>
+    <title><%= content_for(:title) || t("meta.title") %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="application-name" content="Komaclip">
+    <meta name="application-name" content="KomaClip">
     <meta name="mobile-web-app-capable" content="yes">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
@@ -18,12 +18,20 @@
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/icon.png">
 
-    <%# Includes all stylesheet files in app/assets/stylesheets %>
-    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= javascript_include_tag "application", "data-turbo-track": "reload", type: "module" %>
   </head>
 
-  <body>
+  <body class="bg-white text-zinc-950 antialiased">
+    <nav class="fixed right-4 top-4 z-50 flex overflow-hidden rounded-md border border-zinc-200 bg-white/90 text-xs font-semibold text-zinc-700 shadow-sm backdrop-blur">
+      <% available_locales.each do |locale| %>
+        <%= link_to locale_link_label(locale), localized_current_path(locale), class: [
+          "px-3 py-2 hover:bg-zinc-50",
+          ("bg-zinc-950 text-white hover:bg-zinc-900" if I18n.locale == locale)
+        ].compact.join(" "), "aria-current": ("page" if I18n.locale == locale) %>
+      <% end %>
+    </nav>
+
     <%= yield %>
   </body>
 </html>

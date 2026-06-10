@@ -30,6 +30,8 @@ module Komaclip
 
     config.active_job.queue_adapter = :sidekiq
     config.middleware.use Rack::Attack
+    config.i18n.available_locales = %i[en es]
+    config.i18n.default_locale = :en
 
     # Configuration for the application, engines, and railties goes here.
     #

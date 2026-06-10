@@ -1,31 +1,77 @@
-# Files in the config/locales directory are used for internationalization and
-# are automatically loaded by Rails. If you want to use locales other than
-# English, add the necessary files in this directory.
-#
-# To use the locales, use `I18n.t`:
-#
-#     I18n.t "hello"
-#
-# In views, this is aliased to just `t`:
-#
-#     <%= t("hello") %>
-#
-# To use a different locale, set it with `I18n.locale`:
-#
-#     I18n.locale = :es
-#
-# This would use the information in config/locales/es.yml.
-#
-# To learn more about the API, please read the Rails Internationalization guide
-# at https://guides.rubyonrails.org/i18n.html.
-#
-# Be aware that YAML interprets the following case-insensitive strings as
-# booleans: `true`, `false`, `on`, `off`, `yes`, `no`. Therefore, these strings
-# must be quoted to be interpreted as strings. For example:
-#
-#     en:
-#       "yes": yup
-#       enabled: "ON"
-
 en:
-  hello: "Hello world"
+  meta:
+    title: "KomaClip"
+
+  locales:
+    en: "EN"
+    es: "ES"
+
+  navigation:
+    create_account: "Create account"
+    sign_in: "Sign in"
+    sign_out: "Sign out"
+
+  forms:
+    email: "Email"
+    email_placeholder: "Enter your email address"
+    password: "Password"
+    password_placeholder: "Enter your password"
+    password_confirmation: "Confirm password"
+    new_password: "New password"
+    new_password_placeholder: "Enter new password"
+    repeat_new_password: "Repeat new password"
+    repeat_new_password_placeholder: "Repeat new password"
+    save: "Save"
+
+  flash:
+    invalid_login: "Try another email address or password."
+    password_mismatch: "Passwords did not match."
+    password_reset: "Password has been reset."
+    password_reset_invalid: "Password reset link is invalid or has expired."
+    password_reset_sent: "Password reset instructions sent if an account exists for that email address."
+    rate_limited: "Try again later."
+
+  home:
+    index:
+      headline: "Create social promo clips from comics and webtoons."
+      subhead: "A professional editor for turning panels, pages, and process assets into short promotional reels."
+
+  dashboard:
+    show:
+      title: "Workspace"
+      foundation_title: "Editor foundation ready"
+      foundation_body: "Projects, Pixi rendering, storage, credits, Polar billing, and AI direction will be built from here."
+
+  registrations:
+    new:
+      title: "Create your KomaClip account"
+      already_have_account: "Already have an account?"
+
+  sessions:
+    new:
+      title: "Sign in to KomaClip"
+      forgot_password: "Forgot password?"
+
+  passwords:
+    new:
+      title: "Forgot your password?"
+      submit: "Email reset instructions"
+    edit:
+      title: "Update your password"
+
+  passwords_mailer:
+    reset:
+      subject: "Reset your password"
+      intro_html: "You can reset your password on %{link}."
+      intro: "You can reset your password here:"
+      link_text: "this password reset page"
+      expiry: "This link will expire in %{duration}."
+
+  activerecord:
+    attributes:
+      user:
+        email_address: "Email"
+        password: "Password"
+        password_confirmation: "Password confirmation"
+        locale: "Language"
+        role: "Role"

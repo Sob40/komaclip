@@ -1,0 +1,77 @@
+es:
+  meta:
+    title: "KomaClip"
+
+  locales:
+    en: "EN"
+    es: "ES"
+
+  navigation:
+    create_account: "Crear cuenta"
+    sign_in: "Iniciar sesión"
+    sign_out: "Cerrar sesión"
+
+  forms:
+    email: "Email"
+    email_placeholder: "Introduce tu email"
+    password: "Contraseña"
+    password_placeholder: "Introduce tu contraseña"
+    password_confirmation: "Confirmar contraseña"
+    new_password: "Nueva contraseña"
+    new_password_placeholder: "Introduce la nueva contraseña"
+    repeat_new_password: "Repite la nueva contraseña"
+    repeat_new_password_placeholder: "Repite la nueva contraseña"
+    save: "Guardar"
+
+  flash:
+    invalid_login: "Prueba con otro email o contraseña."
+    password_mismatch: "Las contraseñas no coinciden."
+    password_reset: "La contraseña se ha actualizado."
+    password_reset_invalid: "El enlace para restablecer la contraseña no es válido o ha caducado."
+    password_reset_sent: "Te enviaremos instrucciones si existe una cuenta con ese email."
+    rate_limited: "Inténtalo de nuevo más tarde."
+
+  home:
+    index:
+      headline: "Crea clips promocionales para cómics y webtoons."
+      subhead: "Un editor profesional para convertir viñetas, páginas y materiales de proceso en reels promocionales cortos."
+
+  dashboard:
+    show:
+      title: "Espacio de trabajo"
+      foundation_title: "Base del editor preparada"
+      foundation_body: "Desde aquí construiremos proyectos, render Pixi, almacenamiento, créditos, pagos con Polar y dirección con IA."
+
+  registrations:
+    new:
+      title: "Crea tu cuenta de KomaClip"
+      already_have_account: "¿Ya tienes cuenta?"
+
+  sessions:
+    new:
+      title: "Inicia sesión en KomaClip"
+      forgot_password: "¿Has olvidado tu contraseña?"
+
+  passwords:
+    new:
+      title: "¿Has olvidado tu contraseña?"
+      submit: "Enviar instrucciones"
+    edit:
+      title: "Actualiza tu contraseña"
+
+  passwords_mailer:
+    reset:
+      subject: "Restablece tu contraseña"
+      intro_html: "Puedes restablecer tu contraseña en %{link}."
+      intro: "Puedes restablecer tu contraseña aquí:"
+      link_text: "esta página de restablecimiento"
+      expiry: "Este enlace caducará en %{duration}."
+
+  activerecord:
+    attributes:
+      user:
+        email_address: "Email"
+        password: "Contraseña"
+        password_confirmation: "Confirmación de contraseña"
+        locale: "Idioma"
+        role: "Rol"
