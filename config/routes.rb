@@ -13,6 +13,7 @@ Rails.application.routes.draw do
       end
 
       resources :panels, only: %i[ show destroy ]
+      resources :clips, only: %i[ create show destroy ]
     end
 
     get "app", to: "dashboard#show", as: :dashboard

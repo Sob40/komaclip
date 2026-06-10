@@ -31,6 +31,11 @@ es:
     pending: "Pendiente"
     ready: "Listo"
 
+  clip_statuses:
+    archived: "Archivado"
+    draft: "Borrador"
+    ready: "Listo"
+
   time:
     formats:
       short: "%-d %b %Y"
@@ -85,6 +90,9 @@ es:
     password_reset_sent: "Te enviaremos instrucciones si existe una cuenta con ese email."
     asset_deleted: "Asset eliminado."
     asset_uploaded: "Asset subido."
+    clip_created: "Clip creado."
+    clip_deleted: "Clip eliminado."
+    clip_requires_panels: "Crea al menos una viñeta antes de crear un clip."
     panel_created: "Viñeta creada."
     panel_deleted: "Viñeta eliminada."
     project_created: "Proyecto creado."
@@ -157,6 +165,36 @@ es:
       full_page_crop: "Página completa"
       panels_empty_title: "Todavía no hay viñetas extraídas"
       panels_empty_body: "Abre una página fuente y crea la primera viñeta de página completa."
+      clips_title: "Clips"
+      clips_body: "Los clips guardan el contrato de escena Pixi inicial generado desde las viñetas ordenadas del proyecto."
+      create_clip: "Crear clip"
+      clips_table:
+        position: "Posición"
+        title: "Título"
+        duration: "Duración"
+        status: "Estado"
+      duration_seconds: "%{seconds}s"
+      clips_empty_title: "Todavía no hay clips"
+      clips_empty_body: "Crea viñetas primero y después genera el primer contrato de escena para Pixi."
+
+  clips:
+    default_title: "Clip %{position}"
+    show:
+      back: "Volver al proyecto"
+      meta: "%{duration}s · %{status}"
+      renderer: "Renderer"
+      format: "Formato"
+      fps: "FPS"
+      shots: "Shots"
+      shots_title: "Shots"
+      shots_table:
+        position: "Posición"
+        label: "Etiqueta"
+        file: "Archivo"
+        duration: "Duración"
+      duration_seconds: "%{seconds}s"
+      contract_title: "Contrato de escena"
+      delete: "Eliminar"
 
   project_assets:
     show:
@@ -218,6 +256,9 @@ es:
         crop: "Crop"
         label: "Etiqueta"
         project_asset: "Asset fuente"
+      clip:
+        scene_contract: "Contrato de escena"
+        title: "Título"
       user:
         email_address: "Email"
         password: "Contraseña"

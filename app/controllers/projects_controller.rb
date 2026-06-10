@@ -15,9 +15,10 @@ class ProjectsController < ApplicationController
 
   def show
     @project = Current.user.projects.find(params[:id])
-    @project_assets = @project.project_assets.order(created_at: :desc)
-    @panels = @project.panels.includes(:project_asset).order(:position)
-    @clips_count = @project.clips.count
+    @project_assets = @project.project_assets.order(created_at: :desc).to_a
+    @panels = @project.panels.includes(:project_asset).order(:position).to_a
+    @clips = @project.clips.order(:position).to_a
+    @clips_count = @clips.size
     @renders_count = @project.clip_renders.count
   end
 

@@ -32,6 +32,7 @@ bin/dev
 - [Product models](docs/PRODUCT_MODELS.md)
 - [Storage](docs/STORAGE.md)
 - [Panel extraction](docs/PANEL_EXTRACTION.md)
+- [Scene contract](docs/SCENE_CONTRACT.md)
 
 ## Guiding Rule
 

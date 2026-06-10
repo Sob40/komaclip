@@ -143,4 +143,46 @@
       </div>
     <% end %>
   </section>
+
+  <section class="mt-10">
+    <div class="flex items-end justify-between gap-6">
+      <div>
+        <h2 class="text-lg font-semibold text-zinc-950"><%= t(".clips_title") %></h2>
+        <p class="mt-2 max-w-2xl text-sm leading-6 text-zinc-600"><%= t(".clips_body") %></p>
+      </div>
+      <%= button_to t(".create_clip"), project_clips_path(project_id: @project), method: :post, class: "rounded-md bg-zinc-950 px-4 py-2.5 text-sm font-semibold text-white hover:bg-zinc-800" %>
+    </div>
+
+    <% if @clips.any? %>
+      <div class="mt-6 overflow-hidden rounded-md border border-zinc-200">
+        <table class="w-full text-left text-sm">
+          <thead class="bg-zinc-50 text-xs font-semibold uppercase text-zinc-500">
+            <tr>
+              <th class="px-4 py-3"><%= t(".clips_table.position") %></th>
+              <th class="px-4 py-3"><%= t(".clips_table.title") %></th>
+              <th class="px-4 py-3"><%= t(".clips_table.duration") %></th>
+              <th class="px-4 py-3"><%= t(".clips_table.status") %></th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-zinc-200">
+            <% @clips.each do |clip| %>
+              <tr class="hover:bg-zinc-50">
+                <td class="px-4 py-4 text-zinc-600"><%= clip.position %></td>
+                <td class="px-4 py-4 font-semibold text-zinc-950">
+                  <%= link_to clip.title, project_clip_path(project_id: @project, id: clip), class: "underline" %>
+                </td>
+                <td class="px-4 py-4 text-zinc-600"><%= t(".duration_seconds", seconds: clip.duration_ms / 1000) %></td>
+                <td class="px-4 py-4 text-zinc-600"><%= t("clip_statuses.#{clip.status}") %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <div class="mt-6 rounded-lg border border-dashed border-zinc-300 p-8">
+        <h3 class="text-lg font-semibold text-zinc-950"><%= t(".clips_empty_title") %></h3>
+        <p class="mt-2 max-w-2xl text-sm leading-6 text-zinc-600"><%= t(".clips_empty_body") %></p>
+      </div>
+    <% end %>
+  </section>
 </main>

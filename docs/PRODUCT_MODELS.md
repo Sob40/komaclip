@@ -24,7 +24,7 @@ entitlements or output state.
 | `Project` | Creator workspace for a comic/webtoon promo job. Owns content language and lifecycle. |
 | `ProjectAsset` | Uploaded media reference backed by Active Storage and private object storage. |
 | `Panel` | Ordered crop derived from a project asset. Starts as a full-page normalized crop. |
-| `Clip` | Ordered social clip scene plan. Stores the scene contract used by Pixi. |
+| `Clip` | Ordered social clip scene plan. Stores the backend-owned Pixi scene contract. |
 | `ClipRender` | Server-owned render request/output state for a clip. |
 
 ## Locale Separation

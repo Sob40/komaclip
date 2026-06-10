@@ -13,5 +13,30 @@ two:
   position: 1
   status: ready
   duration_ms: 8000
-  scene_contract: {}
+  scene_contract:
+    contractVersion: komaclip.scene.v1
+    renderer: pixi
+    format:
+      width: 1080
+      height: 1920
+      fps: 30
+    durationMs: 8000
+    contentLocale: es
+    visual:
+      presetId: baseline-panel-sequence
+      catalogContractVersion: p2r.visual.v2
+    shots:
+      - panelId: <%= ActiveRecord::FixtureSet.identify(:two) %>
+        assetId: <%= ActiveRecord::FixtureSet.identify(:two) %>
+        position: 1
+        label: Panel inicial
+        filename: pagina-01.png
+        crop:
+          unit: normalized
+          x: 0.0
+          y: 0.0
+          width: 1.0
+          height: 1.0
+        durationMs: 8000
+        transition: none
   metadata: {}

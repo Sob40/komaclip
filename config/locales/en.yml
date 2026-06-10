@@ -31,6 +31,11 @@ en:
     pending: "Pending"
     ready: "Ready"
 
+  clip_statuses:
+    archived: "Archived"
+    draft: "Draft"
+    ready: "Ready"
+
   time:
     formats:
       short: "%b %-d, %Y"
@@ -55,6 +60,9 @@ en:
     password_reset_sent: "Password reset instructions sent if an account exists for that email address."
     asset_deleted: "Asset deleted."
     asset_uploaded: "Asset uploaded."
+    clip_created: "Clip created."
+    clip_deleted: "Clip deleted."
+    clip_requires_panels: "Create at least one panel before creating a clip."
     panel_created: "Panel created."
     panel_deleted: "Panel deleted."
     project_created: "Project created."
@@ -127,6 +135,36 @@ en:
       full_page_crop: "Full page"
       panels_empty_title: "No panels extracted yet"
       panels_empty_body: "Open a source page asset and create the first full-page panel."
+      clips_title: "Clips"
+      clips_body: "Clips store the initial Pixi scene contract generated from the project's ordered panels."
+      create_clip: "Create clip"
+      clips_table:
+        position: "Position"
+        title: "Title"
+        duration: "Duration"
+        status: "Status"
+      duration_seconds: "%{seconds}s"
+      clips_empty_title: "No clips yet"
+      clips_empty_body: "Create panels first, then generate the first scene contract for Pixi."
+
+  clips:
+    default_title: "Clip %{position}"
+    show:
+      back: "Back to project"
+      meta: "%{duration}s · %{status}"
+      renderer: "Renderer"
+      format: "Format"
+      fps: "FPS"
+      shots: "Shots"
+      shots_title: "Shots"
+      shots_table:
+        position: "Position"
+        label: "Label"
+        file: "File"
+        duration: "Duration"
+      duration_seconds: "%{seconds}s"
+      contract_title: "Scene contract"
+      delete: "Delete"
 
   project_assets:
     show:
@@ -188,6 +226,9 @@ en:
         crop: "Crop"
         label: "Label"
         project_asset: "Source asset"
+      clip:
+        scene_contract: "Scene contract"
+        title: "Title"
       user:
         email_address: "Email"
         password: "Password"
