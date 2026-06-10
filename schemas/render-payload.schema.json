@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://panel2reels.local/schema/render-payload.schema.json",
+  "title": "Panel2Reels Render Payload",
+  "type": "object",
+  "required": ["renderer", "panels", "clip"],
+  "additionalProperties": true,
+  "properties": {
+    "renderer": {
+      "type": "object",
+      "required": ["contractVersion", "backend", "composition", "width", "height", "fps"],
+      "additionalProperties": true,
+      "properties": {
+        "contractVersion": { "const": "p2r.render.v1" },
+        "backend": { "enum": ["auto", "python-canvas", "remotion-worker", "remotion"] },
+        "fallbackBackend": { "enum": ["python-canvas", "none"] },
+        "composition": { "const": "ComicReel" },
+        "width": { "type": "integer", "minimum": 320, "maximum": 2160 },
+        "height": { "type": "integer", "minimum": 320, "maximum": 3840 },
+        "fps": { "type": "integer", "minimum": 12, "maximum": 60 }
+      }
+    },
+    "showSafeGuide": { "type": "boolean" },
+    "effectEngineVersion": { "type": "string" },
+    "panels": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["assetId", "name", "dataUrl"],
+        "additionalProperties": true,
+        "properties": {
+          "assetId": { "type": "string" },
+          "name": { "type": "string" },
+          "dataUrl": { "type": "string" },
+          "cropRect": {
+            "anyOf": [
+              { "type": "null" },
+              {
+                "type": "object",
+                "additionalProperties": true
+              }
+            ]
+          }
+        }
+      }
+    },
+    "clip": {
+      "type": "object",
+      "required": ["title", "duration", "format", "platform", "shots"],
+      "additionalProperties": true,
+      "properties": {
+        "title": { "type": "string" },
+        "hook": { "type": "string" },
+        "duration": { "type": "number", "minimum": 0.5, "maximum": 30 },
+        "format": { "type": "string" },
+        "videoFormat": { "type": "string" },
+        "style": { "type": "string" },
+        "motionStyle": { "type": "string" },
+        "platform": { "type": "string" },
+        "music": { "type": "string" },
+        "musicVolume": { "type": "number", "minimum": 0, "maximum": 120 },
+        "effectIntensity": { "type": "string" },
+        "motionProfileVersion": { "type": "string" },
+        "shots": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["panelIndex", "start", "end"],
+            "additionalProperties": true,
+            "properties": {
+              "panelIndex": { "type": "integer", "minimum": 0 },
+              "start": { "type": "number", "minimum": 0 },
+              "end": { "type": "number", "exclusiveMinimum": 0 },
+              "overlay": { "type": "string" },
+              "phase": { "type": "string" },
+              "transition": { "type": "string" },
+              "zoomStart": { "type": "number" },
+              "zoomEnd": { "type": "number" },
+              "panX": { "type": "number" },
+              "panY": { "type": "number" },
+              "motionStyle": { "type": "string" },
+              "pace": { "type": "string" },
+              "effectIntensity": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

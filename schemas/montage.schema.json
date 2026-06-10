@@ -1,0 +1,140 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://panel2reels.local/schema/montage.schema.json",
+  "title": "Panel2Reels Montage Plan",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "campaign", "assets", "clips"],
+  "properties": {
+    "version": { "type": "string", "const": "1.0" },
+    "campaign": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["goal", "pack", "platform", "genre", "title", "promise"],
+      "properties": {
+        "goal": { "type": "string" },
+        "pack": { "type": "string" },
+        "platform": { "type": "string" },
+        "genre": { "type": "string" },
+        "title": { "type": "string" },
+        "promise": { "type": "string" }
+      }
+    },
+    "assets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "type", "name", "order", "width", "height"],
+        "properties": {
+          "id": { "type": "string" },
+          "type": { "enum": ["image", "video"] },
+          "name": { "type": "string" },
+          "order": { "type": "integer", "minimum": 0 },
+          "width": { "type": "integer", "minimum": 1 },
+          "height": { "type": "integer", "minimum": 1 },
+          "duration": { "type": "number", "minimum": 0 },
+          "analysis": {
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "orientation": { "type": "string" },
+              "visualEnergy": { "type": "string" },
+              "bestUse": {
+                "type": "array",
+                "items": { "type": "string" }
+              }
+            }
+          },
+          "keyframes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["id", "time"],
+              "properties": {
+                "id": { "type": "string" },
+                "time": { "type": "number", "minimum": 0 }
+              }
+            }
+          }
+        }
+      }
+    },
+    "clips": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "title", "publishDay", "intent", "format", "duration", "platform", "music", "shots", "caption", "hashtags"],
+        "properties": {
+          "id": { "type": "string" },
+          "title": { "type": "string" },
+          "publishDay": { "type": "string" },
+          "intent": { "type": "string" },
+          "format": { "type": "string" },
+          "duration": { "type": "number", "minimum": 3, "maximum": 60 },
+          "platform": { "type": "string" },
+          "music": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["trackId", "startAt"],
+            "properties": {
+              "trackId": { "type": "string" },
+              "startAt": { "type": "number", "minimum": 0 },
+              "syncPoints": {
+                "type": "array",
+                "items": { "type": "number", "minimum": 0 }
+              }
+            }
+          },
+          "shots": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["assetId", "start", "end", "effect", "overlay"],
+              "properties": {
+                "assetId": { "type": "string" },
+                "start": { "type": "number", "minimum": 0 },
+                "end": { "type": "number", "exclusiveMinimum": 0 },
+                "effect": { "type": "string" },
+                "startInAsset": { "type": "number", "minimum": 0 },
+                "endInAsset": { "type": "number", "minimum": 0 },
+                "motion": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "zoomStart": { "type": "number" },
+                    "zoomEnd": { "type": "number" },
+                    "panX": { "type": "number" },
+                    "panY": { "type": "number" }
+                  }
+                },
+                "overlay": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["text", "style", "position", "size"],
+                  "properties": {
+                    "text": { "type": "string" },
+                    "style": { "type": "string" },
+                    "position": { "type": "string" },
+                    "size": { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
+          "caption": { "type": "string" },
+          "voice": { "type": "string" },
+          "hashtags": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      }
+    }
+  }
+}

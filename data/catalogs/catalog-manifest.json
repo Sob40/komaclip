@@ -1,0 +1,18 @@
+{
+  "version": "2026-06-11-01",
+  "catalogs": [
+    {
+      "id": "visual-catalog-v2-imported",
+      "path": "data/catalogs/visual-catalog-v2.json",
+      "source": "panel2reels-mvp",
+      "sourceContractVersion": "p2r.visual.v2",
+      "renderer": "pixi",
+      "defaultLocale": "en",
+      "supportedLocales": ["en", "es"],
+      "localizationStatus": "pending",
+      "productionExposure": "internal",
+      "publicSelectable": false,
+      "notes": "Imported as the strategic base catalog. Entries must pass KomaClip QA and localization before public exposure."
+    }
+  ]
+}

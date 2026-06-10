@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://panel2reels.local/schema/visual-preset.schema.json",
+  "title": "Panel2Reels Pixi Visual Catalog",
+  "type": "object",
+  "required": ["version", "contractVersion", "presets"],
+  "additionalProperties": true,
+  "properties": {
+    "version": { "type": "string" },
+  "contractVersion": { "const": "p2r.visual.v2" },
+    "description": { "type": "string" },
+    "summary": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "presets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "type",
+          "tags",
+          "englishDescription",
+          "renderer",
+          "implementationStatus",
+          "parameters",
+          "previewScene"
+        ],
+        "additionalProperties": true,
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "name": { "type": "string", "minLength": 1 },
+          "type": { "enum": ["text", "effect", "transition", "cameraMotion"] },
+          "tags": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "englishDescription": { "type": "string" },
+          "renderer": { "const": "pixi" },
+          "implementationStatus": { "enum": ["available", "pending", "hidden"] },
+          "implementationLevel": { "type": "string" },
+          "qualityStatus": { "enum": ["productionReady", "showcaseReady", "needsPolish", "pending", "proVfxReady"] },
+          "isProductionReady": { "type": "boolean" },
+          "showInLab": { "type": "boolean" },
+          "showInProductionPicker": { "type": "boolean" },
+          "qualityNotes": { "type": "string" },
+          "pixiEntrypoint": { "enum": ["drawTextStyle", "drawActiveEffect", "drawTransition"] },
+          "pixiFamily": { "type": "string" },
+          "implementationNotes": { "type": "string" },
+          "parameters": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "previewScene": {
+            "type": "object",
+            "required": ["duration", "panel"],
+            "additionalProperties": true,
+            "properties": {
+              "duration": { "type": "number", "exclusiveMinimum": 0 },
+              "panel": {
+                "type": "object",
+                "required": ["src"],
+                "additionalProperties": true,
+                "properties": {
+                  "src": { "type": "string" }
+                }
+              },
+              "nextPanel": {
+                "type": "object",
+                "additionalProperties": true,
+                "properties": {
+                  "src": { "type": "string" }
+                }
+              },
+              "sampleText": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "textAnimations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "category", "tags", "englishDescription", "aiSelectorDescription"],
+        "additionalProperties": true,
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "name": { "type": "string", "minLength": 1 },
+          "category": { "const": "text-animation" },
+          "tags": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "englishDescription": { "type": "string" },
+          "aiSelectorDescription": { "type": "string" }
+        }
+      }
+    }
+  }
+}
