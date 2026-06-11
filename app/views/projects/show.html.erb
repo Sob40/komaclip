@@ -78,7 +78,7 @@
 
           <div class="kc-material-continue-row">
             <div class="kc-material-ready-status"><%= t(".material_ready_status", ready: @panels.size, total: @panels.size) %></div>
-            <%= link_to t(".continue_direction"), "#direction", class: "kc-button-primary kc-material-ready-button" %>
+            <%= button_to t(".continue_direction"), confirm_material_project_path(id: @project), method: :post, class: "kc-button-primary kc-material-ready-button" %>
           </div>
         </section>
       <% end %>

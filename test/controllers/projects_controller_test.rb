@@ -104,6 +104,48 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-flow-step=preview]", count: 0
   end
 
+  test "show keeps direction hidden until uploaded material is confirmed" do
+    project = users(:one).projects.create!(title: "Review first", content_locale: "en")
+    asset = project.project_assets.create!(user: users(:one), kind: "source_page", file: sample_image_upload)
+    project.panels.create!(project_asset: asset, position: 1, label: "Scene 1")
+    sign_in_as(users(:one))
+
+    get project_path(id: project)
+
+    assert_response :success
+    assert_select ".kc-material-review"
+    assert_select "[data-flow-step=direction]", count: 0
+    assert_select "[data-flow-step=preview]", count: 0
+  end
+
+  test "confirm material folds material and opens direction" do
+    project = users(:one).projects.create!(title: "Confirmable", content_locale: "en")
+    asset = project.project_assets.create!(user: users(:one), kind: "source_page", file: sample_image_upload)
+    project.panels.create!(project_asset: asset, position: 1, label: "Scene 1")
+    sign_in_as(users(:one))
+
+    post confirm_material_project_path(id: project)
+
+    assert_redirected_to project_path(id: project, anchor: "direction")
+    assert_equal true, project.reload.metadata.fetch("materialReady")
+
+    follow_redirect!
+    assert_select ".kc-project-flow.is-material-ready"
+    assert_select "[data-flow-step=direction]"
+    assert_select "[data-flow-step=preview]", count: 0
+  end
+
+  test "confirm material requires at least one scene" do
+    project = users(:one).projects.create!(title: "No scenes", content_locale: "en")
+    sign_in_as(users(:one))
+
+    post confirm_material_project_path(id: project)
+
+    assert_redirected_to project_path(id: project)
+    follow_redirect!
+    assert_select "div", /Upload at least one scene/
+  end
+
   test "show rejects another user's project" do
     sign_in_as(users(:one))
 
@@ -111,4 +153,10 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :not_found
   end
+
+  private
+
+    def sample_image_upload
+      Rack::Test::UploadedFile.new(Rails.root.join("test/fixtures/files/sample-page.png"), "image/png")
+    end
 end

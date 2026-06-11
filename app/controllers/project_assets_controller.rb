@@ -21,6 +21,7 @@ class ProjectAssetsController < ApplicationController
           crop: Panel::FULL_CROP
         )
       end
+      mark_material_dirty!
     end
 
     redirect_to project_path(id: @project), notice: t("flash.assets_uploaded", count: uploads.size)
@@ -39,6 +40,7 @@ class ProjectAssetsController < ApplicationController
 
   def destroy
     @asset.destroy
+    mark_material_dirty!
     redirect_to project_path(id: @project), notice: t("flash.asset_deleted"), status: :see_other
   end
 
@@ -68,5 +70,9 @@ class ProjectAssetsController < ApplicationController
     def next_panel_position
       @next_panel_position ||= @project.panels.maximum(:position).to_i
       @next_panel_position += 1
+    end
+
+    def mark_material_dirty!
+      @project.update!(metadata: @project.metadata.to_h.merge("materialReady" => false))
     end
 end

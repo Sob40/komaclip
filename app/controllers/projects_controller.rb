@@ -20,9 +20,21 @@ class ProjectsController < ApplicationController
     @clips = @project.clips.order(:position).to_a
     @clips_count = @clips.size
     @renders_count = @project.clip_renders.count
-    @material_ready = @panels.any?
-    @proposal_ready = @clips.any?
+    @material_uploaded = @panels.any?
+    @material_ready = @material_uploaded && material_confirmed?
+    @proposal_ready = @material_ready && @clips.any?
     @latest_clip = @clips.last
+  end
+
+  def confirm_material
+    @project = Current.user.projects.find(params[:id])
+
+    if @project.panels.exists?
+      @project.update!(metadata: @project.metadata.to_h.merge("materialReady" => true))
+      redirect_to project_path(id: @project, anchor: "direction"), notice: t("flash.material_confirmed")
+    else
+      redirect_to project_path(id: @project), alert: t("flash.material_requires_scenes")
+    end
   end
 
   private
@@ -38,5 +50,9 @@ class ProjectsController < ApplicationController
         title: t("projects.default_title", number: Current.user.projects.count + 1),
         content_locale: Current.user.locale
       }
+    end
+
+    def material_confirmed?
+      @project.metadata.to_h["materialReady"] == true || @clips.any?
     end
 end

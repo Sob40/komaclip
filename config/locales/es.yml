@@ -119,6 +119,8 @@ es:
     clip_created: "Clip creado."
     clip_deleted: "Clip eliminado."
     clip_requires_panels: "Crea al menos una viñeta antes de crear un clip."
+    material_confirmed: "Material confirmado."
+    material_requires_scenes: "Sube al menos una escena antes de continuar."
     panel_already_exists: "Esa viñeta de página completa ya existe."
     panel_created: "Viñeta creada."
     panel_deleted: "Viñeta eliminada."

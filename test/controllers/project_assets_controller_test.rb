@@ -10,6 +10,7 @@ class ProjectAssetsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "create attaches image asset to owned project" do
+    projects(:one).update!(metadata: { "materialReady" => true })
     sign_in_as(users(:one))
 
     assert_difference -> { projects(:one).project_assets.count }, 1 do
@@ -29,6 +30,7 @@ class ProjectAssetsControllerTest < ActionDispatch::IntegrationTest
     assert asset.file.attached?
     assert_equal asset, panel.project_asset
     assert_equal "Scene 2", panel.label
+    assert_equal false, projects(:one).reload.metadata.fetch("materialReady")
     assert_redirected_to project_path(id: projects(:one))
   end
 
@@ -146,6 +148,7 @@ class ProjectAssetsControllerTest < ActionDispatch::IntegrationTest
   test "destroy removes owned asset" do
     asset = create_asset_for(users(:one), projects(:one))
     panel = projects(:one).panels.create!(project_asset: asset, position: 2, label: "Disposable scene")
+    projects(:one).update!(metadata: { "materialReady" => true })
     sign_in_as(users(:one))
 
     assert_difference -> { projects(:one).project_assets.count }, -1 do
@@ -155,6 +158,7 @@ class ProjectAssetsControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_not Panel.exists?(panel.id)
+    assert_equal false, projects(:one).reload.metadata.fetch("materialReady")
     assert_redirected_to project_path(id: projects(:one))
   end
 

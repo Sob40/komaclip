@@ -85,6 +85,8 @@ en:
     clip_created: "Clip created."
     clip_deleted: "Clip deleted."
     clip_requires_panels: "Create at least one panel before creating a clip."
+    material_confirmed: "Material confirmed."
+    material_requires_scenes: "Upload at least one scene before continuing."
     panel_already_exists: "That full-page panel already exists."
     panel_created: "Panel created."
     panel_deleted: "Panel deleted."

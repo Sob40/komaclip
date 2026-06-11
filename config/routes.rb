@@ -7,6 +7,8 @@ Rails.application.routes.draw do
       post :use, on: :member
     end
     resources :projects, only: %i[ new create show ] do
+      post :confirm_material, on: :member
+
       resources :assets, controller: "project_assets", only: %i[ create show destroy ] do
         resources :panels, only: :create
 
