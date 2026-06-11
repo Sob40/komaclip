@@ -43,6 +43,22 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to project_path(id: project)
   end
 
+  test "create without form params starts a named draft for current user" do
+    user = users(:one)
+    user.update!(locale: "es")
+    sign_in_as(user)
+
+    assert_difference -> { user.projects.count }, 1 do
+      post projects_path
+    end
+
+    project = user.projects.order(:created_at).last
+    assert_match(/\AClip sin título \d+\z/, project.title)
+    assert_equal "es", project.content_locale
+    assert_equal "draft", project.status
+    assert_redirected_to project_path(id: project)
+  end
+
   test "create keeps spanish route locale" do
     sign_in_as(users(:one))
 

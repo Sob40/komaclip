@@ -87,9 +87,9 @@ en:
       eyebrow: "Production workspace"
       title: "Workspace"
       body: "Keep source material, Pixi previews, and render-ready scene contracts moving through one controlled pipeline."
-      new_project: "New project"
-      projects_title: "Projects"
-      projects_body: "Create and manage the comic or webtoon promos you are preparing."
+      new_project: "Create video"
+      projects_title: "Recent work"
+      projects_body: "Continue a comic or webtoon promo you already started."
       project_count:
         one: "1 project"
         other: "%{count} projects"
@@ -100,9 +100,10 @@ en:
         updated: "Updated"
       empty_title: "Start your first promo project"
       empty_body: "A project keeps assets, panels, clips, Pixi scene contracts, and renders together under your account."
-      empty_action: "Create project"
+      empty_action: "Create video"
 
   projects:
+    default_title: "Untitled clip %{number}"
     form:
       title_label: "Project title"
       title_placeholder: "Volume 1 launch reel"

@@ -48,7 +48,7 @@
               <% end %>
             </div>
             <%= button_to t("navigation.sign_out"), session_path, method: :delete, class: "kc-nav-ghost" %>
-            <%= link_to t("navigation.create_video"), new_project_path, class: "kc-nav-cta" %>
+            <%= button_to t("navigation.create_video"), projects_path, method: :post, class: "kc-nav-cta" %>
           </div>
         </nav>
 

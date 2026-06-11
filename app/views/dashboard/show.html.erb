@@ -6,14 +6,14 @@
       <p class="kc-subtitle"><%= t(".body") %></p>
     </div>
 
-    <%= link_to t(".new_project"), new_project_path, class: "kc-button-primary" %>
+    <%= button_to t(".new_project"), projects_path, method: :post, class: "kc-button-primary" %>
   </header>
 
   <% if flash[:notice] %>
     <div class="kc-flash kc-flash-notice"><%= flash[:notice] %></div>
   <% end %>
 
-  <section id="material" class="kc-panel kc-panel-pad">
+  <section id="material" class="kc-panel kc-panel-pad kc-project-list">
     <div class="kc-page-header">
       <div>
         <h2 class="kc-section-title"><%= t(".projects_title") %></h2>
@@ -50,7 +50,7 @@
         <div>
           <h3 class="kc-section-title"><%= t(".empty_title") %></h3>
           <p class="kc-subtitle"><%= t(".empty_body") %></p>
-          <%= link_to t(".empty_action"), new_project_path, class: "kc-button-primary mt-5" %>
+          <%= button_to t(".empty_action"), projects_path, method: :post, class: "kc-button-primary mt-5" %>
         </div>
       </div>
     <% end %>

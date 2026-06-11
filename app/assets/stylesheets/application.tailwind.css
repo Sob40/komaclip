@@ -163,6 +163,10 @@
     margin: 0;
   }
 
+  .kc-main form.button_to {
+    margin: 0;
+  }
+
   .kc-locale-tabs {
     align-items: center;
     background: rgba(255, 255, 255, 0.05);
@@ -186,7 +190,9 @@
     border-radius: 8px;
     box-shadow: 0 14px 34px rgba(255, 61, 127, 0.26), inset 0 0 0 1px rgba(255, 255, 255, 0.12);
     color: white;
+    cursor: pointer;
     display: inline-flex;
+    font-family: inherit;
     font-size: 12px;
     font-weight: 900;
     justify-content: center;
@@ -398,6 +404,10 @@
 
   .kc-table a:hover {
     color: var(--kc-accent-hot);
+  }
+
+  .kc-project-list .kc-table {
+    min-width: 0;
   }
 
   .kc-empty {
@@ -755,6 +765,13 @@
     .kc-table th,
     .kc-table td {
       padding: 12px 10px;
+    }
+
+    .kc-project-list .kc-table th:nth-child(3),
+    .kc-project-list .kc-table th:nth-child(4),
+    .kc-project-list .kc-table td:nth-child(3),
+    .kc-project-list .kc-table td:nth-child(4) {
+      display: none;
     }
   }
 }

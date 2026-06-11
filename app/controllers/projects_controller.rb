@@ -4,7 +4,7 @@ class ProjectsController < ApplicationController
   end
 
   def create
-    @project = Current.user.projects.new(project_params)
+    @project = Current.user.projects.new(create_project_params)
 
     if @project.save
       redirect_to project_path(id: @project), notice: t("flash.project_created")
@@ -26,5 +26,14 @@ class ProjectsController < ApplicationController
 
     def project_params
       params.require(:project).permit(:title, :content_locale)
+    end
+
+    def create_project_params
+      return project_params if params[:project].present?
+
+      {
+        title: t("projects.default_title", number: Current.user.projects.count + 1),
+        content_locale: Current.user.locale
+      }
     end
 end
