@@ -30,6 +30,7 @@ class ClipsController < ApplicationController
   end
 
   def show
+    @direction = ProjectDirection.normalize(@clip.metadata.to_h.fetch("direction", ProjectDirection.for(@project)))
     @preview_payload = preview_payload
   end
 

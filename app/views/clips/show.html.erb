@@ -21,18 +21,16 @@
     <div class="kc-grid">
       <section class="kc-stat-grid">
         <div class="kc-stat-card">
-          <p class="kc-stat-label"><%= t(".renderer") %></p>
-          <p class="kc-stat-value"><%= @clip.scene_contract.fetch("renderer") %></p>
+          <p class="kc-stat-label"><%= t(".cut_type") %></p>
+          <p class="kc-stat-value"><%= t(".cut_type_value") %></p>
         </div>
         <div class="kc-stat-card">
           <p class="kc-stat-label"><%= t(".format") %></p>
-          <p class="kc-stat-value">
-            <%= "#{@clip.scene_contract.dig("format", "width")}x#{@clip.scene_contract.dig("format", "height")}" %>
-          </p>
+          <p class="kc-stat-value"><%= t(".vertical_format_value") %></p>
         </div>
         <div class="kc-stat-card">
-          <p class="kc-stat-label"><%= t(".fps") %></p>
-          <p class="kc-stat-value"><%= @clip.scene_contract.dig("format", "fps") %></p>
+          <p class="kc-stat-label"><%= t(".panels") %></p>
+          <p class="kc-stat-value"><%= @clip.scene_contract.fetch("shots").size %></p>
         </div>
       </section>
 
@@ -42,7 +40,7 @@
             <h2 class="kc-section-title"><%= t(".shots_title") %></h2>
             <p class="kc-subtitle"><%= t(".preview_body") %></p>
           </div>
-          <span class="kc-pill"><%= @clip.scene_contract.fetch("shots").size %> <%= t(".shots") %></span>
+          <span class="kc-pill"><%= @clip.scene_contract.fetch("shots").size %> <%= t(".panels") %></span>
         </div>
 
         <div class="kc-shot-list">
@@ -61,26 +59,24 @@
       </section>
 
       <section class="kc-panel kc-panel-pad">
-        <h2 class="kc-section-title"><%= t(".preview_contract_title") %></h2>
+        <h2 class="kc-section-title"><%= t(".preview_details_title") %></h2>
         <div class="kc-stat-grid mt-5">
           <div class="kc-stat-card">
-            <p class="kc-stat-label"><%= t(".contract_version") %></p>
-            <p class="kc-muted mt-2 break-words"><%= @clip.scene_contract.fetch("contractVersion") %></p>
+            <p class="kc-stat-label"><%= t("projects.show.direction_cards.goal_label") %></p>
+            <p class="kc-stat-value"><%= t("projects.show.direction_cards.goals.#{@direction.fetch("goal")}.title") %></p>
+            <p class="kc-muted mt-2"><%= t("projects.show.direction_cards.goals.#{@direction.fetch("goal")}.body") %></p>
           </div>
           <div class="kc-stat-card">
-            <p class="kc-stat-label"><%= t(".visual_preset") %></p>
-            <p class="kc-muted mt-2 break-words"><%= @clip.scene_contract.dig("visual", "presetId") %></p>
+            <p class="kc-stat-label"><%= t("projects.show.direction_cards.style_label") %></p>
+            <p class="kc-stat-value"><%= t("projects.show.direction_cards.styles.#{@direction.fetch("style")}.title") %></p>
+            <p class="kc-muted mt-2"><%= t("projects.show.direction_cards.styles.#{@direction.fetch("style")}.body") %></p>
           </div>
           <div class="kc-stat-card">
-            <p class="kc-stat-label"><%= t(".content_language") %></p>
-            <p class="kc-muted mt-2"><%= t("content_locales.#{@clip.scene_contract.fetch("contentLocale")}") %></p>
+            <p class="kc-stat-label"><%= t("projects.show.direction_cards.format_label") %></p>
+            <p class="kc-stat-value"><%= t("projects.show.direction_cards.formats.#{@direction.fetch("format")}.title") %></p>
+            <p class="kc-muted mt-2"><%= t("projects.show.direction_cards.formats.#{@direction.fetch("format")}.body") %></p>
           </div>
         </div>
-      </section>
-
-      <section id="export" class="kc-panel kc-panel-pad">
-        <h2 class="kc-section-title"><%= t(".contract_title") %></h2>
-        <pre class="kc-code mt-4 text-xs leading-6"><%= JSON.pretty_generate(@clip.scene_contract) %></pre>
         <div class="mt-6">
           <%= button_to t(".delete"), project_clip_path(project_id: @project, id: @clip), method: :delete, class: "kc-danger-button" %>
         </div>
@@ -92,7 +88,7 @@
         <div class="kc-shot-head">
           <div>
             <h2 class="kc-section-title"><%= t(".preview_title") %></h2>
-            <p class="kc-muted mt-1"><%= t(".format") %> 9:16</p>
+            <p class="kc-muted mt-1"><%= t(".vertical_preview_note") %></p>
           </div>
           <span data-clip-preview-target="status" class="kc-pill">-</span>
         </div>

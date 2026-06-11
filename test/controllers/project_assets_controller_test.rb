@@ -47,7 +47,7 @@ class ProjectAssetsControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to project_path(id: projects(:one))
     follow_redirect!
-    assert_select "div", /2 assets uploaded/
+    assert_select "div", /2 files uploaded/
   end
 
   test "create rejects multi upload batch when one file is invalid" do

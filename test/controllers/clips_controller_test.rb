@@ -31,7 +31,7 @@ class ClipsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "ready", clip.status
     assert_equal 8000, clip.duration_ms
     assert_equal "pixi", clip.scene_contract.fetch("renderer")
-    assert_equal({ "goal" => "readers", "style" => "chapter_clean", "format" => "reels_9_16" }, clip.metadata.fetch("direction"))
+    assert_equal({ "goal" => "readers", "style" => "chapter_clean", "format" => "vertical_social" }, clip.metadata.fetch("direction"))
     assert_equal clip.metadata.fetch("direction"), clip.scene_contract.fetch("direction")
     assert_equal [ panels(:one).id ], clip.scene_contract.fetch("shots").map { |shot| shot.fetch("panelId") }
     assert_redirected_to project_clip_path(project_id: projects(:one), id: clip)
@@ -83,7 +83,8 @@ class ClipsControllerTest < ActionDispatch::IntegrationTest
     assert_select "script[src*='clip_preview']"
     assert_select "[data-controller='clip-preview']"
     assert_select "script[type='application/json']", /komaclip.scene.v1/
-    assert_select "pre", /komaclip.scene.v1/
+    assert_select "pre", false
+    assert_select "h2", /Teaser plan/
   end
 
   test "show signs asset urls only in preview payload" do

@@ -53,7 +53,7 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
     end
 
     project = user.projects.order(:created_at).last
-    assert_match(/\AClip sin título \d+\z/, project.title)
+    assert_match(/\AProyecto sin título \d+\z/, project.title)
     assert_equal "es", project.content_locale
     assert_equal "draft", project.status
     assert_redirected_to project_path(id: project)
@@ -89,9 +89,9 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".kc-material-review"
     assert_select ".kc-scene-card", minimum: 1
     assert_select "[data-flow-step=direction]"
-    assert_select ".kc-direction-card", text: /Get readers/
+    assert_select ".kc-direction-card", text: /Reader hook/
     assert_select ".kc-direction-card", text: /Clean chapter/
-    assert_select ".kc-direction-card", text: /Reels 9:16/
+    assert_select ".kc-direction-card", text: /Vertical social/
     assert_select "[data-flow-step=preview]"
   end
 

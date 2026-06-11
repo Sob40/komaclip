@@ -10,7 +10,7 @@ module SceneContracts
       assert_equal({ "width" => 1080, "height" => 1920, "fps" => 30 }, contract.fetch("format"))
       assert_equal 8000, contract.fetch("durationMs")
       assert_equal projects(:one).content_locale, contract.fetch("contentLocale")
-      assert_equal({ "goal" => "readers", "style" => "chapter_clean", "format" => "reels_9_16" }, contract.fetch("direction"))
+      assert_equal({ "goal" => "readers", "style" => "chapter_clean", "format" => "vertical_social" }, contract.fetch("direction"))
       assert_equal "p2r.visual.v2", contract.fetch("visual").fetch("catalogContractVersion")
       assert_equal 1, contract.fetch("shots").size
 
