@@ -1,116 +1,117 @@
 <%= javascript_include_tag "clip_preview", "data-turbo-track": "reload", type: "module" %>
 
-<main class="mx-auto max-w-5xl px-6 py-10">
-  <header class="flex items-start justify-between gap-6">
+<main class="kc-main" data-controller="clip-preview">
+  <script type="application/json" data-clip-preview-target="payload"><%= raw json_escape(JSON.generate(@preview_payload)) %></script>
+
+  <header class="kc-page-header">
     <div>
-      <%= link_to t(".back"), project_path(id: @project), class: "text-sm font-semibold text-zinc-600 underline" %>
-      <h1 class="mt-3 text-3xl font-bold tracking-tight text-zinc-950"><%= @clip.title %></h1>
-      <p class="mt-2 text-sm leading-6 text-zinc-600">
+      <%= link_to t(".back"), project_path(id: @project), class: "kc-button-ghost" %>
+      <h1 class="kc-title"><%= @clip.title %></h1>
+      <p class="kc-subtitle">
         <%= t(".meta", duration: @clip.duration_ms / 1000, status: t("clip_statuses.#{@clip.status}")) %>
       </p>
     </div>
-    <%= button_to t("navigation.sign_out"), session_path, method: :delete, class: "rounded-md border border-zinc-300 px-4 py-2 text-sm font-semibold text-zinc-900 hover:bg-zinc-50" %>
   </header>
 
   <% if flash[:notice] %>
-    <div class="mt-8 rounded-md bg-green-50 p-3 text-sm text-green-700"><%= flash[:notice] %></div>
+    <div class="kc-flash kc-flash-notice"><%= flash[:notice] %></div>
   <% end %>
 
-  <section class="mt-10 grid gap-4 sm:grid-cols-4">
-    <div class="rounded-md border border-zinc-200 p-4">
-      <p class="text-sm font-semibold text-zinc-500"><%= t(".renderer") %></p>
-      <p class="mt-2 text-lg font-bold text-zinc-950"><%= @clip.scene_contract.fetch("renderer") %></p>
-    </div>
-    <div class="rounded-md border border-zinc-200 p-4">
-      <p class="text-sm font-semibold text-zinc-500"><%= t(".format") %></p>
-      <p class="mt-2 text-lg font-bold text-zinc-950">
-        <%= "#{@clip.scene_contract.dig("format", "width")}x#{@clip.scene_contract.dig("format", "height")}" %>
-      </p>
-    </div>
-    <div class="rounded-md border border-zinc-200 p-4">
-      <p class="text-sm font-semibold text-zinc-500"><%= t(".fps") %></p>
-      <p class="mt-2 text-lg font-bold text-zinc-950"><%= @clip.scene_contract.dig("format", "fps") %></p>
-    </div>
-    <div class="rounded-md border border-zinc-200 p-4">
-      <p class="text-sm font-semibold text-zinc-500"><%= t(".shots") %></p>
-      <p class="mt-2 text-lg font-bold text-zinc-950"><%= @clip.scene_contract.fetch("shots").size %></p>
-    </div>
-  </section>
-
-  <section class="mt-10 grid min-w-0 gap-8 lg:grid-cols-[minmax(0,1fr)_18rem]">
-    <div data-controller="clip-preview" class="min-w-0 rounded-md border border-zinc-200 p-5">
-      <script type="application/json" data-clip-preview-target="payload"><%= raw json_escape(JSON.generate(@preview_payload)) %></script>
-
-      <div class="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h2 class="text-lg font-semibold text-zinc-950"><%= t(".preview_title") %></h2>
-          <p class="mt-2 max-w-2xl text-sm leading-6 text-zinc-600"><%= t(".preview_body") %></p>
+  <section class="kc-studio-grid">
+    <div class="kc-grid">
+      <section class="kc-stat-grid">
+        <div class="kc-stat-card">
+          <p class="kc-stat-label"><%= t(".renderer") %></p>
+          <p class="kc-stat-value"><%= @clip.scene_contract.fetch("renderer") %></p>
         </div>
-        <p data-clip-preview-target="status" class="rounded-md bg-zinc-100 px-3 py-1.5 text-sm font-semibold text-zinc-700">-</p>
-      </div>
-
-      <div data-clip-preview-target="stage" class="mt-6 aspect-[9/16] w-full max-w-full overflow-hidden rounded-md bg-zinc-950"></div>
-
-      <div class="mt-5 flex flex-wrap items-center gap-3">
-        <button type="button" data-action="clip-preview#previousShot" class="rounded-md border border-zinc-300 px-4 py-2 text-sm font-semibold text-zinc-900 hover:bg-zinc-50">
-          <%= t(".previous_shot") %>
-        </button>
-        <button type="button" data-action="clip-preview#nextShot" class="rounded-md bg-zinc-950 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-800">
-          <%= t(".next_shot") %>
-        </button>
-      </div>
-    </div>
-
-    <aside class="min-w-0 rounded-md border border-zinc-200 p-5">
-      <h2 class="text-lg font-semibold text-zinc-950"><%= t(".preview_contract_title") %></h2>
-      <dl class="mt-5 space-y-4 text-sm">
-        <div>
-          <dt class="font-semibold text-zinc-500"><%= t(".contract_version") %></dt>
-          <dd class="mt-1 break-words text-zinc-950"><%= @clip.scene_contract.fetch("contractVersion") %></dd>
+        <div class="kc-stat-card">
+          <p class="kc-stat-label"><%= t(".format") %></p>
+          <p class="kc-stat-value">
+            <%= "#{@clip.scene_contract.dig("format", "width")}x#{@clip.scene_contract.dig("format", "height")}" %>
+          </p>
         </div>
-        <div>
-          <dt class="font-semibold text-zinc-500"><%= t(".visual_preset") %></dt>
-          <dd class="mt-1 break-words text-zinc-950"><%= @clip.scene_contract.dig("visual", "presetId") %></dd>
+        <div class="kc-stat-card">
+          <p class="kc-stat-label"><%= t(".fps") %></p>
+          <p class="kc-stat-value"><%= @clip.scene_contract.dig("format", "fps") %></p>
         </div>
-        <div>
-          <dt class="font-semibold text-zinc-500"><%= t(".content_language") %></dt>
-          <dd class="mt-1 text-zinc-950"><%= t("content_locales.#{@clip.scene_contract.fetch("contentLocale")}") %></dd>
-        </div>
-      </dl>
-    </aside>
-  </section>
+      </section>
 
-  <section class="mt-10">
-    <h2 class="text-lg font-semibold text-zinc-950"><%= t(".shots_title") %></h2>
-    <div class="mt-6 overflow-hidden rounded-md border border-zinc-200">
-      <table class="w-full text-left text-sm">
-        <thead class="bg-zinc-50 text-xs font-semibold uppercase text-zinc-500">
-          <tr>
-            <th class="px-4 py-3"><%= t(".shots_table.position") %></th>
-            <th class="px-4 py-3"><%= t(".shots_table.label") %></th>
-            <th class="px-4 py-3"><%= t(".shots_table.file") %></th>
-            <th class="px-4 py-3"><%= t(".shots_table.duration") %></th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-zinc-200">
+      <section class="kc-panel kc-panel-pad">
+        <div class="kc-page-header">
+          <div>
+            <h2 class="kc-section-title"><%= t(".shots_title") %></h2>
+            <p class="kc-subtitle"><%= t(".preview_body") %></p>
+          </div>
+          <span class="kc-pill"><%= @clip.scene_contract.fetch("shots").size %> <%= t(".shots") %></span>
+        </div>
+
+        <div class="kc-shot-list">
           <% @clip.scene_contract.fetch("shots").each do |shot| %>
-            <tr>
-              <td class="px-4 py-4 text-zinc-600"><%= shot.fetch("position") %></td>
-              <td class="px-4 py-4 font-semibold text-zinc-950"><%= shot.fetch("label") %></td>
-              <td class="px-4 py-4 text-zinc-600"><%= shot.fetch("filename") %></td>
-              <td class="px-4 py-4 text-zinc-600"><%= t(".duration_seconds", seconds: shot.fetch("durationMs") / 1000) %></td>
-            </tr>
+            <article class="kc-shot">
+              <div class="kc-shot-head">
+                <h3 class="kc-section-title"><%= shot.fetch("label") %></h3>
+                <span class="kc-pill kc-pill-warm"><%= t(".duration_seconds", seconds: shot.fetch("durationMs") / 1000) %></span>
+              </div>
+              <p class="kc-muted mt-2">
+                <%= t(".shots_table.position") %> <%= shot.fetch("position") %> · <%= shot.fetch("filename") %>
+              </p>
+            </article>
           <% end %>
-        </tbody>
-      </table>
-    </div>
-  </section>
+        </div>
+      </section>
 
-  <section class="mt-10 rounded-md border border-zinc-200 p-5">
-    <h2 class="text-lg font-semibold text-zinc-950"><%= t(".contract_title") %></h2>
-    <pre class="mt-4 overflow-auto rounded-md bg-zinc-950 p-4 text-xs leading-6 text-white"><%= JSON.pretty_generate(@clip.scene_contract) %></pre>
-    <div class="mt-6">
-      <%= button_to t(".delete"), project_clip_path(project_id: @project, id: @clip), method: :delete, class: "rounded-md border border-red-700 px-4 py-2.5 text-sm font-semibold text-red-700 hover:bg-red-50" %>
+      <section class="kc-panel kc-panel-pad">
+        <h2 class="kc-section-title"><%= t(".preview_contract_title") %></h2>
+        <div class="kc-stat-grid mt-5">
+          <div class="kc-stat-card">
+            <p class="kc-stat-label"><%= t(".contract_version") %></p>
+            <p class="kc-muted mt-2 break-words"><%= @clip.scene_contract.fetch("contractVersion") %></p>
+          </div>
+          <div class="kc-stat-card">
+            <p class="kc-stat-label"><%= t(".visual_preset") %></p>
+            <p class="kc-muted mt-2 break-words"><%= @clip.scene_contract.dig("visual", "presetId") %></p>
+          </div>
+          <div class="kc-stat-card">
+            <p class="kc-stat-label"><%= t(".content_language") %></p>
+            <p class="kc-muted mt-2"><%= t("content_locales.#{@clip.scene_contract.fetch("contentLocale")}") %></p>
+          </div>
+        </div>
+      </section>
+
+      <section id="export" class="kc-panel kc-panel-pad">
+        <h2 class="kc-section-title"><%= t(".contract_title") %></h2>
+        <pre class="kc-code mt-4 text-xs leading-6"><%= JSON.pretty_generate(@clip.scene_contract) %></pre>
+        <div class="mt-6">
+          <%= button_to t(".delete"), project_clip_path(project_id: @project, id: @clip), method: :delete, class: "kc-danger-button" %>
+        </div>
+      </section>
     </div>
+
+    <aside class="kc-preview-pane">
+      <section class="kc-panel kc-panel-pad">
+        <div class="kc-shot-head">
+          <div>
+            <h2 class="kc-section-title"><%= t(".preview_title") %></h2>
+            <p class="kc-muted mt-1"><%= t(".format") %> 9:16</p>
+          </div>
+          <span data-clip-preview-target="status" class="kc-pill">-</span>
+        </div>
+
+        <div class="kc-phone-frame">
+          <div class="kc-phone-screen">
+            <div data-clip-preview-target="stage" class="kc-phone-stage"></div>
+          </div>
+        </div>
+
+        <div class="kc-preview-controls">
+          <button type="button" data-action="clip-preview#previousShot" class="kc-button-ghost">
+            <%= t(".previous_shot") %>
+          </button>
+          <button type="button" data-action="clip-preview#nextShot" class="kc-button-primary">
+            <%= t(".next_shot") %>
+          </button>
+        </div>
+      </section>
+    </aside>
   </section>
 </main>

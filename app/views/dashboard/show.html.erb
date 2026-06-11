@@ -1,58 +1,57 @@
-<main class="mx-auto max-w-6xl px-6 py-10">
-  <header class="flex items-center justify-between gap-6">
+<main class="kc-main">
+  <header class="kc-page-header">
     <div>
-      <p class="text-sm font-semibold uppercase tracking-wide text-zinc-500">KomaClip</p>
-      <h1 class="mt-2 text-3xl font-bold tracking-tight text-zinc-950"><%= t(".title") %></h1>
+      <p class="kc-eyebrow"><%= t(".eyebrow") %></p>
+      <h1 class="kc-title"><%= t(".title") %></h1>
+      <p class="kc-subtitle"><%= t(".body") %></p>
     </div>
-    <div class="flex items-center gap-3">
-      <%= link_to t(".new_project"), new_project_path, class: "rounded-md bg-zinc-950 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-800" %>
-      <%= button_to t("navigation.sign_out"), session_path, method: :delete, class: "rounded-md border border-zinc-300 px-4 py-2 text-sm font-semibold text-zinc-900 hover:bg-zinc-50" %>
-    </div>
+
+    <%= link_to t(".new_project"), new_project_path, class: "kc-button-primary" %>
   </header>
 
   <% if flash[:notice] %>
-    <div class="mt-8 rounded-md bg-green-50 p-3 text-sm text-green-700"><%= flash[:notice] %></div>
+    <div class="kc-flash kc-flash-notice"><%= flash[:notice] %></div>
   <% end %>
 
-  <section class="mt-10">
-    <div class="flex items-end justify-between gap-6">
+  <section id="material" class="kc-panel kc-panel-pad">
+    <div class="kc-page-header">
       <div>
-        <h2 class="text-lg font-semibold text-zinc-950"><%= t(".projects_title") %></h2>
-        <p class="mt-2 max-w-2xl text-sm leading-6 text-zinc-600"><%= t(".projects_body") %></p>
+        <h2 class="kc-section-title"><%= t(".projects_title") %></h2>
+        <p class="kc-subtitle"><%= t(".projects_body") %></p>
       </div>
-      <p class="text-sm font-semibold text-zinc-500"><%= t(".project_count", count: @projects.size) %></p>
+      <span class="kc-pill"><%= t(".project_count", count: @projects.size) %></span>
     </div>
 
     <% if @projects.any? %>
-      <div class="mt-6 overflow-hidden rounded-md border border-zinc-200">
-        <table class="w-full text-left text-sm">
-          <thead class="bg-zinc-50 text-xs font-semibold uppercase text-zinc-500">
+      <div class="kc-table-wrap">
+        <table class="kc-table">
+          <thead>
             <tr>
-              <th class="px-4 py-3"><%= t(".table.project") %></th>
-              <th class="px-4 py-3"><%= t(".table.content_locale") %></th>
-              <th class="px-4 py-3"><%= t(".table.status") %></th>
-              <th class="px-4 py-3"><%= t(".table.updated") %></th>
+              <th><%= t(".table.project") %></th>
+              <th><%= t(".table.content_locale") %></th>
+              <th><%= t(".table.status") %></th>
+              <th><%= t(".table.updated") %></th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-zinc-200">
+          <tbody>
             <% @projects.each do |project| %>
-              <tr class="hover:bg-zinc-50">
-                <td class="px-4 py-4 font-semibold text-zinc-950">
-                  <%= link_to project.title, project_path(id: project), class: "underline" %>
-                </td>
-                <td class="px-4 py-4 text-zinc-600"><%= t("content_locales.#{project.content_locale}") %></td>
-                <td class="px-4 py-4 text-zinc-600"><%= t("project_statuses.#{project.status}") %></td>
-                <td class="px-4 py-4 text-zinc-600"><%= l(project.updated_at, format: :short) %></td>
+              <tr>
+                <td><%= link_to project.title, project_path(id: project) %></td>
+                <td><%= t("content_locales.#{project.content_locale}") %></td>
+                <td><span class="kc-pill kc-pill-warm"><%= t("project_statuses.#{project.status}") %></span></td>
+                <td><%= l(project.updated_at, format: :short) %></td>
               </tr>
             <% end %>
           </tbody>
         </table>
       </div>
     <% else %>
-      <div class="mt-6 rounded-lg border border-dashed border-zinc-300 p-8">
-        <h3 class="text-lg font-semibold text-zinc-950"><%= t(".empty_title") %></h3>
-        <p class="mt-2 max-w-2xl text-sm leading-6 text-zinc-600"><%= t(".empty_body") %></p>
-        <%= link_to t(".empty_action"), new_project_path, class: "mt-6 inline-block rounded-md bg-zinc-950 px-4 py-2.5 text-sm font-semibold text-white hover:bg-zinc-800" %>
+      <div class="kc-empty">
+        <div>
+          <h3 class="kc-section-title"><%= t(".empty_title") %></h3>
+          <p class="kc-subtitle"><%= t(".empty_body") %></p>
+          <%= link_to t(".empty_action"), new_project_path, class: "kc-button-primary mt-5" %>
+        </div>
       </div>
     <% end %>
   </section>

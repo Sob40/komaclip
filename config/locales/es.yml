@@ -9,8 +9,16 @@ es:
   navigation:
     cancel: "Cancelar"
     create_account: "Crear cuenta"
+    create_video: "Crear video"
+    direction: "Dirección"
+    export: "Exportar"
+    lab: "Lab"
+    language: "Idioma"
+    material: "Material"
+    primary: "Navegación principal"
     sign_in: "Iniciar sesión"
     sign_out: "Cerrar sesión"
+    studio: "Estudio de video para cómic"
 
   content_locales:
     en: "Inglés"
@@ -105,7 +113,9 @@ es:
 
   dashboard:
     show:
+      eyebrow: "Workspace de producción"
       title: "Espacio de trabajo"
+      body: "Mantén material fuente, previews Pixi y contratos de escena listos para render dentro de un flujo controlado."
       new_project: "Nuevo proyecto"
       projects_title: "Proyectos"
       projects_body: "Crea y gestiona las promos de cómics o webtoons que estás preparando."

@@ -22,16 +22,49 @@
     <%= javascript_include_tag "application", "data-turbo-track": "reload", type: "module" %>
   </head>
 
-  <body class="bg-white text-zinc-950 antialiased">
-    <nav class="fixed right-4 top-4 z-50 flex overflow-hidden rounded-md border border-zinc-200 bg-white/90 text-xs font-semibold text-zinc-700 shadow-sm backdrop-blur">
-      <% available_locales.each do |locale| %>
-        <%= link_to locale_link_label(locale), localized_current_path(locale), class: [
-          "px-3 py-2 hover:bg-zinc-50",
-          ("bg-zinc-950 text-white hover:bg-zinc-900" if I18n.locale == locale)
-        ].compact.join(" "), "aria-current": ("page" if I18n.locale == locale) %>
-      <% end %>
-    </nav>
+  <body class="<%= Current.user ? "kc-body antialiased" : "bg-white text-zinc-950 antialiased" %>">
+    <% if Current.user %>
+      <div class="kc-shell">
+        <nav class="kc-app-nav" aria-label="<%= t("navigation.primary") %>">
+          <%= link_to dashboard_path, class: "kc-brand" do %>
+            <span class="kc-brand-icon">K</span>
+            <span>
+              KomaClip
+              <small><%= t("navigation.studio") %></small>
+            </span>
+          <% end %>
 
-    <%= yield %>
+          <div class="kc-nav-links">
+            <%= link_to t("navigation.material"), dashboard_path(anchor: "material") %>
+            <%= link_to t("navigation.direction"), dashboard_path(anchor: "direction") %>
+            <%= link_to t("navigation.lab"), dashboard_path(anchor: "lab") %>
+            <%= link_to t("navigation.export"), dashboard_path(anchor: "export") %>
+          </div>
+
+          <div class="kc-nav-actions">
+            <div class="kc-locale-tabs" aria-label="<%= t("navigation.language") %>">
+              <% available_locales.each do |locale| %>
+                <%= link_to locale_link_label(locale), localized_current_path(locale), "aria-current": (I18n.locale == locale ? "true" : nil) %>
+              <% end %>
+            </div>
+            <%= button_to t("navigation.sign_out"), session_path, method: :delete, class: "kc-nav-ghost" %>
+            <%= link_to t("navigation.create_video"), new_project_path, class: "kc-nav-cta" %>
+          </div>
+        </nav>
+
+        <%= yield %>
+      </div>
+    <% else %>
+      <nav class="fixed right-4 top-4 z-50 flex overflow-hidden rounded-md border border-zinc-200 bg-white/90 text-xs font-semibold text-zinc-700 shadow-sm backdrop-blur">
+        <% available_locales.each do |locale| %>
+          <%= link_to locale_link_label(locale), localized_current_path(locale), class: [
+            "px-3 py-2 hover:bg-zinc-50",
+            ("bg-zinc-950 text-white hover:bg-zinc-900" if I18n.locale == locale)
+          ].compact.join(" "), "aria-current": ("page" if I18n.locale == locale) %>
+        <% end %>
+      </nav>
+
+      <%= yield %>
+    <% end %>
   </body>
 </html>

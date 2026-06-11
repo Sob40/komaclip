@@ -1,187 +1,186 @@
-<main class="mx-auto max-w-6xl px-6 py-10">
-  <header class="flex items-start justify-between gap-6">
+<main class="kc-main">
+  <header class="kc-page-header">
     <div>
-      <%= link_to t("projects.show.back"), dashboard_path, class: "text-sm font-semibold text-zinc-600 underline" %>
-      <h1 class="mt-3 text-3xl font-bold tracking-tight text-zinc-950"><%= @project.title %></h1>
-      <p class="mt-2 text-sm leading-6 text-zinc-600">
+      <%= link_to t("projects.show.back"), dashboard_path, class: "kc-button-ghost" %>
+      <h1 class="kc-title"><%= @project.title %></h1>
+      <p class="kc-subtitle">
         <%= t(".meta", content_locale: t("content_locales.#{@project.content_locale}"), status: t("project_statuses.#{@project.status}")) %>
       </p>
     </div>
-    <%= button_to t("navigation.sign_out"), session_path, method: :delete, class: "rounded-md border border-zinc-300 px-4 py-2 text-sm font-semibold text-zinc-900 hover:bg-zinc-50" %>
   </header>
 
-  <section class="mt-10 grid gap-4 sm:grid-cols-4">
-    <div class="rounded-md border border-zinc-200 p-4">
-      <p class="text-sm font-semibold text-zinc-500"><%= t(".assets") %></p>
-      <p class="mt-2 text-3xl font-bold text-zinc-950"><%= @project_assets.size %></p>
+  <section class="kc-stat-grid kc-stat-grid-4">
+    <div class="kc-stat-card">
+      <p class="kc-stat-label"><%= t(".assets") %></p>
+      <p class="kc-stat-value"><%= @project_assets.size %></p>
     </div>
-    <div class="rounded-md border border-zinc-200 p-4">
-      <p class="text-sm font-semibold text-zinc-500"><%= t(".panels") %></p>
-      <p class="mt-2 text-3xl font-bold text-zinc-950"><%= @panels.size %></p>
+    <div class="kc-stat-card">
+      <p class="kc-stat-label"><%= t(".panels") %></p>
+      <p class="kc-stat-value"><%= @panels.size %></p>
     </div>
-    <div class="rounded-md border border-zinc-200 p-4">
-      <p class="text-sm font-semibold text-zinc-500"><%= t(".clips") %></p>
-      <p class="mt-2 text-3xl font-bold text-zinc-950"><%= @clips_count %></p>
+    <div class="kc-stat-card">
+      <p class="kc-stat-label"><%= t(".clips") %></p>
+      <p class="kc-stat-value"><%= @clips_count %></p>
     </div>
-    <div class="rounded-md border border-zinc-200 p-4">
-      <p class="text-sm font-semibold text-zinc-500"><%= t(".renders") %></p>
-      <p class="mt-2 text-3xl font-bold text-zinc-950"><%= @renders_count %></p>
+    <div class="kc-stat-card">
+      <p class="kc-stat-label"><%= t(".renders") %></p>
+      <p class="kc-stat-value"><%= @renders_count %></p>
     </div>
   </section>
 
-  <section class="mt-10 rounded-lg border border-dashed border-zinc-300 p-8">
-    <h2 class="text-lg font-semibold text-zinc-950"><%= t(".next_title") %></h2>
-    <p class="mt-2 max-w-2xl text-sm leading-6 text-zinc-600"><%= t(".next_body") %></p>
+  <section id="direction" class="kc-panel kc-panel-pad mt-5">
+    <h2 class="kc-section-title"><%= t(".next_title") %></h2>
+    <p class="kc-subtitle"><%= t(".next_body") %></p>
   </section>
 
   <% if flash[:alert] %>
-    <div class="mt-8 rounded-md bg-red-50 p-3 text-sm text-red-700"><%= flash[:alert] %></div>
+    <div class="kc-flash kc-flash-alert"><%= flash[:alert] %></div>
   <% end %>
 
   <% if flash[:notice] %>
-    <div class="mt-8 rounded-md bg-green-50 p-3 text-sm text-green-700"><%= flash[:notice] %></div>
+    <div class="kc-flash kc-flash-notice"><%= flash[:notice] %></div>
   <% end %>
 
-  <section class="mt-10 grid gap-8 lg:grid-cols-[minmax(0,1fr)_22rem]">
-    <div>
-      <div class="flex items-end justify-between gap-6">
+  <section id="material" class="kc-grid kc-grid-2 mt-8">
+    <div class="kc-panel kc-panel-pad">
+      <div class="kc-page-header">
         <div>
-          <h2 class="text-lg font-semibold text-zinc-950"><%= t(".assets_title") %></h2>
-          <p class="mt-2 max-w-2xl text-sm leading-6 text-zinc-600"><%= t(".assets_body") %></p>
+          <h2 class="kc-section-title"><%= t(".assets_title") %></h2>
+          <p class="kc-subtitle"><%= t(".assets_body") %></p>
         </div>
       </div>
 
       <% if @project_assets.any? %>
-        <div class="mt-6 overflow-hidden rounded-md border border-zinc-200">
-          <table class="w-full text-left text-sm">
-            <thead class="bg-zinc-50 text-xs font-semibold uppercase text-zinc-500">
+        <div class="kc-table-wrap">
+          <table class="kc-table">
+            <thead>
               <tr>
-                <th class="px-4 py-3"><%= t(".assets_table.file") %></th>
-                <th class="px-4 py-3"><%= t(".assets_table.kind") %></th>
-                <th class="px-4 py-3"><%= t(".assets_table.size") %></th>
-                <th class="px-4 py-3"><%= t(".assets_table.status") %></th>
+                <th><%= t(".assets_table.file") %></th>
+                <th><%= t(".assets_table.kind") %></th>
+                <th><%= t(".assets_table.size") %></th>
+                <th><%= t(".assets_table.status") %></th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-zinc-200">
+            <tbody>
               <% @project_assets.each do |asset| %>
-                <tr class="hover:bg-zinc-50">
-                  <td class="px-4 py-4 font-semibold text-zinc-950">
-                    <%= link_to asset.filename, project_asset_path(project_id: @project, id: asset), class: "underline" %>
-                  </td>
-                  <td class="px-4 py-4 text-zinc-600"><%= t("project_asset_kinds.#{asset.kind}") %></td>
-                  <td class="px-4 py-4 text-zinc-600"><%= number_to_human_size(asset.byte_size) %></td>
-                  <td class="px-4 py-4 text-zinc-600"><%= t("project_asset_statuses.#{asset.status}") %></td>
+                <tr>
+                  <td><%= link_to asset.filename, project_asset_path(project_id: @project, id: asset) %></td>
+                  <td><%= t("project_asset_kinds.#{asset.kind}") %></td>
+                  <td><%= number_to_human_size(asset.byte_size) %></td>
+                  <td><span class="kc-pill"><%= t("project_asset_statuses.#{asset.status}") %></span></td>
                 </tr>
               <% end %>
             </tbody>
           </table>
         </div>
       <% else %>
-        <div class="mt-6 rounded-lg border border-dashed border-zinc-300 p-8">
-          <h3 class="text-lg font-semibold text-zinc-950"><%= t(".assets_empty_title") %></h3>
-          <p class="mt-2 max-w-2xl text-sm leading-6 text-zinc-600"><%= t(".assets_empty_body") %></p>
+        <div class="kc-empty">
+          <div>
+            <h3 class="kc-section-title"><%= t(".assets_empty_title") %></h3>
+            <p class="kc-subtitle"><%= t(".assets_empty_body") %></p>
+          </div>
         </div>
       <% end %>
     </div>
 
-    <aside class="rounded-md border border-zinc-200 p-5">
-      <h2 class="text-lg font-semibold text-zinc-950"><%= t(".upload_title") %></h2>
-      <p class="mt-2 text-sm leading-6 text-zinc-600"><%= t(".upload_body") %></p>
+    <aside class="kc-panel kc-panel-pad">
+      <h2 class="kc-section-title"><%= t(".upload_title") %></h2>
+      <p class="kc-subtitle"><%= t(".upload_body") %></p>
 
-      <%= form_with model: [ @project, ProjectAsset.new ], url: project_assets_path(project_id: @project), class: "mt-6 space-y-5" do |form| %>
-        <div>
-          <%= form.label :kind, t(".upload_kind"), class: "block text-sm font-medium text-zinc-900" %>
-          <%= form.select :kind, project_asset_kind_options, {}, class: "mt-2 w-full rounded-md border border-zinc-300 px-3 py-2" %>
+      <%= form_with model: [ @project, ProjectAsset.new ], url: project_assets_path(project_id: @project), class: "mt-6 grid gap-5" do |form| %>
+        <div class="kc-form-field">
+          <%= form.label :kind, t(".upload_kind") %>
+          <%= form.select :kind, project_asset_kind_options, {}, class: "kc-input" %>
         </div>
 
-        <div>
-          <%= form.label :file, t(".upload_file"), class: "block text-sm font-medium text-zinc-900" %>
-          <%= form.file_field :file, required: true, accept: "image/jpeg,image/png,image/webp", class: "mt-2 w-full rounded-md border border-zinc-300 px-3 py-2 text-sm" %>
-          <p class="mt-2 text-sm leading-6 text-zinc-600"><%= t(".upload_hint") %></p>
+        <div class="kc-form-field">
+          <%= form.label :file, t(".upload_file") %>
+          <%= form.file_field :file, required: true, accept: "image/jpeg,image/png,image/webp", class: "kc-input py-2" %>
+          <p class="kc-muted text-sm"><%= t(".upload_hint") %></p>
         </div>
 
-        <%= form.submit t(".upload_submit"), class: "w-full rounded-md bg-zinc-950 px-4 py-2.5 text-sm font-semibold text-white hover:bg-zinc-800" %>
+        <%= form.submit t(".upload_submit"), class: "kc-button-primary w-full" %>
       <% end %>
     </aside>
   </section>
 
-  <section class="mt-10">
+  <section class="kc-panel kc-panel-pad mt-8">
     <div>
-      <h2 class="text-lg font-semibold text-zinc-950"><%= t(".panels_title") %></h2>
-      <p class="mt-2 max-w-2xl text-sm leading-6 text-zinc-600"><%= t(".panels_body") %></p>
+      <h2 class="kc-section-title"><%= t(".panels_title") %></h2>
+      <p class="kc-subtitle"><%= t(".panels_body") %></p>
     </div>
 
     <% if @panels.any? %>
-      <div class="mt-6 overflow-hidden rounded-md border border-zinc-200">
-        <table class="w-full text-left text-sm">
-          <thead class="bg-zinc-50 text-xs font-semibold uppercase text-zinc-500">
+      <div class="kc-table-wrap mt-6">
+        <table class="kc-table">
+          <thead>
             <tr>
-              <th class="px-4 py-3"><%= t(".panels_table.position") %></th>
-              <th class="px-4 py-3"><%= t(".panels_table.label") %></th>
-              <th class="px-4 py-3"><%= t(".panels_table.source") %></th>
-              <th class="px-4 py-3"><%= t(".panels_table.crop") %></th>
+              <th><%= t(".panels_table.position") %></th>
+              <th><%= t(".panels_table.label") %></th>
+              <th><%= t(".panels_table.source") %></th>
+              <th><%= t(".panels_table.crop") %></th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-zinc-200">
+          <tbody>
             <% @panels.each do |panel| %>
-              <tr class="hover:bg-zinc-50">
-                <td class="px-4 py-4 text-zinc-600"><%= panel.position %></td>
-                <td class="px-4 py-4 font-semibold text-zinc-950">
-                  <%= link_to panel.label, project_panel_path(project_id: @project, id: panel), class: "underline" %>
-                </td>
-                <td class="px-4 py-4 text-zinc-600"><%= panel.project_asset.filename %></td>
-                <td class="px-4 py-4 text-zinc-600"><%= t(".full_page_crop") %></td>
+              <tr>
+                <td><%= panel.position %></td>
+                <td><%= link_to panel.label, project_panel_path(project_id: @project, id: panel) %></td>
+                <td><%= panel.project_asset.filename %></td>
+                <td><%= t(".full_page_crop") %></td>
               </tr>
             <% end %>
           </tbody>
         </table>
       </div>
     <% else %>
-      <div class="mt-6 rounded-lg border border-dashed border-zinc-300 p-8">
-        <h3 class="text-lg font-semibold text-zinc-950"><%= t(".panels_empty_title") %></h3>
-        <p class="mt-2 max-w-2xl text-sm leading-6 text-zinc-600"><%= t(".panels_empty_body") %></p>
+      <div class="kc-empty">
+        <div>
+          <h3 class="kc-section-title"><%= t(".panels_empty_title") %></h3>
+          <p class="kc-subtitle"><%= t(".panels_empty_body") %></p>
+        </div>
       </div>
     <% end %>
   </section>
 
-  <section class="mt-10">
-    <div class="flex items-end justify-between gap-6">
+  <section id="lab" class="kc-panel kc-panel-pad mt-8">
+    <div class="kc-page-header">
       <div>
-        <h2 class="text-lg font-semibold text-zinc-950"><%= t(".clips_title") %></h2>
-        <p class="mt-2 max-w-2xl text-sm leading-6 text-zinc-600"><%= t(".clips_body") %></p>
+        <h2 class="kc-section-title"><%= t(".clips_title") %></h2>
+        <p class="kc-subtitle"><%= t(".clips_body") %></p>
       </div>
-      <%= button_to t(".create_clip"), project_clips_path(project_id: @project), method: :post, class: "rounded-md bg-zinc-950 px-4 py-2.5 text-sm font-semibold text-white hover:bg-zinc-800" %>
+      <%= button_to t(".create_clip"), project_clips_path(project_id: @project), method: :post, class: "kc-button-primary" %>
     </div>
 
     <% if @clips.any? %>
-      <div class="mt-6 overflow-hidden rounded-md border border-zinc-200">
-        <table class="w-full text-left text-sm">
-          <thead class="bg-zinc-50 text-xs font-semibold uppercase text-zinc-500">
+      <div class="kc-table-wrap">
+        <table class="kc-table">
+          <thead>
             <tr>
-              <th class="px-4 py-3"><%= t(".clips_table.position") %></th>
-              <th class="px-4 py-3"><%= t(".clips_table.title") %></th>
-              <th class="px-4 py-3"><%= t(".clips_table.duration") %></th>
-              <th class="px-4 py-3"><%= t(".clips_table.status") %></th>
+              <th><%= t(".clips_table.position") %></th>
+              <th><%= t(".clips_table.title") %></th>
+              <th><%= t(".clips_table.duration") %></th>
+              <th><%= t(".clips_table.status") %></th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-zinc-200">
+          <tbody>
             <% @clips.each do |clip| %>
-              <tr class="hover:bg-zinc-50">
-                <td class="px-4 py-4 text-zinc-600"><%= clip.position %></td>
-                <td class="px-4 py-4 font-semibold text-zinc-950">
-                  <%= link_to clip.title, project_clip_path(project_id: @project, id: clip), class: "underline" %>
-                </td>
-                <td class="px-4 py-4 text-zinc-600"><%= t(".duration_seconds", seconds: clip.duration_ms / 1000) %></td>
-                <td class="px-4 py-4 text-zinc-600"><%= t("clip_statuses.#{clip.status}") %></td>
+              <tr>
+                <td><%= clip.position %></td>
+                <td><%= link_to clip.title, project_clip_path(project_id: @project, id: clip) %></td>
+                <td><%= t(".duration_seconds", seconds: clip.duration_ms / 1000) %></td>
+                <td><span class="kc-pill kc-pill-warm"><%= t("clip_statuses.#{clip.status}") %></span></td>
               </tr>
             <% end %>
           </tbody>
         </table>
       </div>
     <% else %>
-      <div class="mt-6 rounded-lg border border-dashed border-zinc-300 p-8">
-        <h3 class="text-lg font-semibold text-zinc-950"><%= t(".clips_empty_title") %></h3>
-        <p class="mt-2 max-w-2xl text-sm leading-6 text-zinc-600"><%= t(".clips_empty_body") %></p>
+      <div class="kc-empty">
+        <div>
+          <h3 class="kc-section-title"><%= t(".clips_empty_title") %></h3>
+          <p class="kc-subtitle"><%= t(".clips_empty_body") %></p>
+        </div>
       </div>
     <% end %>
   </section>
