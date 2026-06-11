@@ -57,10 +57,6 @@ export default class extends Controller {
     this.clearDragState()
   }
 
-  submitToggle(event) {
-    event.target.form?.requestSubmit()
-  }
-
   clearDragState() {
     this.draggedPanelId = null
     this.itemTargets.forEach((item) => item.classList.remove("is-dragging", "is-drop-target"))

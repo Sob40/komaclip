@@ -50,15 +50,34 @@
           <div class="kc-scene-grid" data-controller="scene-list" data-scene-list-reorder-url-value="<%= reorder_project_panels_path(project_id: @project) %>">
             <% @panels.each do |panel| %>
               <% asset = panel.project_asset %>
-              <article class="kc-scene-card <%= "is-text-hidden" if panel.metadata.to_h["noText"] %>" draggable="true" data-scene-list-target="item" data-panel-id="<%= panel.id %>" data-scene-title-template="<%= t(".scene_title", position: "%{position}") %>" data-action="dragstart->scene-list#dragStart dragover->scene-list#dragOver drop->scene-list#drop dragend->scene-list#dragEnd">
+              <% scene_text = panel.scene_text %>
+              <% scene_text_popover_id = "scene-text-#{panel.id}" %>
+              <article class="kc-scene-card" draggable="true" data-scene-list-target="item" data-panel-id="<%= panel.id %>" data-scene-title-template="<%= t(".scene_title", position: "%{position}") %>" data-action="dragstart->scene-list#dragStart dragover->scene-list#dragOver drop->scene-list#drop dragend->scene-list#dragEnd">
                 <button class="kc-drag-handle" type="button" title="<%= t(".drag_scene") %>" aria-label="<%= t(".drag_scene_with_position", position: panel.position) %>">⋮⋮</button>
-                <div class="kc-scene-media">
+                <button class="kc-scene-media" type="button" popovertarget="<%= scene_text_popover_id %>" title="<%= t(".scene_text_open") %>" aria-label="<%= t(".scene_text_open_for", position: panel.position) %>">
                   <% if asset.file.attached? %>
                     <%= image_tag asset.file, alt: panel.label, loading: "lazy" %>
                   <% else %>
                     <span><%= t(".scene_media_missing") %></span>
                   <% end %>
                   <span class="kc-scene-order"><%= panel.position %></span>
+                  <% if scene_text.present? %>
+                    <span class="kc-scene-text-chip"><%= t(".scene_text_chip") %></span>
+                  <% end %>
+                </button>
+
+                <div id="<%= scene_text_popover_id %>" class="kc-scene-popover" popover>
+                  <%= form_with url: project_panel_path(project_id: @project, id: panel), method: :patch, class: "kc-scene-text-form" do %>
+                    <div>
+                      <%= label_tag "scene_text_#{panel.id}", t(".scene_text_label") %>
+                      <span><%= t(".scene_text_hint", count: Panel::MAX_SCENE_TEXT_LENGTH) %></span>
+                    </div>
+                    <%= text_area_tag "panel[scene_text]", scene_text, id: "scene_text_#{panel.id}", maxlength: Panel::MAX_SCENE_TEXT_LENGTH, rows: 4, placeholder: t(".scene_text_placeholder") %>
+                    <div class="kc-scene-popover-actions">
+                      <button type="button" class="kc-scene-action" popovertarget="<%= scene_text_popover_id %>" popovertargetaction="hide"><%= t(".cancel") %></button>
+                      <%= submit_tag t(".save_scene_text"), class: "kc-scene-action kc-scene-action-save" %>
+                    </div>
+                  <% end %>
                 </div>
 
                 <div class="kc-scene-copy">
@@ -67,24 +86,7 @@
                 </div>
 
                 <div class="kc-scene-footer">
-                  <%= form_with url: project_panel_path(project_id: @project, id: panel), method: :patch, class: "kc-scene-toggle-form" do %>
-                    <label class="kc-scene-toggle">
-                      <%= check_box_tag "panel[with_text]", "1", !panel.metadata.to_h["noText"], data: { action: "change->scene-list#submitToggle" } %>
-                      <span><%= t(".with_text") %></span>
-                    </label>
-                  <% end %>
                   <div class="kc-scene-actions" aria-label="<%= t(".scene_actions") %>">
-                    <%= link_to t(".review_panel"), project_panel_path(project_id: @project, id: panel), class: "kc-scene-action" %>
-                    <% if panel.position > 1 %>
-                      <%= button_to "↑", move_project_panel_path(project_id: @project, id: panel), method: :post, params: { direction: "up" }, class: "kc-scene-action kc-scene-action-icon", title: t(".move_scene_up"), form: { "aria-label": t(".move_scene_up") } %>
-                    <% else %>
-                      <button type="button" class="kc-scene-action kc-scene-action-icon" title="<%= t(".move_scene_up") %>" disabled>↑</button>
-                    <% end %>
-                    <% if panel.position < @panels.size %>
-                      <%= button_to "↓", move_project_panel_path(project_id: @project, id: panel), method: :post, params: { direction: "down" }, class: "kc-scene-action kc-scene-action-icon", title: t(".move_scene_down"), form: { "aria-label": t(".move_scene_down") } %>
-                    <% else %>
-                      <button type="button" class="kc-scene-action kc-scene-action-icon" title="<%= t(".move_scene_down") %>" disabled>↓</button>
-                    <% end %>
                     <%= button_to "⧉", duplicate_project_panel_path(project_id: @project, id: panel), method: :post, class: "kc-scene-action kc-scene-action-icon", title: t(".duplicate_scene"), form: { "aria-label": t(".duplicate_scene") } %>
                     <%= button_to "×", project_panel_path(project_id: @project, id: panel), method: :delete, class: "kc-scene-action kc-scene-action-icon kc-scene-action-danger", title: t(".delete_scene"), form: { "aria-label": t(".delete_scene") } %>
                   </div>

@@ -60,17 +60,30 @@ class PanelsControllerTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
-  test "update toggles text for owned panel and marks material dirty" do
+  test "update saves scene text for owned panel and marks material dirty" do
     projects(:one).update!(metadata: { "materialReady" => true })
     sign_in_as(users(:one))
 
     patch project_panel_path(project_id: projects(:one), id: panels(:one)), params: {
-      panel: { with_text: "0" }
+      panel: { scene_text: "Launch reveal" }
     }
 
     assert_redirected_to project_path(id: projects(:one))
-    assert_equal true, panels(:one).reload.metadata.fetch("noText")
+    assert_equal "Launch reveal", panels(:one).reload.metadata.fetch("sceneText")
     assert_equal false, projects(:one).reload.metadata.fetch("materialReady")
+  end
+
+  test "update rejects oversized scene text" do
+    projects(:one).update!(metadata: { "materialReady" => true })
+    sign_in_as(users(:one))
+
+    patch project_panel_path(project_id: projects(:one), id: panels(:one)), params: {
+      panel: { scene_text: "x" * (Panel::MAX_SCENE_TEXT_LENGTH + 1) }
+    }
+
+    assert_redirected_to project_path(id: projects(:one))
+    assert_nil panels(:one).reload.metadata["sceneText"]
+    assert_equal true, projects(:one).reload.metadata.fetch("materialReady")
   end
 
   test "duplicate inserts a copied scene after the original" do
@@ -100,19 +113,6 @@ class PanelsControllerTest < ActionDispatch::IntegrationTest
     }, as: :json
 
     assert_response :success
-    assert_equal [ second_panel.id, panels(:one).id ], projects(:one).panels.order(:position).pluck(:id)
-    assert_equal false, projects(:one).reload.metadata.fetch("materialReady")
-  end
-
-  test "move swaps a scene with its neighbor" do
-    second_asset = create_asset_for(users(:one), projects(:one))
-    second_panel = projects(:one).panels.create!(project_asset: second_asset, position: 2, label: "Scene 2")
-    projects(:one).update!(metadata: { "materialReady" => true })
-    sign_in_as(users(:one))
-
-    post move_project_panel_path(project_id: projects(:one), id: second_panel), params: { direction: "up" }
-
-    assert_redirected_to project_path(id: projects(:one))
     assert_equal [ second_panel.id, panels(:one).id ], projects(:one).panels.order(:position).pluck(:id)
     assert_equal false, projects(:one).reload.metadata.fetch("materialReady")
   end

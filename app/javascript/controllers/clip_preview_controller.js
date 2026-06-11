@@ -74,7 +74,7 @@ export default class extends Controller {
     }
 
     this.drawSafeFrame()
-    if (!shot.textHidden) this.drawCaption(shot)
+    if (shot.text) this.drawCaption(shot)
     this.statusTarget.textContent = `${this.currentShotIndex + 1} / ${shots.length}`
   }
 
@@ -93,23 +93,26 @@ export default class extends Controller {
   }
 
   drawCaption(shot) {
+    const captionHeight = 84
     const panel = new Graphics()
-    panel.roundRect(28, this.frame.height - 88, this.frame.width - 56, 52, 12)
+    panel.roundRect(28, this.frame.height - captionHeight - 36, this.frame.width - 56, captionHeight, 12)
     panel.fill({ color: "#18181b", alpha: 0.84 })
     this.app.stage.addChild(panel)
 
     const label = new Text({
-      text: shot.label,
+      text: shot.text,
       style: new TextStyle({
         fill: "#ffffff",
         fontFamily: "Arial",
-        fontSize: 18,
-        fontWeight: "700"
+        fontSize: 16,
+        fontWeight: "700",
+        wordWrap: true,
+        wordWrapWidth: this.frame.width - 88
       })
     })
 
     label.x = 44
-    label.y = this.frame.height - 72
+    label.y = this.frame.height - captionHeight - 18
     this.app.stage.addChild(label)
   }
 

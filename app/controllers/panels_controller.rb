@@ -1,7 +1,7 @@
 class PanelsController < ApplicationController
   before_action :set_project
   before_action :set_asset, only: :create
-  before_action :set_panel, only: %i[show update destroy duplicate move]
+  before_action :set_panel, only: %i[show update destroy duplicate]
 
   def create
     if (existing_panel = @asset.panels.find(&:full_crop?))
@@ -28,7 +28,17 @@ class PanelsController < ApplicationController
   end
 
   def update
-    @panel.update!(metadata: @panel.metadata.to_h.merge("noText" => !ActiveModel::Type::Boolean.new.cast(panel_params[:with_text])))
+    scene_text = panel_params[:scene_text].to_s.strip
+
+    if scene_text.length > Panel::MAX_SCENE_TEXT_LENGTH
+      redirect_to project_path(id: @project), alert: t("flash.panel_text_too_long", count: Panel::MAX_SCENE_TEXT_LENGTH)
+      return
+    end
+
+    metadata = @panel.metadata.to_h.except("noText")
+    scene_text.present? ? metadata["sceneText"] = scene_text : metadata.delete("sceneText")
+
+    @panel.update!(metadata: metadata)
     mark_material_dirty!
 
     redirect_to project_path(id: @project), notice: t("flash.panel_updated")
@@ -51,25 +61,6 @@ class PanelsController < ApplicationController
     end
 
     redirect_to project_path(id: @project), notice: t("flash.panel_duplicated")
-  end
-
-  def move
-    direction = params[:direction].to_s
-    target_position = direction == "up" ? @panel.position - 1 : @panel.position + 1
-    target_panel = @project.panels.find_by(position: target_position)
-
-    if target_panel
-      original_position = @panel.position
-      Panel.transaction do
-        @panel.update_columns(position: -1, updated_at: Time.current)
-        target_panel.update!(position: original_position)
-        @panel.update!(position: target_position)
-        normalize_positions!
-        mark_material_dirty!
-      end
-    end
-
-    redirect_to project_path(id: @project), notice: t("flash.panel_reordered")
   end
 
   def reorder
@@ -122,7 +113,7 @@ class PanelsController < ApplicationController
     end
 
     def panel_params
-      params.fetch(:panel, {}).permit(:with_text)
+      params.fetch(:panel, {}).permit(:scene_text)
     end
 
     def shift_positions_from(position)

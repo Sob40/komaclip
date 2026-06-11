@@ -1,4 +1,6 @@
 class Panel < ApplicationRecord
+  MAX_SCENE_TEXT_LENGTH = 140
+
   FULL_CROP = {
     "unit" => "normalized",
     "x" => 0.0,
@@ -17,6 +19,7 @@ class Panel < ApplicationRecord
 
   validates :label, presence: true, length: { maximum: 120 }
   validates :position, numericality: { greater_than_or_equal_to: 1, only_integer: true }, uniqueness: { scope: :project_id }
+  validate :scene_text_fits_limit
   validate :asset_belongs_to_project
   validate :asset_can_create_panel
   validate :crop_is_normalized_rectangle
@@ -35,6 +38,10 @@ class Panel < ApplicationRecord
     self.class.full_crop?(crop)
   end
 
+  def scene_text
+    metadata.to_h["sceneText"].to_s
+  end
+
   private
 
     def set_default_crop
@@ -43,6 +50,12 @@ class Panel < ApplicationRecord
 
     def set_default_label
       self.label = "Panel #{position}" if label.blank? && position.present?
+    end
+
+    def scene_text_fits_limit
+      return if scene_text.length <= MAX_SCENE_TEXT_LENGTH
+
+      errors.add(:metadata, "scene text is too long")
     end
 
     def asset_belongs_to_project

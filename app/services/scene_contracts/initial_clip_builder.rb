@@ -81,10 +81,10 @@ module SceneContracts
             "label" => panel.label,
             "filename" => panel.project_asset.filename,
             "crop" => panel.crop,
-            "textHidden" => panel.metadata.to_h["noText"] == true,
+            "text" => panel.scene_text.presence,
             "durationMs" => duration,
             "transition" => index.zero? ? "none" : "cut"
-          }
+          }.compact
         end
       end
   end
