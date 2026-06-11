@@ -21,6 +21,7 @@ class ClipsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "create builds ready clip from owned panels" do
+    projects(:one).update!(metadata: { "materialReady" => true, "directionStage" => "ready", "directionGoalChosen" => true, "directionStyleChosen" => true })
     sign_in_as(users(:one))
 
     assert_difference -> { projects(:one).clips.count }, 1 do
@@ -37,11 +38,30 @@ class ClipsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to project_clip_path(project_id: projects(:one), id: clip)
   end
 
+  test "create requires completed direction" do
+    project = users(:one).projects.create!(title: "Undirected project", content_locale: "en", metadata: { "materialReady" => true })
+    asset = create_asset_for(users(:one), project)
+    project.panels.create!(project_asset: asset, position: 1, label: "Fresh panel")
+    sign_in_as(users(:one))
+
+    assert_no_difference -> { project.clips.count } do
+      post project_clips_path(project_id: project)
+    end
+
+    assert_redirected_to project_path(id: project, anchor: "direction")
+    follow_redirect!
+    assert_select "div", /Choose goal and style/
+  end
+
   test "create applies reusable template settings from project metadata" do
     project = users(:one).projects.create!(
       title: "Templated project",
       content_locale: "en",
       metadata: {
+        "materialReady" => true,
+        "directionStage" => "ready",
+        "directionGoalChosen" => true,
+        "directionStyleChosen" => true,
         "templateSettings" => {
           "durationMs" => 12_000,
           "format" => { "width" => 720, "height" => 1280, "fps" => 24 },

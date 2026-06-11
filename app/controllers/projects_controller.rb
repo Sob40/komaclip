@@ -22,7 +22,9 @@ class ProjectsController < ApplicationController
     @renders_count = @project.clip_renders.count
     @material_uploaded = @panels.any?
     @material_ready = @material_uploaded && material_confirmed?
-    @proposal_ready = @material_ready && @clips.any?
+    @direction_stage = direction_stage
+    @direction_ready = @material_ready && direction_confirmed?
+    @proposal_ready = @material_ready && @direction_stage == "ready" && @clips.any?
     @latest_clip = @clips.last
     @direction = ProjectDirection.for(@project)
   end
@@ -36,6 +38,43 @@ class ProjectsController < ApplicationController
     else
       redirect_to project_path(id: @project), alert: t("flash.material_requires_scenes")
     end
+  end
+
+  def choose_direction
+    @project = Current.user.projects.find(params[:id])
+
+    unless @project.panels.exists? && material_confirmed?
+      redirect_to project_path(id: @project), alert: t("flash.material_requires_scenes")
+      return
+    end
+
+    metadata = @project.metadata.to_h
+    direction = metadata.fetch("direction", {}).to_h
+    stage = params[:stage].presence
+    goal = params.dig(:direction, :goal).presence
+    style = params.dig(:direction, :style).presence
+
+    if goal.present? && ProjectDirection.goal_options.include?(goal)
+      direction["goal"] = goal
+      metadata["direction"] = direction
+      metadata["directionGoalChosen"] = true
+      metadata["directionStyleChosen"] = false
+      metadata["directionStage"] = "style"
+    elsif style.present? && ProjectDirection.style_options.include?(style)
+      direction["style"] = style
+      direction["format"] = ProjectDirection::DEFAULT.fetch("format")
+      metadata["direction"] = direction
+      metadata["directionGoalChosen"] = true
+      metadata["directionStyleChosen"] = true
+      metadata["directionStage"] = "ready"
+    elsif %w[goal style].include?(stage)
+      metadata["directionStage"] = stage == "style" && metadata["directionGoalChosen"] == true ? "style" : "goal"
+    else
+      metadata["directionStage"] = direction_confirmed? ? "ready" : "goal"
+    end
+
+    @project.update!(metadata: metadata)
+    redirect_to project_path(id: @project, anchor: "direction")
   end
 
   private
@@ -54,6 +93,19 @@ class ProjectsController < ApplicationController
     end
 
     def material_confirmed?
-      @project.metadata.to_h["materialReady"] == true || @clips.any?
+      @project.metadata.to_h["materialReady"] == true || @project.clips.exists?
+    end
+
+    def direction_confirmed?
+      @project.clips.exists? || @project.metadata.to_h["directionStyleChosen"] == true || @project.metadata.to_h["directionStage"] == "ready"
+    end
+
+    def direction_stage
+      return nil unless @material_ready
+      stage = @project.metadata.to_h["directionStage"].to_s
+      return stage if %w[goal style].include?(stage)
+      return "ready" if direction_confirmed?
+
+      "goal"
     end
 end

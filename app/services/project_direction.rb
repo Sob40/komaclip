@@ -7,7 +7,7 @@ class ProjectDirection
 
   ALLOWED = {
     "goal" => %w[readers launch community sales],
-    "style" => %w[chapter_clean trailer_tense impact_fast],
+    "style" => %w[trailer_tense impact_fast chapter_clean webtoon_scroll character_spotlight sales_pitch making_of],
     "format" => %w[vertical_social reels_9_16]
   }.freeze
 
@@ -25,5 +25,13 @@ class ProjectDirection
 
     safe_direction["format"] = "vertical_social" if safe_direction["format"] == "reels_9_16"
     safe_direction
+  end
+
+  def self.goal_options
+    ALLOWED.fetch("goal")
+  end
+
+  def self.style_options
+    ALLOWED.fetch("style")
   end
 end

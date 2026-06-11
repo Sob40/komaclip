@@ -10,6 +10,11 @@ class ClipsController < ApplicationController
       return
     end
 
+    unless direction_ready?
+      redirect_to project_path(id: @project, anchor: "direction"), alert: t("flash.direction_required")
+      return
+    end
+
     position = next_position
     scene_contract = SceneContracts::InitialClipBuilder.new(project: @project, panels: panels).build
     direction = ProjectDirection.for(@project)
@@ -51,6 +56,11 @@ class ClipsController < ApplicationController
 
     def next_position
       @project.clips.maximum(:position).to_i + 1
+    end
+
+    def direction_ready?
+      metadata = @project.metadata.to_h
+      metadata["directionStyleChosen"] == true || metadata["directionStage"] == "ready" || @project.clips.exists?
     end
 
     def preview_payload

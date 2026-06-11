@@ -8,6 +8,7 @@ Rails.application.routes.draw do
     end
     resources :projects, only: %i[ new create show ] do
       post :confirm_material, on: :member
+      post :choose_direction, on: :member
 
       resources :assets, controller: "project_assets", only: %i[ create show destroy ] do
         resources :panels, only: :create

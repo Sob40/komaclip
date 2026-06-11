@@ -119,6 +119,7 @@ es:
     clip_created: "Teaser creado."
     clip_deleted: "Teaser eliminado."
     clip_requires_panels: "Crea al menos una viñeta antes de montar un teaser."
+    direction_required: "Elige objetivo y estilo antes de crear un teaser."
     material_confirmed: "Material confirmado."
     material_requires_scenes: "Sube al menos una escena antes de continuar."
     panel_already_exists: "Esa viñeta de página completa ya existe."
@@ -212,9 +213,12 @@ es:
       continue_direction: "Continuar a dirección"
       template_applied_title: "Plantilla aplicada"
       template_applied_body: "%{name} se reutilizará con el material nuevo."
+      change: "Cambiar"
       direction_eyebrow: "Dirección"
-      direction_title: "Elige el primer corte."
+      direction_title: "Elige objetivo y estilo."
       direction_body: "Dale una intención al teaser antes de montarlo. Piensa en el lector: qué debe sentir, qué debe entender y por qué querrá abrir el capítulo."
+      style_stage_title: "Elige cómo se debe sentir."
+      style_stage_body: "Esto decide ritmo, texto, música, efectos y transiciones."
       direction_cards:
         goal_label: "Para qué"
         style_label: "Ritmo"
@@ -233,15 +237,27 @@ es:
             title: "Vender / campaña"
             body: "Convertir interés en compra, reserva o apoyo."
         styles:
-          chapter_clean:
-            title: "Capítulo limpio"
-            body: "Que se lean las viñetas, se respete el arte y el gancho no moleste."
           trailer_tense:
             title: "Trailer tenso"
             body: "Misterio, pausas y cierre con ganas de leer."
           impact_fast:
             title: "Impacto rápido"
             body: "Cortes rápidos, golpes de viñeta y rótulos con más fuerza."
+          chapter_clean:
+            title: "Capítulo limpio"
+            body: "Lectura clara, anuncio directo y efectos controlados."
+          webtoon_scroll:
+            title: "Scroll webtoon"
+            body: "Revelación vertical, texto abajo y ritmo de lectura."
+          character_spotlight:
+            title: "Foco personaje"
+            body: "Zooms elegantes, foco emocional y llamada a comunidad."
+          sales_pitch:
+            title: "Promo venta"
+            body: "Presentación clara, energía de venta y cierre de apoyo."
+          making_of:
+            title: "Making of"
+            body: "Proceso, bocetos, timelapse o contenido del creador."
         formats:
           vertical_social:
             title: "Vertical para redes"

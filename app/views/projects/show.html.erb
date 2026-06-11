@@ -7,7 +7,7 @@
     <div class="kc-flash kc-flash-notice"><%= flash[:notice] %></div>
   <% end %>
 
-  <div class="kc-workspace kc-project-flow <%= "is-material-ready" if @material_ready %> <%= "is-proposal-ready" if @proposal_ready %>">
+  <div class="kc-workspace kc-project-flow <%= "is-material-ready" if @material_ready %> <%= "is-direction-ready" if @direction_ready %> <%= "is-proposal-ready" if @proposal_ready %>">
     <section id="material" class="kc-flow-step <%= "is-complete" if @material_ready %>" data-flow-step="material">
       <div class="kc-step-heading">
         <span class="kc-step-number">1</span>
@@ -105,38 +105,73 @@
     </section>
 
     <% if @material_ready %>
-      <section id="direction" class="kc-flow-step <%= "is-complete" if @proposal_ready %>" data-flow-step="direction">
+      <section id="direction" class="kc-flow-step kc-direction-step <%= "is-complete" if @direction_ready %> is-direction-<%= @direction_stage %>" data-flow-step="direction">
         <div class="kc-step-heading">
           <span class="kc-step-number">2</span>
           <div>
             <p class="kc-eyebrow"><%= t(".direction_eyebrow") %></p>
             <h2><%= t(".direction_title") %></h2>
-            <p><%= t(".direction_body") %></p>
           </div>
         </div>
 
-        <div class="kc-direction-summary">
-          <div class="kc-direction-card is-active">
-            <small><%= t(".direction_cards.goal_label") %></small>
-            <strong><%= t(".direction_cards.goals.#{@direction.fetch("goal")}.title") %></strong>
-            <span><%= t(".direction_cards.goals.#{@direction.fetch("goal")}.body") %></span>
-          </div>
-          <div class="kc-direction-card is-active">
-            <small><%= t(".direction_cards.style_label") %></small>
-            <strong><%= t(".direction_cards.styles.#{@direction.fetch("style")}.title") %></strong>
-            <span><%= t(".direction_cards.styles.#{@direction.fetch("style")}.body") %></span>
-          </div>
-          <div class="kc-direction-card">
-            <small><%= t(".direction_cards.format_label") %></small>
-            <strong><%= t(".direction_cards.formats.#{@direction.fetch("format")}.title") %></strong>
-            <span><%= t(".direction_cards.formats.#{@direction.fetch("format")}.body") %></span>
-          </div>
-        </div>
+        <% if @direction_stage != "goal" %>
+          <%= button_to choose_direction_project_path(id: @project), method: :post, params: { stage: "goal" }, class: "kc-direction-summary-button" do %>
+            <span>
+              <small><%= t(".direction_cards.goal_label") %></small>
+              <strong><%= t(".direction_cards.goals.#{@direction.fetch("goal")}.title") %></strong>
+            </span>
+            <span><%= t(".change") %></span>
+          <% end %>
+        <% end %>
 
-        <div class="kc-flow-action-row">
-          <p class="kc-muted"><%= t(".direction_ready", count: @panels.size) %></p>
-          <%= button_to t(".create_clip"), project_clips_path(project_id: @project), method: :post, class: "kc-button-primary" %>
-        </div>
+        <% if @direction_stage == "goal" %>
+          <div class="kc-direction-stage">
+            <div class="kc-direction-group-label"><%= t(".direction_cards.goal_label") %></div>
+            <div class="kc-choice-grid kc-goal-choice-grid" aria-label="<%= t(".direction_cards.goal_label") %>">
+              <% ProjectDirection.goal_options.each do |goal| %>
+                <%= button_to choose_direction_project_path(id: @project), method: :post, params: { direction: { goal: goal } }, class: "kc-choice-card", data: { goal_choice: goal } do %>
+                  <strong><%= t(".direction_cards.goals.#{goal}.title") %></strong>
+                  <span><%= t(".direction_cards.goals.#{goal}.body") %></span>
+                <% end %>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+
+        <% if @direction_stage == "ready" %>
+          <%= button_to choose_direction_project_path(id: @project), method: :post, params: { stage: "style" }, class: "kc-direction-summary-button" do %>
+            <span>
+              <small><%= t(".direction_cards.style_label") %></small>
+              <strong><%= t(".direction_cards.styles.#{@direction.fetch("style")}.title") %></strong>
+            </span>
+            <span><%= t(".change") %></span>
+          <% end %>
+        <% end %>
+
+        <% if @direction_stage == "style" %>
+          <div class="kc-direction-stage kc-direction-style-stage">
+            <div class="kc-direction-stage-heading">
+              <span class="kc-direction-group-label"><%= t(".direction_cards.style_label") %></span>
+              <h3><%= t(".style_stage_title") %></h3>
+              <small><%= t(".style_stage_body") %></small>
+            </div>
+            <div class="kc-choice-grid kc-style-choice-grid" aria-label="<%= t(".direction_cards.style_label") %>">
+              <% ProjectDirection.style_options.each do |style| %>
+                <%= button_to choose_direction_project_path(id: @project), method: :post, params: { direction: { style: style } }, class: "kc-choice-card", data: { style_choice: style } do %>
+                  <strong><%= t(".direction_cards.styles.#{style}.title") %></strong>
+                  <span><%= t(".direction_cards.styles.#{style}.body") %></span>
+                <% end %>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+
+        <% if @direction_ready && @direction_stage == "ready" %>
+          <div class="kc-flow-action-row">
+            <p class="kc-muted"><%= t(".direction_ready", count: @panels.size) %></p>
+            <%= button_to t(".create_clip"), project_clips_path(project_id: @project), method: :post, class: "kc-button-primary" %>
+          </div>
+        <% end %>
       </section>
     <% end %>
 

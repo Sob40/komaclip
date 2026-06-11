@@ -85,6 +85,7 @@ en:
     clip_created: "Teaser created."
     clip_deleted: "Teaser deleted."
     clip_requires_panels: "Create at least one panel before assembling a teaser."
+    direction_required: "Choose goal and style before creating a teaser."
     material_confirmed: "Material confirmed."
     material_requires_scenes: "Upload at least one scene before continuing."
     panel_already_exists: "That full-page panel already exists."
@@ -178,9 +179,12 @@ en:
       continue_direction: "Continue to direction"
       template_applied_title: "Template applied"
       template_applied_body: "%{name} will be reused with the new material."
+      change: "Change"
       direction_eyebrow: "Direction"
-      direction_title: "Choose the first cut."
+      direction_title: "Choose goal and style."
       direction_body: "Give the teaser an intention before it is assembled. Think about the reader: what they should feel, understand, and want to open next."
+      style_stage_title: "Choose how it should feel."
+      style_stage_body: "This shapes pacing, text, music, effects, and transitions."
       direction_cards:
         goal_label: "Why"
         style_label: "Pacing"
@@ -199,15 +203,27 @@ en:
             title: "Sell / campaign"
             body: "Turn interest into a purchase, preorder, or pledge."
         styles:
-          chapter_clean:
-            title: "Clean chapter"
-            body: "Let the panels read clearly, respect the art, and keep the hook out of the way."
           trailer_tense:
             title: "Tense trailer"
             body: "Mystery, pauses, and a finish that makes readers want the page."
           impact_fast:
             title: "Fast impact"
             body: "Quick cuts, panel hits, and punchier title cards."
+          chapter_clean:
+            title: "Clean chapter"
+            body: "Clear reading, direct announcement, and controlled effects."
+          webtoon_scroll:
+            title: "Webtoon scroll"
+            body: "Vertical reveal, lower text, and reading-led pacing."
+          character_spotlight:
+            title: "Character focus"
+            body: "Elegant zooms, emotional focus, and a community call."
+          sales_pitch:
+            title: "Sales promo"
+            body: "Clear presentation, campaign energy, and a support-focused ending."
+          making_of:
+            title: "Making of"
+            body: "Process, sketches, timelapse, or creator-side material."
         formats:
           vertical_social:
             title: "Vertical social"

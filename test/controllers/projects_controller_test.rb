@@ -89,9 +89,8 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".kc-material-review"
     assert_select ".kc-scene-card", minimum: 1
     assert_select "[data-flow-step=direction]"
-    assert_select ".kc-direction-card", text: /Reader hook/
-    assert_select ".kc-direction-card", text: /Clean chapter/
-    assert_select ".kc-direction-card", text: /Vertical social/
+    assert_select ".kc-direction-summary-button", text: /Reader hook/
+    assert_select ".kc-direction-summary-button", text: /Clean chapter/
     assert_select "[data-flow-step=preview]"
   end
 
@@ -145,7 +144,46 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
     follow_redirect!
     assert_select ".kc-project-flow.is-material-ready"
     assert_select "[data-flow-step=direction]"
+    assert_select "[data-goal-choice]", minimum: 4
     assert_select "[data-flow-step=preview]", count: 0
+  end
+
+  test "choose direction advances from goal to style and then ready" do
+    project = users(:one).projects.create!(title: "Directed", content_locale: "en", metadata: { "materialReady" => true })
+    asset = project.project_assets.create!(user: users(:one), kind: "source_page", file: sample_image_upload)
+    project.panels.create!(project_asset: asset, position: 1, label: "Scene 1")
+    sign_in_as(users(:one))
+
+    post choose_direction_project_path(id: project), params: { direction: { goal: "launch" } }
+
+    assert_redirected_to project_path(id: project, anchor: "direction")
+    assert_equal "launch", project.reload.metadata.dig("direction", "goal")
+    assert_equal "style", project.metadata.fetch("directionStage")
+
+    follow_redirect!
+    assert_select ".kc-direction-summary-button", text: /Announce chapter/
+    assert_select "[data-style-choice]", minimum: 7
+    assert_select "form[action=?]", project_clips_path(project_id: project), count: 0
+
+    post choose_direction_project_path(id: project), params: { direction: { style: "webtoon_scroll" } }
+
+    assert_redirected_to project_path(id: project, anchor: "direction")
+    assert_equal "webtoon_scroll", project.reload.metadata.dig("direction", "style")
+    assert_equal true, project.metadata.fetch("directionStyleChosen")
+
+    follow_redirect!
+    assert_select ".kc-project-flow.is-direction-ready"
+    assert_select ".kc-direction-summary-button", text: /Webtoon scroll/
+    assert_select "form[action=?]", project_clips_path(project_id: project)
+
+    post choose_direction_project_path(id: project), params: { stage: "style" }
+
+    assert_redirected_to project_path(id: project, anchor: "direction")
+    assert_equal "style", project.reload.metadata.fetch("directionStage")
+
+    follow_redirect!
+    assert_select "[data-style-choice]", minimum: 7
+    assert_select "form[action=?]", project_clips_path(project_id: project), count: 0
   end
 
   test "confirm material requires at least one scene" do
