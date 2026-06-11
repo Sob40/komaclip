@@ -473,7 +473,7 @@
   }
 
   .kc-style-choice-grid {
-    grid-template-columns: repeat(7, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(154px, 1fr));
   }
 
   .kc-choice-grid form {
@@ -505,7 +505,7 @@
 
   .kc-style-choice-grid .kc-choice-card {
     align-items: start;
-    height: 114px;
+    min-height: 126px;
   }
 
   .kc-choice-copy {
@@ -1034,13 +1034,24 @@
   .kc-choice-card strong {
     font-size: 15px;
     font-weight: 900;
-    line-height: 1.2;
+    line-height: 1.15;
   }
 
   .kc-choice-card .kc-choice-copy > span {
     color: var(--kc-muted);
     font-size: 13px;
     line-height: 1.35;
+  }
+
+  .kc-style-choice-grid .kc-choice-card strong {
+    font-size: 14px;
+    line-height: 1.12;
+  }
+
+  .kc-style-choice-grid .kc-choice-card .kc-choice-copy > span {
+    font-size: 12px;
+    font-weight: 760;
+    line-height: 1.24;
   }
 
   .kc-proposal-step {
