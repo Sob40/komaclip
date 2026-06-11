@@ -550,7 +550,7 @@
     width: 100%;
   }
 
-  .kc-scene-media > span:not(.kc-scene-order) {
+  .kc-scene-media > span:not(.kc-scene-order):not(.kc-scene-text-preview) {
     align-items: center;
     color: rgba(248, 246, 255, 0.58);
     display: flex;
@@ -612,6 +612,40 @@
     padding: 0 7px;
     position: absolute;
     top: 8px;
+  }
+
+  .kc-scene-text-preview {
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.72);
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    border-radius: 7px;
+    bottom: 8px;
+    box-shadow: 0 12px 26px rgba(0, 0, 0, 0.34);
+    color: rgba(255, 255, 255, 0.96);
+    display: -webkit-box;
+    font-size: 11px;
+    font-weight: 950;
+    left: 8px;
+    line-height: 1.15;
+    overflow: hidden;
+    padding: 7px 8px;
+    position: absolute;
+    right: 8px;
+    text-align: center;
+    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.76);
+  }
+
+  .kc-scene-text-preview::after {
+    background: linear-gradient(90deg, #ff3d7f, #ff7447, #7a5cff);
+    border-radius: 999px;
+    bottom: 3px;
+    content: "";
+    height: 2px;
+    left: 18px;
+    position: absolute;
+    right: 18px;
   }
 
   .kc-scene-copy {

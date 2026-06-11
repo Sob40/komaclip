@@ -92,6 +92,16 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-flow-step=preview]"
   end
 
+  test "show previews scene text over material thumbnail" do
+    panels(:one).update!(metadata: { "sceneText" => "Launch reveal" })
+    sign_in_as(users(:one))
+
+    get project_path(id: projects(:one))
+
+    assert_response :success
+    assert_select ".kc-scene-text-preview", text: "Launch reveal"
+  end
+
   test "show starts with only material step for an empty project" do
     project = users(:one).projects.create!(title: "Empty flow", content_locale: "en")
     sign_in_as(users(:one))

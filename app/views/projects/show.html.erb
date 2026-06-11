@@ -61,6 +61,9 @@
                     <span><%= t(".scene_media_missing") %></span>
                   <% end %>
                   <span class="kc-scene-order"><%= panel.position %></span>
+                  <% if scene_text.present? %>
+                    <span class="kc-scene-text-preview"><%= scene_text %></span>
+                  <% end %>
                 </button>
 
                 <div id="<%= scene_text_popover_id %>" class="kc-scene-popover" popover>
