@@ -86,6 +86,8 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "[data-flow-step=material]"
+    assert_select ".kc-material-review"
+    assert_select ".kc-scene-card", minimum: 1
     assert_select "[data-flow-step=direction]"
     assert_select "[data-flow-step=preview]"
   end

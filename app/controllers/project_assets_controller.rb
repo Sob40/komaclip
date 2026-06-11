@@ -8,10 +8,17 @@ class ProjectAssetsController < ApplicationController
 
     ProjectAsset.transaction do
       uploads.each do |upload|
-        @project.project_assets.create!(
+        position = next_panel_position
+        asset = @project.project_assets.create!(
           user: Current.user,
           kind: asset_kind,
           file: upload
+        )
+        @project.panels.create!(
+          project_asset: asset,
+          position: position,
+          label: t("projects.show.scene_title", position: position),
+          crop: Panel::FULL_CROP
         )
       end
     end
@@ -56,5 +63,10 @@ class ProjectAssetsController < ApplicationController
     def asset_uploads
       permitted = asset_params
       Array(permitted[:files].presence || permitted[:file]).compact_blank
+    end
+
+    def next_panel_position
+      @next_panel_position ||= @project.panels.maximum(:position).to_i
+      @next_panel_position += 1
     end
 end

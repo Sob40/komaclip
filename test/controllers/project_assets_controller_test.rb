@@ -13,17 +13,22 @@ class ProjectAssetsControllerTest < ActionDispatch::IntegrationTest
     sign_in_as(users(:one))
 
     assert_difference -> { projects(:one).project_assets.count }, 1 do
-      post project_assets_path(project_id: projects(:one)), params: {
-        project_asset: { kind: "source_page", file: sample_image_upload }
-      }
+      assert_difference -> { projects(:one).panels.count }, 1 do
+        post project_assets_path(project_id: projects(:one)), params: {
+          project_asset: { kind: "source_page", file: sample_image_upload }
+        }
+      end
     end
 
     asset = projects(:one).project_assets.order(:created_at).last
+    panel = projects(:one).panels.order(:position).last
     assert_equal users(:one), asset.user
     assert_equal "sample-page.png", asset.filename
     assert_equal "image/png", asset.content_type
     assert_equal "ready", asset.status
     assert asset.file.attached?
+    assert_equal asset, panel.project_asset
+    assert_equal "Scene 2", panel.label
     assert_redirected_to project_path(id: projects(:one))
   end
 
@@ -31,9 +36,11 @@ class ProjectAssetsControllerTest < ActionDispatch::IntegrationTest
     sign_in_as(users(:one))
 
     assert_difference -> { projects(:one).project_assets.count }, 2 do
-      post project_assets_path(project_id: projects(:one)), params: {
-        project_asset: { kind: "source_page", files: [ sample_image_upload, sample_image_upload ] }
-      }
+      assert_difference -> { projects(:one).panels.count }, 2 do
+        post project_assets_path(project_id: projects(:one)), params: {
+          project_asset: { kind: "source_page", files: [ sample_image_upload, sample_image_upload ] }
+        }
+      end
     end
 
     assert_redirected_to project_path(id: projects(:one))
@@ -138,12 +145,16 @@ class ProjectAssetsControllerTest < ActionDispatch::IntegrationTest
 
   test "destroy removes owned asset" do
     asset = create_asset_for(users(:one), projects(:one))
+    panel = projects(:one).panels.create!(project_asset: asset, position: 2, label: "Disposable scene")
     sign_in_as(users(:one))
 
     assert_difference -> { projects(:one).project_assets.count }, -1 do
-      delete project_asset_path(project_id: projects(:one), id: asset)
+      assert_difference -> { projects(:one).panels.count }, -1 do
+        delete project_asset_path(project_id: projects(:one), id: asset)
+      end
     end
 
+    assert_not Panel.exists?(panel.id)
     assert_redirected_to project_path(id: projects(:one))
   end
 

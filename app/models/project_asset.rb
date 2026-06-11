@@ -14,7 +14,7 @@ class ProjectAsset < ApplicationRecord
   belongs_to :user
 
   has_one_attached :file
-  has_many :panels, dependent: :restrict_with_error
+  has_many :panels, dependent: :destroy
 
   before_validation :sync_file_metadata
 
