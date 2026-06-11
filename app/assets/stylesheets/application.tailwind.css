@@ -505,7 +505,7 @@
 
   .kc-style-choice-grid .kc-choice-card {
     align-items: start;
-    min-height: 126px;
+    height: 146px;
   }
 
   .kc-choice-copy {
