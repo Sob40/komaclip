@@ -85,8 +85,6 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
     get project_path(id: projects(:one))
 
     assert_response :success
-    assert_select "h1", projects(:one).title
-    assert_select "p", /English content/
     assert_select "[data-flow-step=material]"
     assert_select "[data-flow-step=direction]"
     assert_select "[data-flow-step=preview]"
