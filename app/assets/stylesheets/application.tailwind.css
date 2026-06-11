@@ -47,14 +47,14 @@
   .kc-shell {
     isolation: isolate;
     min-height: 100vh;
-    padding: 24px;
+    padding: 22px;
     position: relative;
     z-index: 1;
   }
 
   .kc-main {
     margin: 20px auto 0;
-    max-width: 1180px;
+    max-width: none;
     width: 100%;
   }
 
@@ -71,7 +71,7 @@
     gap: 16px;
     justify-content: space-between;
     margin: 0 auto;
-    max-width: 1180px;
+    max-width: none;
     padding: 8px 12px;
     position: sticky;
     top: 8px;
@@ -309,8 +309,8 @@
   .kc-studio-grid {
     align-items: start;
     display: grid;
-    gap: 20px;
-    grid-template-columns: minmax(0, 1fr) minmax(330px, 380px);
+    gap: 22px;
+    grid-template-columns: minmax(0, 1fr) minmax(360px, 410px);
   }
 
   .kc-stat-grid {
