@@ -194,6 +194,7 @@
             <label class="kc-proposal-field">
               <span><%= t(".proposal_fields.genre") %></span>
               <%= select_tag :proposal_genre, options_for_select([[ t(".proposal_options.genre.drama"), "drama" ]]), class: "kc-input" %>
+              <small aria-hidden="true">&nbsp;</small>
             </label>
             <label class="kc-proposal-field">
               <span><%= t(".proposal_fields.scene_time") %></span>

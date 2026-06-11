@@ -1097,6 +1097,7 @@
   }
 
   .kc-proposal-settings-grid {
+    align-items: start;
     display: grid;
     gap: 10px;
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1105,10 +1106,13 @@
   .kc-proposal-field {
     display: grid;
     gap: 6px;
+    grid-template-rows: 14px 52px 14px;
     min-width: 0;
   }
 
   .kc-proposal-field .kc-input {
+    height: 52px;
+    min-height: 52px;
     width: 100%;
   }
 
