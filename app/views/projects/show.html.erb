@@ -1,4 +1,4 @@
-<main class="kc-main">
+<main class="kc-main kc-project-flow <%= "is-material-ready" if @material_ready %> <%= "is-proposal-ready" if @proposal_ready %>">
   <header class="kc-page-header">
     <div>
       <%= link_to t("projects.show.back"), dashboard_path, class: "kc-button-ghost" %>
@@ -9,30 +9,6 @@
     </div>
   </header>
 
-  <section class="kc-stat-grid kc-stat-grid-4">
-    <div class="kc-stat-card">
-      <p class="kc-stat-label"><%= t(".assets") %></p>
-      <p class="kc-stat-value"><%= @project_assets.size %></p>
-    </div>
-    <div class="kc-stat-card">
-      <p class="kc-stat-label"><%= t(".panels") %></p>
-      <p class="kc-stat-value"><%= @panels.size %></p>
-    </div>
-    <div class="kc-stat-card">
-      <p class="kc-stat-label"><%= t(".clips") %></p>
-      <p class="kc-stat-value"><%= @clips_count %></p>
-    </div>
-    <div class="kc-stat-card">
-      <p class="kc-stat-label"><%= t(".renders") %></p>
-      <p class="kc-stat-value"><%= @renders_count %></p>
-    </div>
-  </section>
-
-  <section id="direction" class="kc-panel kc-panel-pad mt-5">
-    <h2 class="kc-section-title"><%= t(".next_title") %></h2>
-    <p class="kc-subtitle"><%= t(".next_body") %></p>
-  </section>
-
   <% if flash[:alert] %>
     <div class="kc-flash kc-flash-alert"><%= flash[:alert] %></div>
   <% end %>
@@ -41,147 +17,128 @@
     <div class="kc-flash kc-flash-notice"><%= flash[:notice] %></div>
   <% end %>
 
-  <section id="material" class="kc-grid kc-grid-2 mt-8">
-    <div class="kc-panel kc-panel-pad">
-      <div class="kc-page-header">
-        <div>
-          <h2 class="kc-section-title"><%= t(".assets_title") %></h2>
-          <p class="kc-subtitle"><%= t(".assets_body") %></p>
-        </div>
-      </div>
-
-      <% if @project_assets.any? %>
-        <div class="kc-table-wrap">
-          <table class="kc-table">
-            <thead>
-              <tr>
-                <th><%= t(".assets_table.file") %></th>
-                <th><%= t(".assets_table.kind") %></th>
-                <th><%= t(".assets_table.size") %></th>
-                <th><%= t(".assets_table.status") %></th>
-              </tr>
-            </thead>
-            <tbody>
-              <% @project_assets.each do |asset| %>
-                <tr>
-                  <td><%= link_to asset.filename, project_asset_path(project_id: @project, id: asset) %></td>
-                  <td><%= t("project_asset_kinds.#{asset.kind}") %></td>
-                  <td><%= number_to_human_size(asset.byte_size) %></td>
-                  <td><span class="kc-pill"><%= t("project_asset_statuses.#{asset.status}") %></span></td>
-                </tr>
-              <% end %>
-            </tbody>
-          </table>
-        </div>
-      <% else %>
-        <div class="kc-empty">
-          <div>
-            <h3 class="kc-section-title"><%= t(".assets_empty_title") %></h3>
-            <p class="kc-subtitle"><%= t(".assets_empty_body") %></p>
-          </div>
-        </div>
-      <% end %>
-    </div>
-
-    <aside class="kc-panel kc-panel-pad">
-      <h2 class="kc-section-title"><%= t(".upload_title") %></h2>
-      <p class="kc-subtitle"><%= t(".upload_body") %></p>
-
-      <%= form_with model: [ @project, ProjectAsset.new ], url: project_assets_path(project_id: @project), class: "mt-6 grid gap-5" do |form| %>
-        <div class="kc-form-field">
-          <%= form.label :kind, t(".upload_kind") %>
-          <%= form.select :kind, project_asset_kind_options, {}, class: "kc-input" %>
-        </div>
-
-        <div class="kc-form-field">
-          <%= form.label :file, t(".upload_file") %>
-          <%= form.file_field :file, required: true, accept: "image/jpeg,image/png,image/webp", class: "kc-input py-2" %>
-          <p class="kc-muted text-sm"><%= t(".upload_hint") %></p>
-        </div>
-
-        <%= form.submit t(".upload_submit"), class: "kc-button-primary w-full" %>
-      <% end %>
-    </aside>
-  </section>
-
-  <section class="kc-panel kc-panel-pad mt-8">
-    <div>
-      <h2 class="kc-section-title"><%= t(".panels_title") %></h2>
-      <p class="kc-subtitle"><%= t(".panels_body") %></p>
-    </div>
-
-    <% if @panels.any? %>
-      <div class="kc-table-wrap mt-6">
-        <table class="kc-table">
-          <thead>
-            <tr>
-              <th><%= t(".panels_table.position") %></th>
-              <th><%= t(".panels_table.label") %></th>
-              <th><%= t(".panels_table.source") %></th>
-              <th><%= t(".panels_table.crop") %></th>
-            </tr>
-          </thead>
-          <tbody>
-            <% @panels.each do |panel| %>
-              <tr>
-                <td><%= panel.position %></td>
-                <td><%= link_to panel.label, project_panel_path(project_id: @project, id: panel) %></td>
-                <td><%= panel.project_asset.filename %></td>
-                <td><%= t(".full_page_crop") %></td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
-      </div>
-    <% else %>
-      <div class="kc-empty">
-        <div>
-          <h3 class="kc-section-title"><%= t(".panels_empty_title") %></h3>
-          <p class="kc-subtitle"><%= t(".panels_empty_body") %></p>
-        </div>
-      </div>
-    <% end %>
-  </section>
-
-  <section id="lab" class="kc-panel kc-panel-pad mt-8">
-    <div class="kc-page-header">
+  <section id="material" class="kc-flow-step <%= "is-complete" if @material_ready %>" data-flow-step="material">
+    <div class="kc-step-heading">
+      <span class="kc-step-number">1</span>
       <div>
-        <h2 class="kc-section-title"><%= t(".clips_title") %></h2>
-        <p class="kc-subtitle"><%= t(".clips_body") %></p>
+        <p class="kc-eyebrow"><%= t(".material_eyebrow") %></p>
+        <h2><%= t(".material_title") %></h2>
+        <p><%= t(".material_body") %></p>
       </div>
-      <%= button_to t(".create_clip"), project_clips_path(project_id: @project), method: :post, class: "kc-button-primary" %>
     </div>
 
-    <% if @clips.any? %>
-      <div class="kc-table-wrap">
-        <table class="kc-table">
-          <thead>
-            <tr>
-              <th><%= t(".clips_table.position") %></th>
-              <th><%= t(".clips_table.title") %></th>
-              <th><%= t(".clips_table.duration") %></th>
-              <th><%= t(".clips_table.status") %></th>
-            </tr>
-          </thead>
-          <tbody>
-            <% @clips.each do |clip| %>
-              <tr>
-                <td><%= clip.position %></td>
-                <td><%= link_to clip.title, project_clip_path(project_id: @project, id: clip) %></td>
-                <td><%= t(".duration_seconds", seconds: clip.duration_ms / 1000) %></td>
-                <td><span class="kc-pill kc-pill-warm"><%= t("clip_statuses.#{clip.status}") %></span></td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
+    <div class="kc-grid kc-grid-2">
+      <div>
+        <% if @project_assets.any? %>
+          <div class="kc-table-wrap">
+            <table class="kc-table kc-compact-table">
+              <thead>
+                <tr>
+                  <th><%= t(".assets_table.file") %></th>
+                  <th><%= t(".assets_table.status") %></th>
+                  <th><%= t(".assets_table.action") %></th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @project_assets.each do |asset| %>
+                  <% panel = @panels.find { |candidate| candidate.project_asset_id == asset.id } %>
+                  <tr>
+                    <td><%= link_to asset.filename, project_asset_path(project_id: @project, id: asset) %></td>
+                    <td><span class="kc-pill"><%= t("project_asset_statuses.#{asset.status}") %></span></td>
+                    <td>
+                      <% if panel %>
+                        <%= link_to t(".review_panel"), project_panel_path(project_id: @project, id: panel), class: "kc-button-ghost" %>
+                      <% else %>
+                        <%= button_to t(".create_panel"), project_asset_panels_path(project_id: @project, asset_id: asset), method: :post, class: "kc-button-primary" %>
+                      <% end %>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        <% else %>
+          <div class="kc-empty">
+            <div>
+              <h3 class="kc-section-title"><%= t(".assets_empty_title") %></h3>
+              <p class="kc-subtitle"><%= t(".assets_empty_body") %></p>
+            </div>
+          </div>
+        <% end %>
       </div>
-    <% else %>
-      <div class="kc-empty">
+
+      <aside class="kc-inline-panel">
+        <h3 class="kc-section-title"><%= t(".upload_title") %></h3>
+        <p class="kc-subtitle"><%= t(".upload_body") %></p>
+
+        <%= form_with model: [ @project, ProjectAsset.new ], url: project_assets_path(project_id: @project), class: "mt-5 grid gap-4" do |form| %>
+          <div class="kc-form-field">
+            <%= form.label :kind, t(".upload_kind") %>
+            <%= form.select :kind, project_asset_kind_options, {}, class: "kc-input" %>
+          </div>
+
+          <div class="kc-form-field">
+            <%= form.label :file, t(".upload_file") %>
+            <%= form.file_field :file, required: true, accept: "image/jpeg,image/png,image/webp", class: "kc-input py-2" %>
+            <p class="kc-muted text-sm"><%= t(".upload_hint") %></p>
+          </div>
+
+          <%= form.submit t(".upload_submit"), class: "kc-button-primary w-full" %>
+        <% end %>
+      </aside>
+    </div>
+  </section>
+
+  <% if @material_ready %>
+    <section id="direction" class="kc-flow-step <%= "is-complete" if @proposal_ready %>" data-flow-step="direction">
+      <div class="kc-step-heading">
+        <span class="kc-step-number">2</span>
         <div>
-          <h3 class="kc-section-title"><%= t(".clips_empty_title") %></h3>
-          <p class="kc-subtitle"><%= t(".clips_empty_body") %></p>
+          <p class="kc-eyebrow"><%= t(".direction_eyebrow") %></p>
+          <h2><%= t(".direction_title") %></h2>
+          <p><%= t(".direction_body") %></p>
         </div>
       </div>
-    <% end %>
-  </section>
+
+      <div class="kc-choice-grid">
+        <div class="kc-choice-card is-active">
+          <strong><%= t(".direction_cards.goal_title") %></strong>
+          <span><%= t(".direction_cards.goal_body") %></span>
+        </div>
+        <div class="kc-choice-card is-active">
+          <strong><%= t(".direction_cards.style_title") %></strong>
+          <span><%= t(".direction_cards.style_body") %></span>
+        </div>
+        <div class="kc-choice-card">
+          <strong><%= t(".direction_cards.format_title") %></strong>
+          <span><%= t(".direction_cards.format_body") %></span>
+        </div>
+      </div>
+
+      <div class="kc-flow-action-row">
+        <p class="kc-muted"><%= t(".direction_ready", count: @panels.size) %></p>
+        <%= button_to t(".create_clip"), project_clips_path(project_id: @project), method: :post, class: "kc-button-primary" %>
+      </div>
+    </section>
+  <% end %>
+
+  <% if @proposal_ready %>
+    <section id="lab" class="kc-flow-step" data-flow-step="preview">
+      <div class="kc-step-heading">
+        <span class="kc-step-number">3</span>
+        <div>
+          <p class="kc-eyebrow"><%= t(".preview_eyebrow") %></p>
+          <h2><%= t(".preview_title") %></h2>
+          <p><%= t(".preview_body") %></p>
+        </div>
+      </div>
+
+      <div class="kc-flow-action-row">
+        <p class="kc-muted">
+          <%= t(".latest_clip", title: @latest_clip.title, duration: @latest_clip.duration_ms / 1000) %>
+        </p>
+        <%= link_to t(".open_preview"), project_clip_path(project_id: @project, id: @latest_clip), class: "kc-button-primary" %>
+      </div>
+    </section>
+  <% end %>
 </main>

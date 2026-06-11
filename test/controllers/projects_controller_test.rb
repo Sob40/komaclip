@@ -87,6 +87,21 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "h1", projects(:one).title
     assert_select "p", /English content/
+    assert_select "[data-flow-step=material]"
+    assert_select "[data-flow-step=direction]"
+    assert_select "[data-flow-step=preview]"
+  end
+
+  test "show starts with only material step for an empty project" do
+    project = users(:one).projects.create!(title: "Empty flow", content_locale: "en")
+    sign_in_as(users(:one))
+
+    get project_path(id: project)
+
+    assert_response :success
+    assert_select "[data-flow-step=material]"
+    assert_select "[data-flow-step=direction]", count: 0
+    assert_select "[data-flow-step=preview]", count: 0
   end
 
   test "show rejects another user's project" do

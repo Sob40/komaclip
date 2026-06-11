@@ -20,6 +20,9 @@ class ProjectsController < ApplicationController
     @clips = @project.clips.order(:position).to_a
     @clips_count = @clips.size
     @renders_count = @project.clip_renders.count
+    @material_ready = @panels.any?
+    @proposal_ready = @clips.any?
+    @latest_clip = @clips.last
   end
 
   private
