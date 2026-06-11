@@ -21,6 +21,20 @@ class Panel < ApplicationRecord
   validate :asset_can_create_panel
   validate :crop_is_normalized_rectangle
 
+  def self.full_crop?(crop)
+    return false unless crop.is_a?(Hash)
+
+    crop["unit"] == "normalized" &&
+      crop["x"].to_f.zero? &&
+      crop["y"].to_f.zero? &&
+      crop["width"].to_f == 1.0 &&
+      crop["height"].to_f == 1.0
+  end
+
+  def full_crop?
+    self.class.full_crop?(crop)
+  end
+
   private
 
     def set_default_crop

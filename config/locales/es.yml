@@ -101,6 +101,7 @@ es:
     clip_created: "Clip creado."
     clip_deleted: "Clip eliminado."
     clip_requires_panels: "Crea al menos una viñeta antes de crear un clip."
+    panel_already_exists: "Esa viñeta de página completa ya existe."
     panel_created: "Viñeta creada."
     panel_deleted: "Viñeta eliminada."
     project_created: "Proyecto creado."
@@ -216,8 +217,12 @@ es:
 
   project_assets:
     show:
+      actions_title: "Acciones del asset"
       back: "Volver al proyecto"
       meta: "%{kind} · %{size} · %{status}"
+      metadata_title: "Metadatos de almacenamiento"
+      preview_empty: "No hay preview disponible"
+      preview_title: "Preview fuente"
       content_type: "Content type"
       storage_key: "Storage key"
       uploaded: "Subido"
@@ -229,8 +234,12 @@ es:
   panels:
     default_label: "Viñeta %{position}"
     show:
+      actions_title: "Acciones de la viñeta"
       back: "Volver al proyecto"
+      crop_title: "Datos del crop"
       meta: "Posición %{position} · %{source}"
+      preview_empty: "No hay preview de fuente disponible"
+      preview_title: "Preview de viñeta"
       source_asset: "Asset fuente"
       crop_unit: "Unidad del crop"
       crop_origin: "Origen del crop"

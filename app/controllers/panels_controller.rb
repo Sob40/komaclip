@@ -4,6 +4,11 @@ class PanelsController < ApplicationController
   before_action :set_panel, only: %i[show destroy]
 
   def create
+    if (existing_panel = @asset.panels.find(&:full_crop?))
+      redirect_to project_panel_path(project_id: @project, id: existing_panel), notice: t("flash.panel_already_exists")
+      return
+    end
+
     position = next_position
     @panel = @project.panels.new(
       project_asset: @asset,

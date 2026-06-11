@@ -71,6 +71,7 @@ en:
     clip_created: "Clip created."
     clip_deleted: "Clip deleted."
     clip_requires_panels: "Create at least one panel before creating a clip."
+    panel_already_exists: "That full-page panel already exists."
     panel_created: "Panel created."
     panel_deleted: "Panel deleted."
     project_created: "Project created."
@@ -186,8 +187,12 @@ en:
 
   project_assets:
     show:
+      actions_title: "Asset actions"
       back: "Back to project"
       meta: "%{kind} · %{size} · %{status}"
+      metadata_title: "Storage metadata"
+      preview_empty: "No preview available"
+      preview_title: "Source preview"
       content_type: "Content type"
       storage_key: "Storage key"
       uploaded: "Uploaded"
@@ -199,8 +204,12 @@ en:
   panels:
     default_label: "Panel %{position}"
     show:
+      actions_title: "Panel actions"
       back: "Back to project"
+      crop_title: "Crop data"
       meta: "Position %{position} · %{source}"
+      preview_empty: "No source preview available"
+      preview_title: "Panel preview"
       source_asset: "Source asset"
       crop_unit: "Crop unit"
       crop_origin: "Crop origin"

@@ -24,6 +24,12 @@ class PanelTest < ActiveSupport::TestCase
     assert_equal "Panel 2", panel.label
   end
 
+  test "recognizes full normalized crop" do
+    assert Panel.full_crop?(Panel::FULL_CROP)
+    assert panels(:one).full_crop?
+    assert_not Panel.full_crop?({ "unit" => "normalized", "x" => 0.1, "y" => 0.0, "width" => 0.9, "height" => 1.0 })
+  end
+
   test "requires crop to stay inside normalized image bounds" do
     panel = Panel.new(
       project: projects(:one),

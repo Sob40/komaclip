@@ -8,17 +8,30 @@ class PanelsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "create extracts full-page panel from owned asset" do
+    asset = create_asset_for(users(:one), projects(:one))
     sign_in_as(users(:one))
 
     assert_difference -> { projects(:one).panels.count }, 1 do
-      post project_asset_panels_path(project_id: projects(:one), asset_id: project_assets(:one))
+      post project_asset_panels_path(project_id: projects(:one), asset_id: asset)
     end
 
     panel = projects(:one).panels.order(:position).last
-    assert_equal project_assets(:one), panel.project_asset
+    assert_equal asset, panel.project_asset
     assert_equal 2, panel.position
     assert_equal Panel::FULL_CROP, panel.crop
     assert_redirected_to project_panel_path(project_id: projects(:one), id: panel)
+  end
+
+  test "create redirects to existing full-page panel for the same asset" do
+    sign_in_as(users(:one))
+
+    assert_no_difference -> { projects(:one).panels.count } do
+      post project_asset_panels_path(project_id: projects(:one), asset_id: project_assets(:one))
+    end
+
+    assert_redirected_to project_panel_path(project_id: projects(:one), id: panels(:one))
+    follow_redirect!
+    assert_select "div", /full-page panel already exists/
   end
 
   test "create rejects another user's asset" do
@@ -57,4 +70,18 @@ class PanelsControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to project_path(id: projects(:one))
   end
+
+  private
+
+    def create_asset_for(user, project)
+      project.project_assets.create!(
+        user: user,
+        kind: "source_page",
+        file: sample_image_upload
+      )
+    end
+
+    def sample_image_upload
+      Rack::Test::UploadedFile.new(Rails.root.join("test/fixtures/files/sample-page.png"), "image/png")
+    end
 end

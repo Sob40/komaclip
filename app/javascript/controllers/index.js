@@ -6,3 +6,6 @@ import { application } from "./application"
 
 import HelloController from "./hello_controller"
 application.register("hello", HelloController)
+
+import MediaPreviewController from "./media_preview_controller"
+application.register("media-preview", MediaPreviewController)
