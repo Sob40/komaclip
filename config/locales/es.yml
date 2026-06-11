@@ -265,6 +265,27 @@ es:
       direction_ready:
         one: "1 viñeta lista para montar el primer teaser."
         other: "%{count} viñetas listas para montar el primer teaser."
+      proposal_eyebrow: "Propuesta"
+      proposal_title: "Ajusta y crea la propuesta."
+      proposal_body: "Define género, lectura e intensidad antes de generar una versión editable."
+      proposal_settings_title: "Ajustes de propuesta"
+      proposal_settings_body: "Matizan el resultado sin cambiar el estilo elegido."
+      proposal_fields:
+        genre: "Género de la obra"
+        scene_time: "Tiempo por viñeta"
+        intensity: "Intensidad"
+      proposal_options:
+        genre:
+          drama: "Drama"
+        scene_time:
+          auto: "Auto recomendado"
+        intensity:
+          balanced: "Equilibrado"
+      proposal_hints:
+        scene_time: "Controla el tiempo de lectura de cada escena."
+        intensity: "Controla movimiento, efectos y transiciones."
+      create_proposal: "Crear propuesta"
+      open_proposal: "Abrir propuesta"
       preview_eyebrow: "Vista"
       preview_title: "Revisa el teaser."
       preview_body: "Mira cómo respiran las viñetas antes de guardar el vídeo."

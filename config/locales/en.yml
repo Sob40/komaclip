@@ -231,6 +231,27 @@ en:
       direction_ready:
         one: "1 panel is ready for the first teaser."
         other: "%{count} panels are ready for the first teaser."
+      proposal_eyebrow: "Proposal"
+      proposal_title: "Adjust and create the proposal."
+      proposal_body: "Define genre, reading pace, and intensity before generating an editable version."
+      proposal_settings_title: "Proposal settings"
+      proposal_settings_body: "Tune the result without changing the chosen style."
+      proposal_fields:
+        genre: "Story genre"
+        scene_time: "Time per panel"
+        intensity: "Intensity"
+      proposal_options:
+        genre:
+          drama: "Drama"
+        scene_time:
+          auto: "Auto recommended"
+        intensity:
+          balanced: "Balanced"
+      proposal_hints:
+        scene_time: "Controls the reading time of each scene."
+        intensity: "Controls movement, effects, and transitions."
+      create_proposal: "Create proposal"
+      open_proposal: "Open proposal"
       preview_eyebrow: "View"
       preview_title: "Review the teaser."
       preview_body: "Check how the panels breathe before saving the video."

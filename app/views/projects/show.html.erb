@@ -131,8 +131,10 @@
               <% ProjectDirection.goal_options.each do |goal| %>
                 <%= button_to choose_direction_project_path(id: @project), method: :post, params: { direction: { goal: goal } }, class: "kc-choice-card", data: { goal_choice: goal } do %>
                   <%= direction_goal_icon(goal) %>
-                  <strong><%= t(".direction_cards.goals.#{goal}.title") %></strong>
-                  <span><%= t(".direction_cards.goals.#{goal}.body") %></span>
+                  <span class="kc-choice-copy">
+                    <strong><%= t(".direction_cards.goals.#{goal}.title") %></strong>
+                    <span><%= t(".direction_cards.goals.#{goal}.body") %></span>
+                  </span>
                 <% end %>
               <% end %>
             </div>
@@ -160,40 +162,65 @@
               <% ProjectDirection.style_options.each do |style| %>
                 <%= button_to choose_direction_project_path(id: @project), method: :post, params: { direction: { style: style } }, class: "kc-choice-card", data: { style_choice: style } do %>
                   <%= direction_style_icon(style) %>
-                  <strong><%= t(".direction_cards.styles.#{style}.title") %></strong>
-                  <span><%= t(".direction_cards.styles.#{style}.body") %></span>
+                  <span class="kc-choice-copy">
+                    <strong><%= t(".direction_cards.styles.#{style}.title") %></strong>
+                    <span><%= t(".direction_cards.styles.#{style}.body") %></span>
+                  </span>
                 <% end %>
               <% end %>
             </div>
           </div>
         <% end %>
-
-        <% if @direction_ready && @direction_stage == "ready" %>
-          <div class="kc-flow-action-row">
-            <p class="kc-muted"><%= t(".direction_ready", count: @panels.size) %></p>
-            <%= button_to t(".create_clip"), project_clips_path(project_id: @project), method: :post, class: "kc-button-primary" %>
-          </div>
-        <% end %>
       </section>
     <% end %>
 
-    <% if @proposal_ready %>
-      <section id="lab" class="kc-flow-step" data-flow-step="preview">
+    <% if @direction_ready && @direction_stage == "ready" %>
+      <section id="proposal" class="kc-flow-step kc-proposal-step" data-flow-step="proposal">
         <div class="kc-step-heading">
           <span class="kc-step-number">3</span>
           <div>
-            <p class="kc-eyebrow"><%= t(".preview_eyebrow") %></p>
-            <h2><%= t(".preview_title") %></h2>
-            <p><%= t(".preview_body") %></p>
+            <p class="kc-eyebrow"><%= t(".proposal_eyebrow") %></p>
+            <h2><%= t(".proposal_title") %></h2>
+            <p><%= t(".proposal_body") %></p>
           </div>
         </div>
 
-        <div class="kc-flow-action-row">
-          <p class="kc-muted">
-            <%= t(".latest_clip", title: @latest_clip.title, duration: @latest_clip.duration_ms / 1000) %>
-          </p>
-          <%= link_to t(".open_preview"), project_clip_path(project_id: @project, id: @latest_clip), class: "kc-button-primary" %>
-        </div>
+        <section class="kc-proposal-settings">
+          <div class="kc-proposal-settings-heading">
+            <strong><%= t(".proposal_settings_title") %></strong>
+            <span><%= t(".proposal_settings_body") %></span>
+          </div>
+          <div class="kc-proposal-settings-grid">
+            <label class="kc-proposal-field">
+              <span><%= t(".proposal_fields.genre") %></span>
+              <%= select_tag :proposal_genre, options_for_select([[ t(".proposal_options.genre.drama"), "drama" ]]), class: "kc-input" %>
+            </label>
+            <label class="kc-proposal-field">
+              <span><%= t(".proposal_fields.scene_time") %></span>
+              <%= select_tag :proposal_scene_time, options_for_select([[ t(".proposal_options.scene_time.auto"), "auto" ]]), class: "kc-input" %>
+              <small><%= t(".proposal_hints.scene_time") %></small>
+            </label>
+            <label class="kc-proposal-field">
+              <span><%= t(".proposal_fields.intensity") %></span>
+              <%= select_tag :proposal_intensity, options_for_select([[ t(".proposal_options.intensity.balanced"), "balanced" ]]), class: "kc-input" %>
+              <small><%= t(".proposal_hints.intensity") %></small>
+            </label>
+          </div>
+        </section>
+
+        <section class="kc-generate-panel">
+          <% if @proposal_ready %>
+            <%= link_to project_clip_path(project_id: @project, id: @latest_clip), class: "kc-button-primary kc-generate-button" do %>
+              <%= kc_icon("wand") %>
+              <%= t(".open_proposal") %>
+            <% end %>
+          <% else %>
+            <%= button_to project_clips_path(project_id: @project), method: :post, class: "kc-button-primary kc-generate-button" do %>
+              <%= kc_icon("wand") %>
+              <%= t(".create_proposal") %>
+            <% end %>
+          <% end %>
+        </section>
       </section>
     <% end %>
   </div>

@@ -91,7 +91,7 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-flow-step=direction]"
     assert_select ".kc-direction-summary-button", text: /Reader hook/
     assert_select ".kc-direction-summary-button", text: /Clean chapter/
-    assert_select "[data-flow-step=preview]"
+    assert_select "[data-flow-step=proposal]"
   end
 
   test "show previews scene text over material thumbnail" do
@@ -113,7 +113,7 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "[data-flow-step=material]"
     assert_select "[data-flow-step=direction]", count: 0
-    assert_select "[data-flow-step=preview]", count: 0
+    assert_select "[data-flow-step=proposal]", count: 0
   end
 
   test "show keeps direction hidden until uploaded material is confirmed" do
@@ -127,7 +127,7 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select ".kc-material-review"
     assert_select "[data-flow-step=direction]", count: 0
-    assert_select "[data-flow-step=preview]", count: 0
+    assert_select "[data-flow-step=proposal]", count: 0
   end
 
   test "confirm material folds material and opens direction" do
@@ -145,7 +145,7 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".kc-project-flow.is-material-ready"
     assert_select "[data-flow-step=direction]"
     assert_select "[data-goal-choice]", minimum: 4
-    assert_select "[data-flow-step=preview]", count: 0
+    assert_select "[data-flow-step=proposal]", count: 0
   end
 
   test "choose direction advances from goal to style and then ready" do
@@ -174,6 +174,8 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
     follow_redirect!
     assert_select ".kc-project-flow.is-direction-ready"
     assert_select ".kc-direction-summary-button", text: /Webtoon scroll/
+    assert_select "[data-flow-step=proposal]"
+    assert_select "h2", text: /Adjust and create the proposal/
     assert_select "form[action=?]", project_clips_path(project_id: project)
 
     post choose_direction_project_path(id: project), params: { stage: "style" }
