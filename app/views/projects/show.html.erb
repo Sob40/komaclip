@@ -61,7 +61,6 @@
                     <span><%= t(".scene_media_missing") %></span>
                   <% end %>
                   <span class="kc-scene-order"><%= panel.position %></span>
-                  <span class="kc-scene-text-chip <%= "is-empty" if scene_text.blank? %>"><%= scene_text.present? ? t(".scene_text_chip") : t(".scene_text_add") %></span>
                 </button>
 
                 <div id="<%= scene_text_popover_id %>" class="kc-scene-popover" popover>
@@ -85,6 +84,7 @@
 
                 <div class="kc-scene-footer">
                   <div class="kc-scene-actions" aria-label="<%= t(".scene_actions") %>">
+                    <button class="kc-scene-text-chip <%= "is-empty" if scene_text.blank? %>" type="button" popovertarget="<%= scene_text_popover_id %>"><%= scene_text.present? ? t(".scene_text_chip") : t(".scene_text_add") %></button>
                     <%= button_to "⧉", duplicate_project_panel_path(project_id: @project, id: panel), method: :post, class: "kc-scene-action kc-scene-action-icon", title: t(".duplicate_scene"), form: { "aria-label": t(".duplicate_scene") } %>
                     <%= button_to "×", project_panel_path(project_id: @project, id: panel), method: :delete, class: "kc-scene-action kc-scene-action-icon kc-scene-action-danger", title: t(".delete_scene"), form: { "aria-label": t(".delete_scene") } %>
                   </div>
