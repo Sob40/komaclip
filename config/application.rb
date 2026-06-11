@@ -31,6 +31,7 @@ module Komaclip
     config.middleware.use Rack::Attack
     config.i18n.available_locales = %i[en es]
     config.i18n.default_locale = :en
+    config.active_storage.variant_processor = :mini_magick
 
     # Configuration for the application, engines, and railties goes here.
     #

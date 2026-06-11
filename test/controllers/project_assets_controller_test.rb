@@ -38,7 +38,21 @@ class ProjectAssetsControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to project_path(id: projects(:one))
     follow_redirect!
-    assert_select "div", /JPG, PNG, or WebP/
+    assert_select "div", /real JPG, PNG, or WebP/
+  end
+
+  test "create rejects spoofed image file" do
+    sign_in_as(users(:one))
+
+    assert_no_difference -> { projects(:one).project_assets.count } do
+      post project_assets_path(project_id: projects(:one)), params: {
+        project_asset: { kind: "source_page", file: spoofed_image_upload }
+      }
+    end
+
+    assert_redirected_to project_path(id: projects(:one))
+    follow_redirect!
+    assert_select "div", /real JPG, PNG, or WebP/
   end
 
   test "create rejects another user's project" do
@@ -106,5 +120,9 @@ class ProjectAssetsControllerTest < ActionDispatch::IntegrationTest
 
     def text_upload
       Rack::Test::UploadedFile.new(Rails.root.join("test/fixtures/files/sample-not-image.txt"), "text/plain")
+    end
+
+    def spoofed_image_upload
+      Rack::Test::UploadedFile.new(Rails.root.join("test/fixtures/files/fake-page.png"), "image/png")
     end
 end

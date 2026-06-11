@@ -31,5 +31,18 @@ class ProjectAssetTest < ActiveSupport::TestCase
     assert asset.byte_size.positive?
     assert asset.storage_key.present?
     assert asset.checksum.present?
+    assert_equal({ "width" => 10, "height" => 10 }, asset.metadata.fetch("image"))
+  end
+
+  test "rejects files that spoof an image extension and content type" do
+    asset = ProjectAsset.new(
+      project: projects(:one),
+      user: users(:one),
+      kind: "source_page",
+      file: Rack::Test::UploadedFile.new(Rails.root.join("test/fixtures/files/fake-page.png"), "image/png")
+    )
+
+    assert_not asset.valid?
+    assert_includes asset.errors[:file], "must be a real JPG, PNG, or WebP image"
   end
 end

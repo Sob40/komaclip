@@ -13,6 +13,17 @@ The first upload flow supports private image assets only:
 Maximum file size is 25 MB. Audio, music, generated renders, and direct browser
 uploads are intentionally out of scope for this first storage step.
 
+Uploads are validated by content, not by filename alone:
+
+1. Marcel detects the MIME type from file bytes with no filename hint.
+2. MiniMagick decodes the image and extracts width/height.
+3. `ProjectAsset.metadata["image"]` stores the decoded dimensions.
+4. Active Storage variants use `:mini_magick` to avoid depending on libvips.
+
+This rejects files that spoof an image extension or browser-provided
+`Content-Type`. Production hosts must provide ImageMagick's `magick` binary; if
+it is missing, uploads fail closed instead of accepting unverified media.
+
 ## Ownership
 
 Uploads are nested under a project:
@@ -53,4 +64,5 @@ is useful for boot smoke tests but not acceptable for a real deployment.
 3. Serve downloads through authenticated Rails routes.
 4. Use short-lived Active Storage signed blob URLs after authorization.
 5. Do not expose bucket URLs directly in product views.
-
+6. Validate uploaded media by byte signature and image decode before marking it
+   ready.
