@@ -130,6 +130,7 @@
             <div class="kc-choice-grid kc-goal-choice-grid" aria-label="<%= t(".direction_cards.goal_label") %>">
               <% ProjectDirection.goal_options.each do |goal| %>
                 <%= button_to choose_direction_project_path(id: @project), method: :post, params: { direction: { goal: goal } }, class: "kc-choice-card", data: { goal_choice: goal } do %>
+                  <%= direction_goal_icon(goal) %>
                   <strong><%= t(".direction_cards.goals.#{goal}.title") %></strong>
                   <span><%= t(".direction_cards.goals.#{goal}.body") %></span>
                 <% end %>
@@ -158,6 +159,7 @@
             <div class="kc-choice-grid kc-style-choice-grid" aria-label="<%= t(".direction_cards.style_label") %>">
               <% ProjectDirection.style_options.each do |style| %>
                 <%= button_to choose_direction_project_path(id: @project), method: :post, params: { direction: { style: style } }, class: "kc-choice-card", data: { style_choice: style } do %>
+                  <%= direction_style_icon(style) %>
                   <strong><%= t(".direction_cards.styles.#{style}.title") %></strong>
                   <span><%= t(".direction_cards.styles.#{style}.body") %></span>
                 <% end %>
