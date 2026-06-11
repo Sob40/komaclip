@@ -3,14 +3,22 @@ class ProjectAssetsController < ApplicationController
   before_action :set_asset, only: %i[show download destroy]
 
   def create
-    @asset = @project.project_assets.new(asset_params)
-    @asset.user = Current.user
+    uploads = asset_uploads
+    raise ActionController::ParameterMissing, :files if uploads.empty?
 
-    if @asset.save
-      redirect_to project_path(id: @project), notice: t("flash.asset_uploaded")
-    else
-      redirect_to project_path(id: @project), alert: @asset.errors.full_messages.to_sentence
+    ProjectAsset.transaction do
+      uploads.each do |upload|
+        @project.project_assets.create!(
+          user: Current.user,
+          kind: asset_kind,
+          file: upload
+        )
+      end
     end
+
+    redirect_to project_path(id: @project), notice: t("flash.assets_uploaded", count: uploads.size)
+  rescue ActiveRecord::RecordInvalid => error
+    redirect_to project_path(id: @project), alert: error.record.errors.full_messages.to_sentence
   end
 
   def show
@@ -36,6 +44,15 @@ class ProjectAssetsController < ApplicationController
     end
 
     def asset_params
-      params.require(:project_asset).permit(:kind, :file)
+      params.require(:project_asset).permit(:kind, :file, files: [])
+    end
+
+    def asset_kind
+      asset_params.fetch(:kind)
+    end
+
+    def asset_uploads
+      permitted = asset_params
+      Array(permitted[:files].presence || permitted[:file]).compact
     end
 end

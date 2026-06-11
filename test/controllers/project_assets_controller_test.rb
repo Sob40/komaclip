@@ -27,6 +27,34 @@ class ProjectAssetsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to project_path(id: projects(:one))
   end
 
+  test "create attaches multiple image assets to owned project" do
+    sign_in_as(users(:one))
+
+    assert_difference -> { projects(:one).project_assets.count }, 2 do
+      post project_assets_path(project_id: projects(:one)), params: {
+        project_asset: { kind: "source_page", files: [ sample_image_upload, sample_image_upload ] }
+      }
+    end
+
+    assert_redirected_to project_path(id: projects(:one))
+    follow_redirect!
+    assert_select "div", /2 assets uploaded/
+  end
+
+  test "create rejects multi upload batch when one file is invalid" do
+    sign_in_as(users(:one))
+
+    assert_no_difference -> { projects(:one).project_assets.count } do
+      post project_assets_path(project_id: projects(:one)), params: {
+        project_asset: { kind: "source_page", files: [ sample_image_upload, text_upload ] }
+      }
+    end
+
+    assert_redirected_to project_path(id: projects(:one))
+    follow_redirect!
+    assert_select "div", /real JPG, PNG, or WebP/
+  end
+
   test "create rejects unsupported file type" do
     sign_in_as(users(:one))
 

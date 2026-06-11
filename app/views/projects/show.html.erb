@@ -51,7 +51,7 @@
       <%= form_with model: [ @project, ProjectAsset.new ], url: project_assets_path(project_id: @project), class: "kc-uploader-form", data: { controller: "auto-submit" } do |form| %>
         <section class="kc-uploader">
           <%= form.hidden_field :kind, value: "source_page" %>
-          <%= form.file_field :file, required: true, accept: "image/jpeg,image/png,image/webp", class: "kc-uploader-input", data: { action: "change->auto-submit#submit" } %>
+          <%= form.file_field :files, multiple: true, required: true, accept: "image/jpeg,image/png,image/webp", class: "kc-uploader-input", data: { action: "change->auto-submit#submit" } %>
           <div class="kc-upload-copy">
             <strong><%= t(".drop_title") %></strong>
             <span><%= t(".drop_body") %></span>

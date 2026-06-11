@@ -98,6 +98,9 @@ es:
     password_reset_sent: "Te enviaremos instrucciones si existe una cuenta con ese email."
     asset_deleted: "Asset eliminado."
     asset_uploaded: "Asset subido."
+    assets_uploaded:
+      one: "Asset subido."
+      other: "%{count} assets subidos."
     clip_created: "Clip creado."
     clip_deleted: "Clip eliminado."
     clip_requires_panels: "Crea al menos una viñeta antes de crear un clip."
