@@ -618,23 +618,27 @@
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 3;
     align-items: center;
-    background: rgba(0, 0, 0, 0.72);
-    border: 1px solid rgba(255, 255, 255, 0.28);
+    background: rgba(0, 0, 0, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.38);
     border-radius: 7px;
-    bottom: 8px;
-    box-shadow: 0 12px 26px rgba(0, 0, 0, 0.34);
-    color: rgba(255, 255, 255, 0.96);
+    bottom: 10px;
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.44);
+    color: white;
     display: -webkit-box;
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 950;
-    left: 8px;
-    line-height: 1.15;
+    left: 10px;
+    line-height: 1.08;
     overflow: hidden;
-    padding: 7px 8px;
+    padding: 9px 10px 11px;
     position: absolute;
-    right: 8px;
+    right: 10px;
     text-align: center;
-    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.76);
+    text-shadow:
+      0 1px 0 rgba(0, 0, 0, 0.85),
+      0 2px 10px rgba(0, 0, 0, 0.95);
+    text-transform: uppercase;
+    z-index: 3;
   }
 
   .kc-scene-text-preview::after {
