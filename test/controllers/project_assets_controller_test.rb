@@ -55,6 +55,21 @@ class ProjectAssetsControllerTest < ActionDispatch::IntegrationTest
     assert_select "div", /real JPG, PNG, or WebP/
   end
 
+  test "create rejects blank multi upload without model translation noise" do
+    sign_in_as(users(:one))
+
+    assert_no_difference -> { projects(:one).project_assets.count } do
+      post project_assets_path(project_id: projects(:one), locale: :es), params: {
+        project_asset: { kind: "source_page", files: [ "" ] }
+      }
+    end
+
+    assert_redirected_to project_path(id: projects(:one), locale: :es)
+    follow_redirect!
+    assert_select "div", "Elige al menos un archivo."
+    assert_select "body", text: /Translation missing/, count: 0
+  end
+
   test "create rejects unsupported file type" do
     sign_in_as(users(:one))
 

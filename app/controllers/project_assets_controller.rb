@@ -17,6 +17,8 @@ class ProjectAssetsController < ApplicationController
     end
 
     redirect_to project_path(id: @project), notice: t("flash.assets_uploaded", count: uploads.size)
+  rescue ActionController::ParameterMissing
+    redirect_to project_path(id: @project), alert: t("flash.asset_file_required")
   rescue ActiveRecord::RecordInvalid => error
     redirect_to project_path(id: @project), alert: error.record.errors.full_messages.to_sentence
   end
@@ -53,6 +55,6 @@ class ProjectAssetsController < ApplicationController
 
     def asset_uploads
       permitted = asset_params
-      Array(permitted[:files].presence || permitted[:file]).compact
+      Array(permitted[:files].presence || permitted[:file]).compact_blank
     end
 end

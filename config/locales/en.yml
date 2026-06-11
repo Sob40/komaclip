@@ -44,6 +44,14 @@ en:
     draft: "Draft"
     ready: "Ready"
 
+  activerecord:
+    attributes:
+      project_asset:
+        byte_size: "Size"
+        content_type: "File type"
+        file: "File"
+        filename: "File"
+
   time:
     formats:
       short: "%b %-d, %Y"
@@ -67,6 +75,7 @@ en:
     password_reset_invalid: "Password reset link is invalid or has expired."
     password_reset_sent: "Password reset instructions sent if an account exists for that email address."
     asset_deleted: "Asset deleted."
+    asset_file_required: "Choose at least one file."
     asset_uploaded: "Asset uploaded."
     assets_uploaded:
       one: "Asset uploaded."

@@ -44,6 +44,18 @@ es:
     draft: "Borrador"
     ready: "Listo"
 
+  activerecord:
+    attributes:
+      project_asset:
+        byte_size: "Tamaño"
+        content_type: "Tipo de archivo"
+        file: "Archivo"
+        filename: "Archivo"
+    errors:
+      messages:
+        blank: "no puede estar en blanco"
+        not_a_number: "no es un número"
+
   time:
     formats:
       short: "%-d %b %Y"
@@ -97,6 +109,7 @@ es:
     password_reset_invalid: "El enlace para restablecer la contraseña no es válido o ha caducado."
     password_reset_sent: "Te enviaremos instrucciones si existe una cuenta con ese email."
     asset_deleted: "Asset eliminado."
+    asset_file_required: "Elige al menos un archivo."
     asset_uploaded: "Asset subido."
     assets_uploaded:
       one: "Asset subido."
