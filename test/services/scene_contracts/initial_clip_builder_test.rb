@@ -17,7 +17,17 @@ module SceneContracts
       assert_equal panels(:one).id, shot.fetch("panelId")
       assert_equal project_assets(:one).id, shot.fetch("assetId")
       assert_equal panels(:one).crop, shot.fetch("crop")
+      assert_equal false, shot.fetch("textHidden")
       assert_equal "none", shot.fetch("transition")
+    end
+
+    test "marks text hidden from panel metadata" do
+      panel = panels(:one)
+      panel.update!(metadata: { "noText" => true })
+
+      contract = InitialClipBuilder.new(project: projects(:one), panels: [ panel ]).build
+
+      assert_equal true, contract.fetch("shots").first.fetch("textHidden")
     end
 
     test "applies safe template settings from project metadata" do

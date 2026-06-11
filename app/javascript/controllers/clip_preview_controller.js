@@ -74,7 +74,7 @@ export default class extends Controller {
     }
 
     this.drawSafeFrame()
-    this.drawCaption(shot)
+    if (!shot.textHidden) this.drawCaption(shot)
     this.statusTarget.textContent = `${this.currentShotIndex + 1} / ${shots.length}`
   }
 

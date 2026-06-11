@@ -12,3 +12,6 @@ application.register("hello", HelloController)
 
 import MediaPreviewController from "./media_preview_controller"
 application.register("media-preview", MediaPreviewController)
+
+import SceneListController from "./scene_list_controller"
+application.register("scene-list", SceneListController)

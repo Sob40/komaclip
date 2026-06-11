@@ -17,7 +17,11 @@ Rails.application.routes.draw do
         end
       end
 
-      resources :panels, only: %i[ show destroy ]
+      resources :panels, only: %i[ show update destroy ] do
+        post :duplicate, on: :member
+        post :move, on: :member
+        patch :reorder, on: :collection
+      end
       resources :clips, only: %i[ create show destroy ]
     end
 

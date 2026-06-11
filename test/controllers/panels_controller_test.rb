@@ -60,6 +60,63 @@ class PanelsControllerTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
+  test "update toggles text for owned panel and marks material dirty" do
+    projects(:one).update!(metadata: { "materialReady" => true })
+    sign_in_as(users(:one))
+
+    patch project_panel_path(project_id: projects(:one), id: panels(:one)), params: {
+      panel: { with_text: "0" }
+    }
+
+    assert_redirected_to project_path(id: projects(:one))
+    assert_equal true, panels(:one).reload.metadata.fetch("noText")
+    assert_equal false, projects(:one).reload.metadata.fetch("materialReady")
+  end
+
+  test "duplicate inserts a copied scene after the original" do
+    projects(:one).update!(metadata: { "materialReady" => true })
+    sign_in_as(users(:one))
+
+    assert_difference -> { projects(:one).panels.count }, 1 do
+      post duplicate_project_panel_path(project_id: projects(:one), id: panels(:one))
+    end
+
+    duplicate = projects(:one).panels.order(:position).second
+    assert_equal project_assets(:one), duplicate.project_asset
+    assert_equal 2, duplicate.position
+    assert_equal "Scene 2", duplicate.label
+    assert_equal false, projects(:one).reload.metadata.fetch("materialReady")
+    assert_redirected_to project_path(id: projects(:one))
+  end
+
+  test "reorder persists scene order and marks material dirty" do
+    second_asset = create_asset_for(users(:one), projects(:one))
+    second_panel = projects(:one).panels.create!(project_asset: second_asset, position: 2, label: "Scene 2")
+    projects(:one).update!(metadata: { "materialReady" => true })
+    sign_in_as(users(:one))
+
+    patch reorder_project_panels_path(project_id: projects(:one)), params: {
+      panel_ids: [ second_panel.id, panels(:one).id ]
+    }, as: :json
+
+    assert_response :success
+    assert_equal [ second_panel.id, panels(:one).id ], projects(:one).panels.order(:position).pluck(:id)
+    assert_equal false, projects(:one).reload.metadata.fetch("materialReady")
+  end
+
+  test "move swaps a scene with its neighbor" do
+    second_asset = create_asset_for(users(:one), projects(:one))
+    second_panel = projects(:one).panels.create!(project_asset: second_asset, position: 2, label: "Scene 2")
+    projects(:one).update!(metadata: { "materialReady" => true })
+    sign_in_as(users(:one))
+
+    post move_project_panel_path(project_id: projects(:one), id: second_panel), params: { direction: "up" }
+
+    assert_redirected_to project_path(id: projects(:one))
+    assert_equal [ second_panel.id, panels(:one).id ], projects(:one).panels.order(:position).pluck(:id)
+    assert_equal false, projects(:one).reload.metadata.fetch("materialReady")
+  end
+
   test "destroy removes owned panel" do
     panel = Panel.create!(project: projects(:one), project_asset: project_assets(:one), position: 2)
     sign_in_as(users(:one))
