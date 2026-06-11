@@ -115,18 +115,21 @@
           </div>
         </div>
 
-        <div class="kc-choice-grid">
-          <div class="kc-choice-card is-active">
-            <strong><%= t(".direction_cards.goal_title") %></strong>
-            <span><%= t(".direction_cards.goal_body") %></span>
+        <div class="kc-direction-summary">
+          <div class="kc-direction-card is-active">
+            <small><%= t(".direction_cards.goal_label") %></small>
+            <strong><%= t(".direction_cards.goals.#{@direction.fetch("goal")}.title") %></strong>
+            <span><%= t(".direction_cards.goals.#{@direction.fetch("goal")}.body") %></span>
           </div>
-          <div class="kc-choice-card is-active">
-            <strong><%= t(".direction_cards.style_title") %></strong>
-            <span><%= t(".direction_cards.style_body") %></span>
+          <div class="kc-direction-card is-active">
+            <small><%= t(".direction_cards.style_label") %></small>
+            <strong><%= t(".direction_cards.styles.#{@direction.fetch("style")}.title") %></strong>
+            <span><%= t(".direction_cards.styles.#{@direction.fetch("style")}.body") %></span>
           </div>
-          <div class="kc-choice-card">
-            <strong><%= t(".direction_cards.format_title") %></strong>
-            <span><%= t(".direction_cards.format_body") %></span>
+          <div class="kc-direction-card">
+            <small><%= t(".direction_cards.format_label") %></small>
+            <strong><%= t(".direction_cards.formats.#{@direction.fetch("format")}.title") %></strong>
+            <span><%= t(".direction_cards.formats.#{@direction.fetch("format")}.body") %></span>
           </div>
         </div>
 

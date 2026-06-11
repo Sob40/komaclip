@@ -33,6 +33,7 @@ module SceneContracts
         "format" => format,
         "durationMs" => clip_duration_ms,
         "contentLocale" => project.content_locale,
+        "direction" => ProjectDirection.for(project),
         "visual" => visual,
         "shots" => shots(clip_duration_ms)
       }

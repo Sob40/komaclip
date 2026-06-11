@@ -31,6 +31,8 @@ class ClipsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "ready", clip.status
     assert_equal 8000, clip.duration_ms
     assert_equal "pixi", clip.scene_contract.fetch("renderer")
+    assert_equal({ "goal" => "readers", "style" => "chapter_clean", "format" => "reels_9_16" }, clip.metadata.fetch("direction"))
+    assert_equal clip.metadata.fetch("direction"), clip.scene_contract.fetch("direction")
     assert_equal [ panels(:one).id ], clip.scene_contract.fetch("shots").map { |shot| shot.fetch("panelId") }
     assert_redirected_to project_clip_path(project_id: projects(:one), id: clip)
   end

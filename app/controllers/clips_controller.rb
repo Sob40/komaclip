@@ -12,11 +12,13 @@ class ClipsController < ApplicationController
 
     position = next_position
     scene_contract = SceneContracts::InitialClipBuilder.new(project: @project, panels: panels).build
+    direction = ProjectDirection.for(@project)
     clip = @project.clips.new(
       title: t("clips.default_title", position: position),
       position: position,
       status: "ready",
       duration_ms: scene_contract.fetch("durationMs"),
+      metadata: { "direction" => direction },
       scene_contract: scene_contract
     )
 

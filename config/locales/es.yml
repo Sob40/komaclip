@@ -214,14 +214,38 @@ es:
       template_applied_body: "%{name} se reutilizará con el material nuevo."
       direction_eyebrow: "Dirección"
       direction_title: "Elige el primer corte."
-      direction_body: "El MVP empieza con dirección guiada en vez de un editor en blanco. Esta primera versión usa un default compacto."
+      direction_body: "KomaClip prepara una primera propuesta guiada. Empieza con una dirección segura y luego podrás afinar ritmo, texto y estilo."
       direction_cards:
-        goal_title: "Objetivo"
-        goal_body: "Promo corta para descubrimiento social."
-        style_title: "Estilo"
-        style_body: "Preview limpio de capítulo con movimiento legible."
-        format_title: "Salida"
-        format_body: "Clip vertical 9:16 con preview Pixi."
+        goal_label: "Objetivo"
+        style_label: "Estilo"
+        format_label: "Salida"
+        goals:
+          readers:
+            title: "Conseguir lectores"
+            body: "Despertar curiosidad y llevar al capítulo."
+          launch:
+            title: "Anunciar capítulo"
+            body: "Presentar una novedad de forma clara."
+          community:
+            title: "Personaje / comunidad"
+            body: "Dar foco a personaje, extras o apoyo."
+          sales:
+            title: "Vender / campaña"
+            body: "Convertir interés en venta o apoyo."
+        styles:
+          chapter_clean:
+            title: "Capítulo limpio"
+            body: "Lectura clara, anuncio directo y efectos controlados."
+          trailer_tense:
+            title: "Trailer tenso"
+            body: "Hook, misterio, pausas y cierre con ganas de leer."
+          impact_fast:
+            title: "Impacto rápido"
+            body: "Cortes rápidos, golpes de panel y texto más agresivo."
+        formats:
+          reels_9_16:
+            title: "Reels 9:16"
+            body: "Clip vertical con preview Pixi y material listo para export."
       direction_ready:
         one: "1 viñeta lista para el primer clip."
         other: "%{count} viñetas listas para el primer clip."

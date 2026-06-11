@@ -180,14 +180,38 @@ en:
       template_applied_body: "%{name} will be reused with the new material."
       direction_eyebrow: "Direction"
       direction_title: "Choose the first cut."
-      direction_body: "The MVP starts with a guided direction instead of a blank editor. This first version uses a compact default."
+      direction_body: "KomaClip prepares a guided first proposal. Start from a safe direction, then refine pacing, text, and style."
       direction_cards:
-        goal_title: "Goal"
-        goal_body: "Short promo for social discovery."
-        style_title: "Style"
-        style_body: "Clean chapter preview with readable motion."
-        format_title: "Output"
-        format_body: "9:16 vertical clip, Pixi preview."
+        goal_label: "Goal"
+        style_label: "Style"
+        format_label: "Output"
+        goals:
+          readers:
+            title: "Get readers"
+            body: "Create curiosity and send viewers to the chapter."
+          launch:
+            title: "Announce chapter"
+            body: "Present a new release clearly."
+          community:
+            title: "Character / community"
+            body: "Spotlight a character, extras, or support."
+          sales:
+            title: "Sell / campaign"
+            body: "Turn interest into a sale or pledge."
+        styles:
+          chapter_clean:
+            title: "Clean chapter"
+            body: "Clear reading, direct announcement, controlled effects."
+          trailer_tense:
+            title: "Tense trailer"
+            body: "Hook, mystery, pauses, and a finish that drives reading."
+          impact_fast:
+            title: "Fast impact"
+            body: "Quick cuts, panel hits, and more aggressive text."
+        formats:
+          reels_9_16:
+            title: "Reels 9:16"
+            body: "Vertical clip with Pixi preview and export-ready material."
       direction_ready:
         one: "1 panel is ready for the first clip."
         other: "%{count} panels are ready for the first clip."

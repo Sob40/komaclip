@@ -24,6 +24,7 @@ class ProjectsController < ApplicationController
     @material_ready = @material_uploaded && material_confirmed?
     @proposal_ready = @material_ready && @clips.any?
     @latest_clip = @clips.last
+    @direction = ProjectDirection.for(@project)
   end
 
   def confirm_material

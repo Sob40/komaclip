@@ -89,6 +89,9 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".kc-material-review"
     assert_select ".kc-scene-card", minimum: 1
     assert_select "[data-flow-step=direction]"
+    assert_select ".kc-direction-card", text: /Get readers/
+    assert_select ".kc-direction-card", text: /Clean chapter/
+    assert_select ".kc-direction-card", text: /Reels 9:16/
     assert_select "[data-flow-step=preview]"
   end
 
