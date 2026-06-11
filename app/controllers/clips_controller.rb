@@ -11,12 +11,13 @@ class ClipsController < ApplicationController
     end
 
     position = next_position
+    scene_contract = SceneContracts::InitialClipBuilder.new(project: @project, panels: panels).build
     clip = @project.clips.new(
       title: t("clips.default_title", position: position),
       position: position,
       status: "ready",
-      duration_ms: SceneContracts::InitialClipBuilder::DEFAULT_DURATION_MS,
-      scene_contract: SceneContracts::InitialClipBuilder.new(project: @project, panels: panels).build
+      duration_ms: scene_contract.fetch("durationMs"),
+      scene_contract: scene_contract
     )
 
     if clip.save

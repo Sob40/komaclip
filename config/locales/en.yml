@@ -80,6 +80,9 @@ en:
     assets_uploaded:
       one: "Asset uploaded."
       other: "%{count} assets uploaded."
+    clip_template_applied: "Template %{name} applied."
+    clip_template_deleted: "Template deleted."
+    clip_template_saved: "Template saved."
     clip_created: "Clip created."
     clip_deleted: "Clip deleted."
     clip_requires_panels: "Create at least one panel before creating a clip."
@@ -113,6 +116,14 @@ en:
       empty_title: "Start your first promo project"
       empty_body: "A project keeps assets, panels, clips, Pixi scene contracts, and renders together under your account."
       empty_action: "Create video"
+      templates_title: "Saved templates"
+      templates_body: "Reuse a clip setup with new comic pages."
+      template_count:
+        one: "1 template"
+        other: "%{count} templates"
+      template_default_style: "Default style"
+      use_template: "Use"
+      delete_template: "Delete"
 
   projects:
     default_title: "Untitled clip %{number}"
@@ -138,6 +149,8 @@ en:
       drop_title: "Drag pages, panels, GIFs or videos"
       drop_body: "You can also choose files from your computer."
       choose_files: "Choose files"
+      template_applied_title: "Template applied"
+      template_applied_body: "%{name} will be reused with the new material."
       direction_eyebrow: "Direction"
       direction_title: "Choose the first cut."
       direction_body: "The MVP starts with a guided direction instead of a blank editor. This first version uses a compact default."
@@ -218,6 +231,7 @@ en:
       preview_body: "Review the first scene contract in the browser before it becomes an export job."
       previous_shot: "Previous shot"
       next_shot: "Next shot"
+      save_template: "Save as template"
       preview_contract_title: "Preview contract"
       contract_version: "Contract version"
       visual_preset: "Visual preset"

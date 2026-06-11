@@ -111,6 +111,10 @@
             <%= t(".next_shot") %>
           </button>
         </div>
+
+        <div class="mt-4">
+          <%= button_to t(".save_template"), clip_templates_path, method: :post, params: { clip_id: @clip.id }, class: "kc-button w-full" %>
+        </div>
       </section>
     </aside>
   </section>

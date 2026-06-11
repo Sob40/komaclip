@@ -48,6 +48,13 @@
         </div>
       <% end %>
 
+      <% if @project.metadata["templateName"].present? %>
+        <div class="kc-template-applied">
+          <strong><%= t(".template_applied_title") %></strong>
+          <span><%= t(".template_applied_body", name: @project.metadata["templateName"]) %></span>
+        </div>
+      <% end %>
+
       <%= form_with model: [ @project, ProjectAsset.new ], url: project_assets_path(project_id: @project), class: "kc-uploader-form", data: { controller: "auto-submit" } do |form| %>
         <section class="kc-uploader">
           <%= form.hidden_field :kind, value: "source_page" %>

@@ -5,6 +5,7 @@ class User < ApplicationRecord
   has_many :projects, dependent: :destroy
   has_many :project_assets, dependent: :destroy
   has_many :clip_renders, dependent: :destroy
+  has_many :clip_templates, dependent: :destroy
 
   normalizes :email_address, with: ->(e) { e.strip.downcase }
 

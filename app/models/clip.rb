@@ -4,6 +4,7 @@ class Clip < ApplicationRecord
 
   belongs_to :project
   has_many :clip_renders, dependent: :destroy
+  has_many :clip_templates, foreign_key: :source_clip_id, dependent: :nullify
 
   normalizes :title, with: ->(title) { title.to_s.strip }
 

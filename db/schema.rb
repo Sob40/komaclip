@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_10_221837) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_11_100000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -64,6 +64,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_10_221837) do
     t.index ["status", "created_at"], name: "index_clip_renders_on_status_and_created_at"
     t.index ["user_id", "status"], name: "index_clip_renders_on_user_id_and_status"
     t.index ["user_id"], name: "index_clip_renders_on_user_id"
+  end
+
+  create_table "clip_templates", force: :cascade do |t|
+    t.string "content_locale", default: "en", null: false
+    t.datetime "created_at", null: false
+    t.jsonb "metadata", default: {}, null: false
+    t.string "name", null: false
+    t.jsonb "settings", default: {}, null: false
+    t.bigint "source_clip_id"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["source_clip_id"], name: "index_clip_templates_on_source_clip_id"
+    t.index ["user_id", "updated_at"], name: "index_clip_templates_on_user_id_and_updated_at"
+    t.index ["user_id"], name: "index_clip_templates_on_user_id"
   end
 
   create_table "clips", force: :cascade do |t|
@@ -169,6 +183,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_10_221837) do
   add_foreign_key "clip_renders", "clips"
   add_foreign_key "clip_renders", "projects"
   add_foreign_key "clip_renders", "users"
+  add_foreign_key "clip_templates", "clips", column: "source_clip_id"
+  add_foreign_key "clip_templates", "users"
   add_foreign_key "clips", "projects"
   add_foreign_key "identities", "users"
   add_foreign_key "panels", "project_assets"

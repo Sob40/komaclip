@@ -114,6 +114,9 @@ es:
     assets_uploaded:
       one: "Asset subido."
       other: "%{count} assets subidos."
+    clip_template_applied: "Plantilla %{name} aplicada."
+    clip_template_deleted: "Plantilla eliminada."
+    clip_template_saved: "Plantilla guardada."
     clip_created: "Clip creado."
     clip_deleted: "Clip eliminado."
     clip_requires_panels: "Crea al menos una viñeta antes de crear un clip."
@@ -147,6 +150,14 @@ es:
       empty_title: "Empieza tu primer proyecto promocional"
       empty_body: "Un proyecto agrupa assets, viñetas, clips, contratos de escena Pixi y renders dentro de tu cuenta."
       empty_action: "Crear video"
+      templates_title: "Plantillas guardadas"
+      templates_body: "Reutiliza una configuración de clip con nuevas páginas."
+      template_count:
+        one: "1 plantilla"
+        other: "%{count} plantillas"
+      template_default_style: "Estilo por defecto"
+      use_template: "Usar"
+      delete_template: "Eliminar"
 
   projects:
     default_title: "Clip sin título %{number}"
@@ -172,6 +183,8 @@ es:
       drop_title: "Arrastra páginas, viñetas, GIFs o videos"
       drop_body: "También puedes elegir archivos desde tu ordenador."
       choose_files: "Elegir archivos"
+      template_applied_title: "Plantilla aplicada"
+      template_applied_body: "%{name} se reutilizará con el material nuevo."
       direction_eyebrow: "Dirección"
       direction_title: "Elige el primer corte."
       direction_body: "El MVP empieza con dirección guiada en vez de un editor en blanco. Esta primera versión usa un default compacto."
@@ -252,6 +265,7 @@ es:
       preview_body: "Revisa el primer contrato de escena en el navegador antes de convertirlo en un trabajo de exportacion."
       previous_shot: "Shot anterior"
       next_shot: "Shot siguiente"
+      save_template: "Guardar como plantilla"
       preview_contract_title: "Contrato del preview"
       contract_version: "Version del contrato"
       visual_preset: "Preset visual"

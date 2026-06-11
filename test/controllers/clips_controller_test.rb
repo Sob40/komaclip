@@ -35,6 +35,33 @@ class ClipsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to project_clip_path(project_id: projects(:one), id: clip)
   end
 
+  test "create applies reusable template settings from project metadata" do
+    project = users(:one).projects.create!(
+      title: "Templated project",
+      content_locale: "en",
+      metadata: {
+        "templateSettings" => {
+          "durationMs" => 12_000,
+          "format" => { "width" => 720, "height" => 1280, "fps" => 24 },
+          "visual" => { "presetId" => "soft-pan" }
+        }
+      }
+    )
+    asset = create_asset_for(users(:one), project)
+    project.panels.create!(project_asset: asset, position: 1, label: "Fresh panel")
+    sign_in_as(users(:one))
+
+    assert_difference -> { project.clips.count }, 1 do
+      post project_clips_path(project_id: project)
+    end
+
+    clip = project.clips.order(:position).last
+    assert_equal 12_000, clip.duration_ms
+    assert_equal 12_000, clip.scene_contract.fetch("durationMs")
+    assert_equal({ "width" => 720, "height" => 1280, "fps" => 24 }, clip.scene_contract.fetch("format"))
+    assert_equal "soft-pan", clip.scene_contract.fetch("visual").fetch("presetId")
+  end
+
   test "create rejects another user's project" do
     sign_in_as(users(:one))
 
