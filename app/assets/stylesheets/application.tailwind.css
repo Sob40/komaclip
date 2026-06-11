@@ -580,6 +580,12 @@
     text-transform: uppercase;
   }
 
+  .kc-scene-media > span.kc-scene-text-chip.is-empty {
+    background: rgba(8, 9, 17, 0.72);
+    border-color: rgba(255, 255, 255, 0.22);
+    color: rgba(248, 246, 255, 0.82);
+  }
+
   .kc-scene-order {
     align-items: center;
     background: linear-gradient(135deg, #ff3d7f 0%, #7a5cff 52%, #55f0c8 100%);

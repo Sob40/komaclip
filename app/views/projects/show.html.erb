@@ -61,9 +61,7 @@
                     <span><%= t(".scene_media_missing") %></span>
                   <% end %>
                   <span class="kc-scene-order"><%= panel.position %></span>
-                  <% if scene_text.present? %>
-                    <span class="kc-scene-text-chip"><%= t(".scene_text_chip") %></span>
-                  <% end %>
+                  <span class="kc-scene-text-chip <%= "is-empty" if scene_text.blank? %>"><%= scene_text.present? ? t(".scene_text_chip") : t(".scene_text_add") %></span>
                 </button>
 
                 <div id="<%= scene_text_popover_id %>" class="kc-scene-popover" popover>
