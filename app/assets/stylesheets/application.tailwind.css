@@ -152,6 +152,11 @@
     color: var(--kc-ink);
   }
 
+  .kc-nav-links a[aria-current="page"] {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--kc-ink);
+  }
+
   .kc-nav-actions {
     align-items: center;
     display: flex;
@@ -1028,7 +1033,7 @@
     }
 
     .kc-nav-links {
-      display: none;
+      margin-left: auto;
     }
   }
 
@@ -1050,13 +1055,24 @@
     }
 
     .kc-nav-actions,
-    .kc-locale-tabs {
+    .kc-locale-tabs,
+    .kc-nav-links {
       width: 100%;
     }
 
     .kc-nav-actions {
       flex-direction: row;
       flex-wrap: wrap;
+    }
+
+    .kc-nav-links {
+      margin-left: 0;
+      order: 3;
+    }
+
+    .kc-nav-links a {
+      flex: 1 1 0;
+      justify-content: center;
     }
 
     .kc-locale-tabs {

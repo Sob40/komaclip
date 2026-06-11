@@ -30,15 +30,13 @@
             <span class="kc-brand-icon">K</span>
             <span>
               KomaClip
-              <small><%= t("navigation.studio") %></small>
+              <small><%= t("navigation.tagline") %></small>
             </span>
           <% end %>
 
           <div class="kc-nav-links">
-            <%= link_to t("navigation.material"), dashboard_path(anchor: "material") %>
-            <%= link_to t("navigation.direction"), dashboard_path(anchor: "direction") %>
-            <%= link_to t("navigation.lab"), dashboard_path(anchor: "lab") %>
-            <%= link_to t("navigation.export"), dashboard_path(anchor: "export") %>
+            <%= link_to t("navigation.workspace"), dashboard_path, "aria-current": ("page" if controller_name == "dashboard") %>
+            <%= link_to t("navigation.templates"), dashboard_path(anchor: "templates") %>
           </div>
 
           <div class="kc-nav-actions">
@@ -48,7 +46,7 @@
               <% end %>
             </div>
             <%= button_to t("navigation.sign_out"), session_path, method: :delete, class: "kc-nav-ghost" %>
-            <%= button_to t("navigation.create_video"), projects_path, method: :post, class: "kc-nav-cta" %>
+            <%= button_to t("navigation.new_clip"), projects_path, method: :post, class: "kc-nav-cta" %>
           </div>
         </nav>
 
