@@ -13,6 +13,19 @@
       "productionExposure": "internal",
       "publicSelectable": false,
       "notes": "Imported as the strategic base catalog. Entries must pass KomaClip QA and localization before public exposure."
+    },
+    {
+      "id": "manga-fx-packs",
+      "path": "data/catalogs/manga-fx-packs.json",
+      "source": "komaclip-owned-asset-system",
+      "sourceContractVersion": "komaclip.manga-fx-packs.v1",
+      "renderer": "pixi",
+      "defaultLocale": "en",
+      "supportedLocales": ["en", "es"],
+      "localizationStatus": "pending",
+      "productionExposure": "internal",
+      "publicSelectable": false,
+      "notes": "Stable asset slots for owned or app-redistribution-safe manga FX packs. Null URLs intentionally use procedural Pixi fallback."
     }
   ]
 }

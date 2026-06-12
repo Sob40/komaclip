@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 560" role="img" aria-label="Vertical manga speech bubble">
+  <metadata>{"id":"manga-vertical-soft","contentBox":[78,82,104,340],"tail":[36,396],"style":"manga"}</metadata>
+  <defs>
+    <pattern id="dots-manga-vertical" width="12" height="12" patternUnits="userSpaceOnUse">
+      <circle cx="3" cy="3" r="2" fill="#111" opacity=".32"/>
+    </pattern>
+  </defs>
+  <path d="M69 54c-28 32-36 102-31 190 5 93 24 165 55 204 32 40 83 39 113-2 29-39 43-113 37-203-6-88-27-158-59-188-34-31-85-32-115-1Z" fill="url(#dots-manga-vertical)" opacity=".42"/>
+  <path d="M73 394c-10 39-30 66-61 88 10-42 7-74-9-96Z" fill="#fffdf8" stroke="#111" stroke-width="7" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+  <path d="M76 28c-41 27-58 101-56 216 2 118 30 202 77 244 42 37 98 27 126-25 28-51 32-146 19-252-13-105-45-172-92-190-26-10-52-7-74 7Z" fill="#fffdf8"/>
+  <path d="M76 28c-41 27-58 101-56 216 2 118 30 202 77 244 42 37 98 27 126-25 28-51 32-146 19-252-13-105-45-172-92-190-26-10-52-7-74 7Z" fill="none" stroke="#111" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+  <path d="M83 42c-32 45-45 109-40 191M218 188c12 91 7 169-16 229" fill="none" stroke="#111" stroke-width="2.4" opacity=".38" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+</svg>

@@ -65,11 +65,30 @@ class PanelsControllerTest < ActionDispatch::IntegrationTest
     sign_in_as(users(:one))
 
     patch project_panel_path(project_id: projects(:one), id: panels(:one)), params: {
-      panel: { scene_text: "Launch reveal" }
+      panel: {
+        scene_text: "Launch reveal",
+        no_text: "0",
+        skip_scene: "0",
+        scene_motion: "impact",
+        scene_bubble: "burst",
+        scene_position: "bottom_real",
+        scene_size: "large",
+        scene_duration: "short",
+        scene_transition: "panel_slam"
+      }
     }
 
+    metadata = panels(:one).reload.metadata
     assert_redirected_to project_path(id: projects(:one))
-    assert_equal "Launch reveal", panels(:one).reload.metadata.fetch("sceneText")
+    assert_equal "Launch reveal", metadata.fetch("sceneText")
+    assert_equal false, metadata.fetch("noText")
+    assert_equal false, metadata.fetch("skipScene")
+    assert_equal "impact", metadata.fetch("sceneMotion")
+    assert_equal "burst", metadata.fetch("sceneBubble")
+    assert_equal "bottom_real", metadata.fetch("scenePosition")
+    assert_equal "large", metadata.fetch("sceneSize")
+    assert_equal "short", metadata.fetch("sceneDuration")
+    assert_equal "panel_slam", metadata.fetch("sceneTransition")
     assert_equal false, projects(:one).reload.metadata.fetch("materialReady")
   end
 

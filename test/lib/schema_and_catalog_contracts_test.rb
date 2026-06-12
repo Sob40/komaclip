@@ -10,6 +10,7 @@ class SchemaAndCatalogContractsTest < ActiveSupport::TestCase
 
   CATALOG_FILES = %w[
     data/catalogs/catalog-manifest.json
+    data/catalogs/manga-fx-packs.json
     data/catalogs/visual-catalog-v2.json
   ].freeze
 
@@ -64,6 +65,7 @@ class SchemaAndCatalogContractsTest < ActiveSupport::TestCase
   test "catalog manifest references existing internal catalog" do
     manifest = read_json("data/catalogs/catalog-manifest.json")
     imported_catalog = manifest.fetch("catalogs").find { |catalog| catalog.fetch("id") == "visual-catalog-v2-imported" }
+    manga_fx_catalog = manifest.fetch("catalogs").find { |catalog| catalog.fetch("id") == "manga-fx-packs" }
 
     assert imported_catalog, "visual-catalog-v2-imported is missing from catalog manifest"
     assert_equal "en", imported_catalog.fetch("defaultLocale")
@@ -71,6 +73,33 @@ class SchemaAndCatalogContractsTest < ActiveSupport::TestCase
     assert_equal "internal", imported_catalog.fetch("productionExposure")
     assert_equal false, imported_catalog.fetch("publicSelectable")
     assert_path_exists Rails.root.join(imported_catalog.fetch("path"))
+    assert manga_fx_catalog, "manga-fx-packs is missing from catalog manifest"
+    assert_equal "internal", manga_fx_catalog.fetch("productionExposure")
+    assert_equal false, manga_fx_catalog.fetch("publicSelectable")
+    assert_path_exists Rails.root.join(manga_fx_catalog.fetch("path"))
+  end
+
+  test "manga fx catalog keeps app redistribution safe slots" do
+    catalog = read_json("data/catalogs/manga-fx-packs.json")
+    allowed = catalog.fetch("licensePolicy").fetch("allowed")
+    blocked = catalog.fetch("licensePolicy").fetch("blocked")
+    slots = catalog.fetch("packs").flat_map { |pack| pack.fetch("slots") }
+    slot_ids = slots.map { |slot| slot.fetch("id") }
+
+    assert_equal "komaclip.manga-fx-packs.v1", catalog.fetch("contractVersion")
+    assert_equal "owned-or-licensed-assets-only", catalog.fetch("sourceOfTruth")
+    assert_equal slot_ids.uniq.size, slot_ids.size
+    assert_includes allowed, "owned"
+    assert_includes blocked, "commercial-output-only-without-app-redistribution"
+    slots.each do |slot|
+      if slot["url"].present?
+        assert_includes allowed, slot.fetch("licenseStatus"), "#{slot.fetch("id")} has a url without an app-safe license"
+      else
+        assert_equal "owned_required", slot.fetch("licenseStatus")
+      end
+      assert slot.fetch("fallback").present?
+    end
+    assert_equal true, MangaFxCatalog.validate!
   end
 
   private

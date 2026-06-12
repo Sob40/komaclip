@@ -7,6 +7,12 @@ import { application } from "./application"
 import AutoSubmitController from "./auto_submit_controller"
 application.register("auto-submit", AutoSubmitController)
 
+import ClipAutosaveController from "./clip_autosave_controller"
+application.register("clip-autosave", ClipAutosaveController)
+
+import ClipSceneListController from "./clip_scene_list_controller"
+application.register("clip-scene-list", ClipSceneListController)
+
 import HelloController from "./hello_controller"
 application.register("hello", HelloController)
 

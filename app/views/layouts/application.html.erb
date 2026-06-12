@@ -35,8 +35,8 @@
           <% end %>
 
           <div class="kc-nav-links">
-            <%= link_to t("navigation.workspace"), dashboard_path, "aria-current": ("page" if controller_name == "dashboard") %>
-            <%= link_to t("navigation.templates"), dashboard_path(anchor: "templates") %>
+            <%= link_to t("navigation.workspace"), dashboard_path, "aria-current": ("page" if %w[dashboard projects clips project_assets panels].include?(controller_name)) %>
+            <%= link_to t("navigation.templates"), clip_templates_path, "aria-current": ("page" if controller_name == "clip_templates") %>
           </div>
 
           <div class="kc-nav-actions">

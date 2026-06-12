@@ -1,0 +1,82 @@
+<main class="kc-main">
+  <header class="kc-page-header">
+    <div>
+      <p class="kc-eyebrow"><%= t(".eyebrow") %></p>
+      <h1 class="kc-title"><%= t(".title") %></h1>
+      <p class="kc-subtitle"><%= t(".body") %></p>
+    </div>
+
+  </header>
+
+  <% if flash[:notice] %>
+    <div class="kc-flash kc-flash-notice"><%= flash[:notice] %></div>
+  <% end %>
+
+  <% if flash[:alert] %>
+    <div class="kc-flash kc-flash-alert"><%= flash[:alert] %></div>
+  <% end %>
+
+  <section class="kc-panel kc-panel-pad kc-template-list">
+    <div class="kc-page-header">
+      <div>
+        <h2 class="kc-section-title"><%= t(".saved_title") %></h2>
+        <p class="kc-subtitle"><%= t(".saved_body") %></p>
+      </div>
+      <span class="kc-pill"><%= t(".template_count", count: @clip_templates.size) %></span>
+    </div>
+
+    <% if @clip_templates.any? %>
+      <div class="kc-template-grid">
+        <% @clip_templates.each do |template| %>
+          <article class="kc-template-card kc-template-card-stack">
+            <div class="kc-template-main">
+              <%= form_with model: template, url: clip_template_path(id: template), method: :patch, class: "kc-template-name-form" do |form| %>
+                <%= form.label :name, t(".name_label") %>
+                <div class="kc-template-name-row">
+                  <%= form.text_field :name, class: "kc-input", maxlength: 120 %>
+                  <button type="submit" class="kc-button kc-icon-button" aria-label="<%= t(".rename_template") %>">
+                    <%= kc_icon("save") %>
+                  </button>
+                </div>
+              <% end %>
+
+              <dl class="kc-template-meta">
+                <div>
+                  <dt><%= t(".content_locale") %></dt>
+                  <dd><%= t("content_locales.#{template.content_locale}") %></dd>
+                </div>
+                <div>
+                  <dt><%= t(".style") %></dt>
+                  <dd><%= template.settings.dig("visual", "presetId") || t(".template_default_style") %></dd>
+                </div>
+                <div>
+                  <dt><%= t(".music") %></dt>
+                  <dd><%= template.settings.dig("music", "id").presence || t(".music_none") %></dd>
+                </div>
+              </dl>
+            </div>
+
+            <div class="kc-template-actions">
+              <%= button_to use_clip_template_path(id: template), method: :post, class: "kc-button-primary kc-icon-button-text" do %>
+                <%= kc_icon("wand") %>
+                <%= t(".use_template") %>
+              <% end %>
+              <%= button_to clip_template_path(id: template), method: :delete, class: "kc-button-ghost kc-icon-button-text" do %>
+                <%= kc_icon("trash") %>
+                <%= t(".delete_template") %>
+              <% end %>
+            </div>
+          </article>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="kc-empty">
+        <div>
+          <h3 class="kc-section-title"><%= t(".empty_title") %></h3>
+          <p class="kc-subtitle"><%= t(".empty_body") %></p>
+          <%= button_to t(".empty_action"), projects_path, method: :post, class: "kc-button-primary mt-5" %>
+        </div>
+      </div>
+    <% end %>
+  </section>
+</main>

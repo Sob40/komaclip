@@ -1,0 +1,61 @@
+{
+  "version": "bubble-svg-pack-1",
+  "source": "custom-vector-inspired-by-user-references",
+  "licenseNote": "Use commercially only if the source/reference material is owned or licensed. These files are original vector recreations, not embedded raster screenshots.",
+  "bubbles": [
+    {
+      "id": "speech-oval-organic",
+      "file": "speech-oval-organic.svg",
+      "label": "Speech oval organic",
+      "style": "speech",
+      "contentBox": [82, 78, 342, 132],
+      "tail": [236, 220],
+      "tags": ["dialogue", "organic", "halftone"]
+    },
+    {
+      "id": "thought-cloud-soft",
+      "file": "thought-cloud-soft.svg",
+      "label": "Thought cloud soft",
+      "style": "thought",
+      "contentBox": [88, 78, 336, 136],
+      "tail": [124, 276],
+      "tags": ["thought", "soft", "manga"]
+    },
+    {
+      "id": "burst-impact-white",
+      "file": "burst-impact-white.svg",
+      "label": "Burst impact white",
+      "style": "burst",
+      "contentBox": [124, 108, 264, 116],
+      "tail": null,
+      "tags": ["impact", "shout", "action"]
+    },
+    {
+      "id": "speech-rect-tail",
+      "file": "speech-rect-tail.svg",
+      "label": "Speech rectangle tail",
+      "style": "speech",
+      "contentBox": [86, 82, 342, 98],
+      "tail": [338, 250],
+      "tags": ["dialogue", "caption-like", "clean"]
+    },
+    {
+      "id": "manga-vertical-soft",
+      "file": "manga-vertical-soft.svg",
+      "label": "Manga vertical soft",
+      "style": "manga",
+      "contentBox": [78, 82, 104, 340],
+      "tail": [36, 396],
+      "tags": ["manga", "vertical", "dialogue"]
+    },
+    {
+      "id": "manga-ink-burst-black",
+      "file": "manga-ink-burst-black.svg",
+      "label": "Manga ink burst black",
+      "style": "shout",
+      "contentBox": [146, 116, 220, 104],
+      "tail": null,
+      "tags": ["manga", "impact", "black", "sfx"]
+    }
+  ]
+}

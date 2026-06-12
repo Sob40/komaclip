@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 360" role="img" aria-label="Black manga ink burst bubble">
+  <metadata>{"id":"manga-ink-burst-black","contentBox":[146,116,220,104],"tail":null,"style":"shout"}</metadata>
+  <defs>
+    <filter id="rough-ink" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence type="fractalNoise" baseFrequency=".035" numOctaves="2" seed="9" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="4"/>
+    </filter>
+  </defs>
+  <g stroke="#111" stroke-linecap="round" vector-effect="non-scaling-stroke">
+    <path d="M67 66l72 63M443 74l-71 58M41 224l90-25M466 235l-91-27M147 315l42-72M364 315l-42-72" stroke-width="8" opacity=".8"/>
+    <path d="M98 116l57 36M413 124l-62 29M94 261l68-35M420 265l-70-38" stroke-width="4" opacity=".5"/>
+  </g>
+  <path filter="url(#rough-ink)" d="M255 34l30 64 75-44-13 82 88-9-58 55 76 36-88 19 31 76-75-44-31 69-42-65-65 54 15-78-88 9 57-61-75-38 87-15-35-76 75 42 39-72Z" fill="#050505"/>
+  <path d="M255 34l30 64 75-44-13 82 88-9-58 55 76 36-88 19 31 76-75-44-31 69-42-65-65 54 15-78-88 9 57-61-75-38 87-15-35-76 75 42 39-72Z" fill="none" stroke="#111" stroke-width="7" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+</svg>

@@ -7,15 +7,12 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to new_session_path
   end
 
-  test "dashboard lists only current user's projects" do
+  test "dashboard opens current clip maker workspace" do
     sign_in_as(users(:one))
 
     get dashboard_path
 
-    assert_response :success
-    assert_select "h1", "Workspace"
-    assert_select "a", text: projects(:one).title
-    assert_select "a", text: projects(:two).title, count: 0
+    assert_redirected_to project_path(id: users(:one).projects.order(updated_at: :desc).first)
   end
 
   test "new renders project form with current user locale as content default" do
@@ -26,17 +23,16 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
     get new_project_path(locale: :es)
 
     assert_response :success
-    assert_select "h1", "Nuevo proyecto"
+    assert_select "h1", "Nuevo clip"
     assert_select "select[name=?] option[value=?][selected]", "project[content_locale]", "es"
   end
 
   test "create persists project for current user" do
     sign_in_as(users(:one))
 
-    assert_difference -> { users(:one).projects.count }, 1 do
-      post projects_path, params: { project: { title: "New launch", content_locale: "en" } }
-    end
+    post projects_path, params: { project: { title: "New launch", content_locale: "en" } }
 
+    assert_equal 1, users(:one).projects.count
     project = users(:one).projects.order(:created_at).last
     assert_equal "New launch", project.title
     assert_equal "en", project.content_locale
@@ -48,12 +44,11 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
     user.update!(locale: "es")
     sign_in_as(user)
 
-    assert_difference -> { user.projects.count }, 1 do
-      post projects_path
-    end
+    post projects_path
 
+    assert_equal 1, user.projects.count
     project = user.projects.order(:created_at).last
-    assert_match(/\AProyecto sin título \d+\z/, project.title)
+    assert_equal "Clip actual", project.title
     assert_equal "es", project.content_locale
     assert_equal "draft", project.status
     assert_redirected_to project_path(id: project)
@@ -76,7 +71,7 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_response :unprocessable_entity
-    assert_select "div", /Project title can't be blank/
+    assert_select "div", /Clip title can't be blank/
   end
 
   test "show renders owned project" do
@@ -92,16 +87,28 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".kc-direction-summary-button", text: /Reader hook/
     assert_select ".kc-direction-summary-button", text: /Clean chapter/
     assert_select "[data-flow-step=proposal]"
+    assert_select ".kc-proposal-ready-card", text: /Generated clip/
+    assert_select "select[name=proposal_genre]", count: 0
+    assert_select "a", text: /Open editor/
+    assert_select "a[href=?]", project_clip_path(project_id: projects(:one), id: clips(:one)), minimum: 2
+    assert_select ".kc-project-phone-link[href=?]", project_clip_path(project_id: projects(:one), id: clips(:one))
   end
 
   test "show previews scene text over material thumbnail" do
-    panels(:one).update!(metadata: { "sceneText" => "Launch reveal" })
+    panels(:one).update!(
+      metadata: {
+        "sceneText" => "Launch reveal",
+        "sceneMotion" => "impact",
+        "sceneTransition" => "panel_slam"
+      }
+    )
     sign_in_as(users(:one))
 
     get project_path(id: projects(:one))
 
     assert_response :success
     assert_select ".kc-scene-text-preview", text: "Launch reveal"
+    assert_select ".kc-scene-visual-preview.is-motion-impact.is-transition-panel-slam"
   end
 
   test "show starts with only material step for an empty project" do
@@ -145,6 +152,7 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".kc-project-flow.is-material-ready"
     assert_select "[data-flow-step=direction]"
     assert_select "[data-goal-choice]", minimum: 4
+    assert_select ".kc-phone-placeholder span", text: "Choose goal and style to prepare the clip."
     assert_select "[data-flow-step=proposal]", count: 0
   end
 
@@ -176,6 +184,9 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".kc-direction-summary-button", text: /Webtoon scroll/
     assert_select "[data-flow-step=proposal]"
     assert_select "h2", text: /Adjust and create the proposal/
+    assert_select "select[name=proposal_scene_time] option[selected][value=cinematic]", text: /Comfortable read/
+    assert_select "select[name=proposal_intensity] option[selected][value=balanced]", text: /Balanced/
+    assert_select ".kc-phone-placeholder span", text: /Create the proposal/
     assert_select "form[action=?]", project_clips_path(project_id: project)
 
     post choose_direction_project_path(id: project), params: { stage: "style" }

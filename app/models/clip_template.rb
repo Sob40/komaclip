@@ -20,7 +20,8 @@ class ClipTemplate < ApplicationRecord
         "renderer" => contract["renderer"],
         "format" => contract["format"],
         "durationMs" => contract["durationMs"],
-        "visual" => contract["visual"]
+        "visual" => contract["visual"],
+        "music" => contract["music"]
       }.compact
     )
   end

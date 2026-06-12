@@ -38,7 +38,7 @@ class LocalizationTest < ActionDispatch::IntegrationTest
     sign_in_as(user)
     get dashboard_path(locale: :es)
 
-    assert_response :success
+    assert_redirected_to project_path(id: user.projects.order(updated_at: :desc).first, locale: :es)
     assert_equal "es", user.reload.locale
   end
 end

@@ -1,115 +1,293 @@
 <%= javascript_include_tag "clip_preview", "data-turbo-track": "reload", type: "module" %>
 
-<main class="kc-main" data-controller="clip-preview">
+<main class="kc-main kc-clip-studio" data-controller="clip-preview clip-autosave">
   <script type="application/json" data-clip-preview-target="payload"><%= raw json_escape(JSON.generate(@preview_payload)) %></script>
 
-  <header class="kc-page-header">
-    <div>
-      <%= link_to t(".back"), project_path(id: @project), class: "kc-button-ghost" %>
-      <h1 class="kc-title"><%= @clip.title %></h1>
-      <p class="kc-subtitle">
-        <%= t(".meta", duration: @clip.duration_ms / 1000, status: t("clip_statuses.#{@clip.status}")) %>
-      </p>
-    </div>
-  </header>
-
-  <% if flash[:notice] %>
-    <div class="kc-flash kc-flash-notice"><%= flash[:notice] %></div>
+  <% if flash[:alert] %>
+    <div class="kc-flash kc-flash-alert"><%= flash[:alert] %></div>
   <% end %>
 
   <section class="kc-studio-grid">
     <div class="kc-grid">
-      <section class="kc-stat-grid">
-        <div class="kc-stat-card">
-          <p class="kc-stat-label"><%= t(".cut_type") %></p>
-          <p class="kc-stat-value"><%= t(".cut_type_value") %></p>
-        </div>
-        <div class="kc-stat-card">
-          <p class="kc-stat-label"><%= t(".format") %></p>
-          <p class="kc-stat-value"><%= t(".vertical_format_value") %></p>
-        </div>
-        <div class="kc-stat-card">
-          <p class="kc-stat-label"><%= t(".panels") %></p>
-          <p class="kc-stat-value"><%= @clip.scene_contract.fetch("shots").size %></p>
-        </div>
-      </section>
+      <details class="kc-global-settings-panel">
+        <summary class="kc-global-settings-summary">
+          <span>
+            <span class="kc-eyebrow"><%= t(".global_settings_eyebrow") %></span>
+            <strong><%= t(".global_settings_summary", style: t("projects.show.direction_cards.styles.#{@direction.fetch("style")}.title"), scene_time: t("projects.show.proposal_options.scene_time.#{@proposal.fetch("sceneTime", "auto")}"), intensity: t("projects.show.proposal_options.intensity.#{@proposal.fetch("intensity", "balanced")}")) %></strong>
+          </span>
+          <span class="kc-global-settings-summary-meta">
+            <span class="kc-duration-pill" data-total-duration-badge><%= t(".duration_seconds", seconds: (@clip.duration_ms.to_f / 1000).round(1)) %></span>
+            <%= kc_icon("scan") %>
+          </span>
+        </summary>
 
-      <section class="kc-panel kc-panel-pad">
-        <div class="kc-page-header">
-          <div>
-            <h2 class="kc-section-title"><%= t(".shots_title") %></h2>
-            <p class="kc-subtitle"><%= t(".preview_body") %></p>
+        <%= form_with url: regenerate_project_clip_path(project_id: @project, id: @clip), method: :post, class: "kc-global-settings-form" do %>
+          <%= hidden_field_tag :proposal_genre, @proposal.fetch("genre", "drama") %>
+          <div class="kc-global-settings-fields">
+            <label>
+              <span><%= t("projects.show.direction_cards.style_label") %></span>
+              <%= select_tag :direction_style, options_for_select(ProjectDirection.style_options.map { |style| [ t("projects.show.direction_cards.styles.#{style}.title"), style ] }, @direction.fetch("style")) %>
+            </label>
+            <label>
+              <span><%= t(".proposal_scene_time") %></span>
+              <%= select_tag :proposal_scene_time, options_for_select(ClipsController::PROPOSAL_SCENE_TIMES.map { |scene_time| [ t("projects.show.proposal_options.scene_time.#{scene_time}"), scene_time ] }, @proposal.fetch("sceneTime", "auto")) %>
+            </label>
+            <label>
+              <span><%= t(".proposal_intensity") %></span>
+              <%= select_tag :proposal_intensity, options_for_select(ClipsController::PROPOSAL_INTENSITIES.map { |intensity| [ t("projects.show.proposal_options.intensity.#{intensity}"), intensity ] }, @proposal.fetch("intensity", "balanced")) %>
+            </label>
           </div>
-          <span class="kc-pill"><%= @clip.scene_contract.fetch("shots").size %> <%= t(".panels") %></span>
+          <div class="kc-global-settings-actions">
+            <button type="submit" name="regeneration_mode" value="variant" class="kc-button-primary kc-icon-button-text">
+              <%= kc_icon("wand") %>
+              <%= t(".variant_clip") %>
+            </button>
+          </div>
+        <% end %>
+        <div class="kc-global-music-panel">
+          <label>
+            <span><%= kc_icon("music") %><%= t(".music_track") %></span>
+            <select name="clip[music_id]" form="clip-editor-form" class="kc-input">
+              <% @music_catalog.each do |track| %>
+                <option
+                  value="<%= track.id %>"
+                  data-url="<%= track.url %>"
+                  data-title="<%= track.title %>"
+                  data-artist="<%= track.artist %>"
+                  data-mood="<%= track.mood %>"
+                  data-source="<%= track.source %>"
+                  data-license="<%= track.license %>"
+                  data-license-url="<%= track.license_url %>"
+                  <%= "selected" if (@music["id"].presence || "none") == track.id %>>
+                  <%= track.id == "none" ? t(".music_none") : "#{track.title} · #{track.mood}" %>
+                </option>
+              <% end %>
+            </select>
+          </label>
+          <label>
+            <span><%= t(".music_volume") %></span>
+            <input type="range" name="clip[music_volume]" form="clip-editor-form" min="0" max="100" value="<%= @music.fetch("volume", MusicCatalog::DEFAULT_VOLUME) %>">
+          </label>
         </div>
+      </details>
 
-        <div class="kc-shot-list">
-          <% @clip.scene_contract.fetch("shots").each do |shot| %>
-            <article class="kc-shot">
-              <div class="kc-shot-head">
-                <h3 class="kc-section-title"><%= shot.fetch("label") %></h3>
-                <span class="kc-pill kc-pill-warm"><%= t(".duration_seconds", seconds: shot.fetch("durationMs") / 1000) %></span>
+      <%= form_with url: project_clip_path(project_id: @project, id: @clip), method: :patch, id: "clip-editor-form", class: "kc-clip-editor-form", data: { clip_autosave_target: "form" } do %>
+        <section class="kc-panel kc-panel-pad kc-clip-editor-panel">
+          <div class="kc-clip-panel-heading">
+            <div>
+              <p class="kc-eyebrow"><%= t(".shots_eyebrow") %></p>
+              <h2 class="kc-section-title"><%= t(".shots_title") %></h2>
+              <p class="kc-muted"><%= t(".preview_body") %></p>
+            </div>
+            <span class="kc-pill"><%= @preview_contract.fetch("shots").size %> <%= t(".panels") %></span>
+          </div>
+
+          <div class="kc-clip-shot-list" data-controller="clip-scene-list" data-clip-scene-list-reorder-url-value="<%= reorder_project_clip_path(project_id: @project, id: @clip) %>">
+            <% @preview_contract.fetch("shots").each_with_index do |shot, index| %>
+              <% panel_id = shot.fetch("panelId").to_s %>
+              <% text = shot["text"].to_s %>
+              <% no_text = shot["noText"] == true %>
+              <% asset = @preview_assets[shot.fetch("assetId")] %>
+              <% duration_seconds = (shot.fetch("durationMs").to_f / 1000).round(1) %>
+              <% text_style = shot.fetch("sceneBubble", "caption") %>
+              <% text_style = "caption" if text_style == "auto" %>
+              <% text_style_options = @text_style_options %>
+              <% unless text_style_options.any? { |option| option.fetch(:value) == text_style } %>
+                <% text_style_options = text_style_options + [ { value: text_style, icon: "type", key: text_style } ] %>
+              <% end %>
+              <% text_style_option = text_style_options.find { |option| option.fetch(:value) == text_style } || text_style_options.first %>
+              <% text_style_label = t(".text_style_tags.#{text_style_option.fetch(:key)}", default: t(".text_styles.#{text_style}", default: text_style.humanize)) %>
+              <% scene_size = shot.fetch("sceneSize", "medium") %>
+              <% scene_size = "medium" if scene_size == "auto" %>
+              <% scene_position = shot.fetch("scenePosition", "bottom_safe") %>
+              <% scene_position = "bottom_safe" if scene_position == "auto" %>
+              <% scene_motion = shot.fetch("sceneMotion", "parallax") %>
+              <% scene_motion = "parallax" if scene_motion == "auto" %>
+              <% size_label = t(".text_sizes.#{scene_size}", default: t(".text_sizes.medium")) %>
+              <% position_label = t(".text_positions.#{scene_position}", default: t(".text_positions.bottom_safe")) %>
+              <% motion_label = t(".image_motions.#{scene_motion}", default: t(".image_motions.parallax")) %>
+              <% text_summary = no_text ? t(".no_text") : text.presence || t(".shot_text_placeholder") %>
+              <div class="kc-clip-shot-item" draggable="true" data-clip-scene-list-target="item" data-panel-id="<%= panel_id %>" data-clip-position="<%= index + 1 %>" data-scene-title-template="<%= t("projects.show.scene_title", position: "%{position}") %>" data-scene-order-template="<%= "#{t(".shots_table.position")} %{position}" %>" data-action="dragstart->clip-scene-list#dragStart dragover->clip-scene-list#dragOver drop->clip-scene-list#drop dragend->clip-scene-list#dragEnd">
+                <%= check_box_tag "clip_scene_inspector", panel_id, false, id: "clip_scene_inspector_#{panel_id}", class: "kc-clip-shot-selector", data: { action: "change->clip-preview#selectEditorShot" } %>
+                <article class="kc-clip-shot-card">
+                  <div class="kc-clip-shot-summary" role="button" tabindex="0" data-shot-selector-id="clip_scene_inspector_<%= panel_id %>" data-action="click->clip-preview#toggleEditorShot keydown->clip-preview#toggleEditorShotFromKeyboard">
+                    <button class="kc-clip-drag-handle" type="button" title="<%= t("projects.show.drag_scene") %>" aria-label="<%= t("projects.show.drag_scene_with_position", position: index + 1) %>" data-clip-drag-handle data-action="pointerdown->clip-scene-list#pointerStart click->clip-preview#stopPanelToggle">⋮⋮</button>
+                    <span class="kc-clip-shot-thumb">
+                      <% if asset&.file&.attached? %>
+                        <%= image_tag asset.file, alt: shot.fetch("label"), loading: "lazy" %>
+                      <% else %>
+                        <span><%= shot.fetch("filename", shot.fetch("label")) %></span>
+                      <% end %>
+                      <span class="kc-scene-order"><%= index + 1 %></span>
+                    </span>
+                    <span class="kc-clip-shot-summary-main">
+                      <span class="kc-clip-shot-title">
+                        <span>
+                          <strong data-clip-scene-label><%= t("projects.show.scene_title", position: index + 1) %></strong>
+                          <small><span data-clip-scene-order-meta><%= t(".shots_table.position") %> <%= index + 1 %></span> · <%= shot.fetch("filename") %></small>
+                        </span>
+                        <span class="kc-clip-shot-actions">
+                          <span class="kc-duration-corner" role="group" aria-label="<%= t(".scene_duration") %>" data-duration-editor data-duration-badge-for="<%= panel_id %>" data-action="click->clip-preview#stopPanelToggle keydown->clip-preview#stopPanelToggle pointerdown->clip-preview#pauseForDurationEdit focusin->clip-preview#pauseForDurationEdit">
+                            <button class="kc-duration-nudge" type="button" data-duration-delta="-0.1" data-action="click->clip-preview#adjustDuration" aria-label="<%= "#{t(".scene_duration")} -0.1s" %>">-</button>
+                            <span class="kc-duration-value">
+                              <%= text_field_tag "clip[shots][#{panel_id}][duration_seconds]", duration_seconds, inputmode: "decimal", pattern: "[0-9]*[,.]?[0-9]*", class: "kc-duration-corner-input", data: { duration_input_for: panel_id, action: "click->clip-preview#selectDurationValue keydown->clip-preview#stopPanelToggle pointerdown->clip-preview#pauseForDurationEdit focus->clip-preview#selectDurationValue" }, aria: { label: t(".scene_duration") } %>
+                              <span class="kc-duration-unit"><%= t(".duration_seconds_short") %></span>
+                            </span>
+                            <button class="kc-duration-nudge" type="button" data-duration-delta="0.1" data-action="click->clip-preview#adjustDuration" aria-label="<%= "#{t(".scene_duration")} +0.1s" %>">+</button>
+                          </span>
+                          <span class="kc-clip-shot-expand-cue" aria-hidden="true"><%= kc_icon("chevron-down") %></span>
+                        </span>
+                      </span>
+                      <span class="kc-clip-shot-summary-text"><%= text_summary %></span>
+                      <span class="kc-clip-shot-summary-tags">
+                        <span><%= kc_icon("type") %><%= text_style_label %></span>
+                        <span><%= kc_icon("scan") %><%= position_label %></span>
+                        <span><%= kc_icon("target") %><%= size_label %></span>
+                        <% if no_text %>
+                          <span><%= kc_icon("eye-off") %><%= t(".no_text") %></span>
+                        <% end %>
+                      </span>
+                    </span>
+                  </div>
+
+                  <div class="kc-clip-shot-inspector">
+                    <div class="kc-inspector-primary-row">
+                      <div class="kc-clip-text-field">
+                        <span class="kc-clip-text-heading">
+                          <span><%= t(".scene_text") %></span>
+                        </span>
+                        <div class="kc-clip-text-inline">
+                          <%= text_field_tag "clip[shots][#{panel_id}][text]", text, maxlength: Panel::MAX_SCENE_TEXT_LENGTH, placeholder: t(".shot_text_placeholder"), class: "kc-input kc-clip-text-line" %>
+                          <label class="kc-scene-toggle kc-clip-toggle kc-inline-text-toggle">
+                            <%= hidden_field_tag "clip[shots][#{panel_id}][no_text]", "0" %>
+                            <%= check_box_tag "clip[shots][#{panel_id}][no_text]", "1", no_text %>
+                            <span><%= kc_icon("eye-off") %><%= t(".hide_text") %></span>
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="kc-inspector-control-panel">
+                      <fieldset class="kc-text-style-picker">
+                        <legend><%= t(".text_style") %></legend>
+                        <div class="kc-text-style-options">
+                          <% text_style_options.each do |option| %>
+                            <% value = option.fetch(:value) %>
+                            <label>
+                              <%= radio_button_tag "clip[shots][#{panel_id}][scene_bubble]", value, text_style == value %>
+                              <span><%= kc_icon(option.fetch(:icon)) %><%= t(".text_style_tags.#{option.fetch(:key)}", default: t(".text_styles.#{value}", default: value.humanize)) %></span>
+                            </label>
+                          <% end %>
+                        </div>
+                      </fieldset>
+
+                      <div class="kc-text-layout-grid">
+                        <fieldset class="kc-text-size-picker" data-cell-label="<%= t(".text_size") %>">
+                          <legend><%= t(".text_size") %></legend>
+                          <div class="kc-text-size-options">
+                            <% %w[small medium large].each do |value| %>
+                              <label>
+                                <%= radio_button_tag "clip[shots][#{panel_id}][scene_size]", value, scene_size == value, data: { action: "change->clip-preview#handleEditorChange" } %>
+                                <span><%= t(".text_sizes.#{value}") %></span>
+                              </label>
+                            <% end %>
+                          </div>
+                        </fieldset>
+
+                        <fieldset class="kc-text-position-picker" data-cell-label="<%= t(".text_position") %>">
+                          <legend><%= t(".text_position") %></legend>
+                          <div class="kc-text-position-options">
+                            <% %w[top_safe center_safe bottom_safe].each do |value| %>
+                              <label>
+                                <%= radio_button_tag "clip[shots][#{panel_id}][scene_position]", value, scene_position == value, data: { action: "change->clip-preview#handleEditorChange" } %>
+                                <span><%= t(".text_positions.#{value}") %></span>
+                              </label>
+                            <% end %>
+                          </div>
+                        </fieldset>
+                      </div>
+                    </div>
+
+                    <details class="kc-scene-more-details">
+                      <summary><%= kc_icon("scan") %><%= t(".image_motion") %></summary>
+                      <fieldset class="kc-scene-motion-picker">
+                        <legend><%= t(".image_motion") %></legend>
+                        <div class="kc-scene-motion-options">
+                          <% { "float" => "spark", "parallax" => "scan", "impact" => "zap" }.each do |value, icon| %>
+                          <label>
+                            <%= radio_button_tag "clip[shots][#{panel_id}][scene_motion]", value, scene_motion == value, data: { action: "change->clip-preview#handleEditorChange" } %>
+                            <span><%= kc_icon(icon) %><%= t(".image_motions.#{value}") %></span>
+                          </label>
+                        <% end %>
+                        </div>
+                      </fieldset>
+                    </details>
+                  </div>
+                </article>
               </div>
-              <p class="kc-muted mt-2">
-                <%= t(".shots_table.position") %> <%= shot.fetch("position") %> · <%= shot.fetch("filename") %>
-              </p>
-            </article>
-          <% end %>
-        </div>
-      </section>
-
-      <section class="kc-panel kc-panel-pad">
-        <h2 class="kc-section-title"><%= t(".preview_details_title") %></h2>
-        <div class="kc-stat-grid mt-5">
-          <div class="kc-stat-card">
-            <p class="kc-stat-label"><%= t("projects.show.direction_cards.goal_label") %></p>
-            <p class="kc-stat-value"><%= t("projects.show.direction_cards.goals.#{@direction.fetch("goal")}.title") %></p>
-            <p class="kc-muted mt-2"><%= t("projects.show.direction_cards.goals.#{@direction.fetch("goal")}.body") %></p>
+            <% end %>
           </div>
-          <div class="kc-stat-card">
-            <p class="kc-stat-label"><%= t("projects.show.direction_cards.style_label") %></p>
-            <p class="kc-stat-value"><%= t("projects.show.direction_cards.styles.#{@direction.fetch("style")}.title") %></p>
-            <p class="kc-muted mt-2"><%= t("projects.show.direction_cards.styles.#{@direction.fetch("style")}.body") %></p>
-          </div>
-          <div class="kc-stat-card">
-            <p class="kc-stat-label"><%= t("projects.show.direction_cards.format_label") %></p>
-            <p class="kc-stat-value"><%= t("projects.show.direction_cards.formats.#{@direction.fetch("format")}.title") %></p>
-            <p class="kc-muted mt-2"><%= t("projects.show.direction_cards.formats.#{@direction.fetch("format")}.body") %></p>
-          </div>
-        </div>
-        <div class="mt-6">
-          <%= button_to t(".delete"), project_clip_path(project_id: @project, id: @clip), method: :delete, class: "kc-danger-button" %>
-        </div>
-      </section>
+        </section>
+      <% end %>
     </div>
 
     <aside class="kc-preview-pane">
       <section class="kc-panel kc-panel-pad">
-        <div class="kc-shot-head">
-          <div>
-            <h2 class="kc-section-title"><%= t(".preview_title") %></h2>
-            <p class="kc-muted mt-1"><%= t(".vertical_preview_note") %></p>
+        <div class="kc-preview-stage-shell" data-clip-preview-target="platformFrame" data-platform="instagram_reels">
+          <div class="kc-phone-frame kc-real-preview-frame">
+            <div class="kc-phone-screen">
+              <div data-clip-preview-target="stage" class="kc-phone-stage"></div>
+              <div class="kc-platform-guides" aria-hidden="true">
+                <span class="kc-platform-safe-zone"></span>
+                <span class="kc-platform-ui kc-platform-ui-top"></span>
+                <span class="kc-platform-ui kc-platform-ui-bottom"></span>
+                <span class="kc-platform-ui kc-platform-ui-right"></span>
+              </div>
+            </div>
           </div>
-          <span data-clip-preview-target="status" class="kc-pill">-</span>
         </div>
 
-        <div class="kc-phone-frame">
-          <div class="kc-phone-screen">
-            <div data-clip-preview-target="stage" class="kc-phone-stage"></div>
+        <div class="kc-preview-timeline">
+          <div class="kc-preview-timeline-meta">
+            <strong data-clip-preview-target="currentTitle">-</strong>
+            <span data-clip-preview-target="time">0:00 / 0:00</span>
+          </div>
+          <div class="kc-preview-progress-track" aria-hidden="true">
+            <span data-clip-preview-target="progress"></span>
           </div>
         </div>
 
         <div class="kc-preview-controls">
-          <button type="button" data-action="clip-preview#previousShot" class="kc-button-ghost">
-            <%= t(".previous_shot") %>
+          <button type="button" data-action="clip-preview#togglePlayback" data-clip-preview-target="playButton" data-play-label="<%= t(".play_preview") %>" data-pause-label="<%= t(".pause_preview") %>" class="kc-button-primary kc-icon-button-text">
+            <%= kc_icon("play") %>
+            <span data-clip-preview-target="playLabel"><%= t(".play_preview") %></span>
           </button>
-          <button type="button" data-action="clip-preview#nextShot" class="kc-button-primary">
-            <%= t(".next_shot") %>
+          <button type="button" data-action="clip-preview#restart" class="kc-button kc-icon-button-text">
+            <%= kc_icon("rotate-ccw") %>
+            <%= t(".restart_preview") %>
+          </button>
+        </div>
+
+        <div class="kc-preview-output-row">
+          <label class="kc-platform-select kc-platform-select-inline">
+            <span><%= t(".preview_platform") %></span>
+            <select data-action="clip-preview#setPreviewPlatform" aria-label="<%= t(".preview_platform") %>">
+              <option value="instagram_reels"><%= t(".preview_platforms.instagram_reels") %></option>
+              <option value="tiktok"><%= t(".preview_platforms.tiktok") %></option>
+              <option value="youtube_shorts"><%= t(".preview_platforms.youtube_shorts") %></option>
+            </select>
+          </label>
+          <button type="button" class="kc-button kc-icon-button-text" disabled>
+            <%= kc_icon("download") %>
+            <%= t(".export_video") %>
           </button>
         </div>
 
         <div class="mt-4">
-          <%= button_to t(".save_template"), clip_templates_path, method: :post, params: { clip_id: @clip.id }, class: "kc-button w-full" %>
+          <%= button_to clip_templates_path, method: :post, params: { clip_id: @clip.id }, class: "kc-button w-full kc-icon-button-text" do %>
+            <%= kc_icon("save") %>
+            <%= t(".save_template") %>
+          <% end %>
         </div>
       </section>
     </aside>

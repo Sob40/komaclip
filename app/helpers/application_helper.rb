@@ -45,6 +45,15 @@ module ApplicationHelper
     kc_icon(icon)
   end
 
+  def scene_visual_preview_classes(panel)
+    motion = panel.scene_motion
+    transition = panel.scene_transition
+    classes = [ "kc-scene-visual-preview" ]
+    classes << "is-motion-#{motion.tr("_", "-")}" unless motion == "auto"
+    classes << "is-transition-#{transition.tr("_", "-")}" unless transition == "auto" || transition == "cut"
+    classes
+  end
+
   def kc_icon(name)
     paths = {
       "book" => [
@@ -83,6 +92,78 @@ module ApplicationHelper
       ],
       "spark" => [
         "m12 2 1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8L12 2Z"
+      ],
+      "target" => [
+        "M12 3a9 9 0 1 0 9 9h-2a7 7 0 1 1-7-7V3Z",
+        "M12 7a5 5 0 1 0 5 5h-2a3 3 0 1 1-3-3V7Z",
+        "M13 11 21 3v5h-3v3h-5Z"
+      ],
+      "upload" => [
+        "M12 16V4",
+        "m7 9 5-5 5 5",
+        "M5 16v3h14v-3"
+      ],
+      "type" => [
+        "M4 6h16",
+        "M9 6v12M15 6v12M7 18h4M13 18h4"
+      ],
+      "copy" => [
+        "M8 8h10a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2Z",
+        "M4 14H3a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v1"
+      ],
+      "trash" => [
+        "M4 7h16",
+        "M10 11v6M14 11v6",
+        "M6 7l1 14h10l1-14",
+        "M9 7V4h6v3"
+      ],
+      "eye-off" => [
+        "M3 3l18 18",
+        "M10.6 10.6A3 3 0 0 0 14 14",
+        "M9.3 5.2A10.8 10.8 0 0 1 12 5c5 0 8.4 4.2 10 7a14.7 14.7 0 0 1-3 3.8",
+        "M6.5 6.7A14.5 14.5 0 0 0 2 12c1.6 2.8 5 7 10 7a10.9 10.9 0 0 0 5-1.2"
+      ],
+      "play" => [
+        "M8 5v14l11-7-11-7Z"
+      ],
+      "rotate-ccw" => [
+        "M3 12a9 9 0 1 0 3-6.7",
+        "M3 4v6h6"
+      ],
+      "clock" => [
+        "M12 3a9 9 0 1 0 9 9 9 9 0 0 0-9-9Z",
+        "M12 7v5l3 2"
+      ],
+      "music" => [
+        "M9 18V5l10-2v13",
+        "M9 18a3 3 0 1 1-3-3 3 3 0 0 1 3 3Z",
+        "M19 16a3 3 0 1 1-3-3 3 3 0 0 1 3 3Z"
+      ],
+      "download" => [
+        "M12 4v11",
+        "m7 10 5 5 5-5",
+        "M5 20h14"
+      ],
+      "arrow-left" => [
+        "M19 12H5",
+        "M12 5 5 12l7 7"
+      ],
+      "arrow-right" => [
+        "M5 12h14",
+        "M12 5l7 7-7 7"
+      ],
+      "chevron-down" => [
+        "m6 9 6 6 6-6"
+      ],
+      "save" => [
+        "M5 4h12l2 2v14H5V4Z",
+        "M8 4v6h8V4",
+        "M8 20v-6h8v6"
+      ],
+      "lock" => [
+        "M7 11V8a5 5 0 0 1 10 0v3",
+        "M6 11h12v9H6v-9Z",
+        "M12 15v2"
       ],
       "wand" => [
         "M15 4l5 5",

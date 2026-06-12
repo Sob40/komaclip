@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 320" role="img" aria-label="Organic oval speech bubble">
+  <metadata>{"id":"speech-oval-organic","contentBox":[82,78,342,132],"tail":[236,220],"style":"speech"}</metadata>
+  <defs>
+    <pattern id="dots-oval-organic" width="14" height="14" patternUnits="userSpaceOnUse">
+      <circle cx="4" cy="4" r="2.1" fill="#111" opacity=".42"/>
+    </pattern>
+  </defs>
+  <g fill="none" stroke="#111" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke">
+    <path d="M84 226c-22 4-39 15-49 30M111 236c-22 9-39 24-49 43" stroke-width="4" opacity=".75"/>
+    <path d="M397 214c24 6 43 21 56 43M371 229c22 9 39 25 50 45" stroke-width="4" opacity=".75"/>
+  </g>
+  <path d="M88 218c36 27 100 41 172 33 91-10 162-57 159-113-3-57-79-97-171-88C157 59 82 105 74 162c-4 25 8 44 14 56Z" fill="url(#dots-oval-organic)" opacity=".55"/>
+  <path d="M241 222c-8 33-32 51-68 64 14-27 16-49 8-67Z" fill="#fffdf8" stroke="#111" stroke-width="8" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+  <path d="M74 69c51-37 154-46 243-24 72 18 123 58 127 107 4 49-36 87-103 107-82 24-196 14-258-23-49-29-63-78-35-116 6-9 15-36 26-51Z" fill="#fffdf8"/>
+  <path d="M74 69c51-37 154-46 243-24 72 18 123 58 127 107 4 49-36 87-103 107-82 24-196 14-258-23-49-29-63-78-35-116 6-9 15-36 26-51Z" fill="none" stroke="#111" stroke-width="8" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+  <path d="M85 78c50-28 139-39 220-22M414 135c12 34-3 69-43 94" fill="none" stroke="#111" stroke-width="2.5" opacity=".42" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+</svg>

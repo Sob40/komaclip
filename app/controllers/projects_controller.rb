@@ -7,6 +7,7 @@ class ProjectsController < ApplicationController
     @project = Current.user.projects.new(create_project_params)
 
     if @project.save
+      Current.user.projects.where.not(id: @project.id).destroy_all
       redirect_to project_path(id: @project), notice: t("flash.project_created")
     else
       render :new, status: :unprocessable_entity
@@ -17,6 +18,7 @@ class ProjectsController < ApplicationController
     @project = Current.user.projects.find(params[:id])
     @project_assets = @project.project_assets.order(created_at: :desc).to_a
     @panels = @project.panels.includes(:project_asset).order(:position).to_a
+    @usable_panels = @panels.reject(&:excluded?)
     @clips = @project.clips.order(:position).to_a
     @clips_count = @clips.size
     @renders_count = @project.clip_renders.count
@@ -26,13 +28,15 @@ class ProjectsController < ApplicationController
     @direction_ready = @material_ready && direction_confirmed?
     @proposal_ready = @material_ready && @direction_stage == "ready" && @clips.any?
     @latest_clip = @clips.last
+    @latest_proposal = latest_proposal
     @direction = ProjectDirection.for(@project)
+    @proposal_defaults = ProjectDirection.proposal_defaults_for(@direction)
   end
 
   def confirm_material
     @project = Current.user.projects.find(params[:id])
 
-    if @project.panels.exists?
+    if @project.panels.any? { |panel| !panel.excluded? }
       @project.update!(metadata: @project.metadata.to_h.merge("materialReady" => true))
       redirect_to project_path(id: @project, anchor: "direction"), notice: t("flash.material_confirmed")
     else
@@ -43,7 +47,7 @@ class ProjectsController < ApplicationController
   def choose_direction
     @project = Current.user.projects.find(params[:id])
 
-    unless @project.panels.exists? && material_confirmed?
+    unless @project.panels.any? { |panel| !panel.excluded? } && material_confirmed?
       redirect_to project_path(id: @project), alert: t("flash.material_requires_scenes")
       return
     end
@@ -87,7 +91,7 @@ class ProjectsController < ApplicationController
       return project_params if params[:project].present?
 
       {
-        title: t("projects.default_title", number: Current.user.projects.count + 1),
+        title: t("projects.default_title"),
         content_locale: Current.user.locale
       }
     end
@@ -107,5 +111,14 @@ class ProjectsController < ApplicationController
       return "ready" if direction_confirmed?
 
       "goal"
+    end
+
+    def latest_proposal
+      return {} unless @latest_clip
+
+      @latest_clip.metadata.to_h.fetch(
+        "proposal",
+        @latest_clip.scene_contract.to_h.fetch("proposal", {})
+      ).to_h
     end
 end

@@ -1,5 +1,11 @@
 class Panel < ApplicationRecord
   MAX_SCENE_TEXT_LENGTH = 140
+  SCENE_MOTIONS = %w[auto cinematic impact swipe scroll parallax beat glitch float rgb manga].freeze
+  SCENE_BUBBLES = %w[auto caption speech burst thought manga_vertical].freeze
+  SCENE_POSITIONS = %w[auto top_safe center_safe bottom_safe bottom_real none].freeze
+  SCENE_SIZES = %w[auto small medium large].freeze
+  SCENE_DURATIONS = %w[auto short normal long].freeze
+  SCENE_TRANSITIONS = %w[auto cut speed_wipe panel_slam page_slice ink_flash].freeze
 
   FULL_CROP = {
     "unit" => "normalized",
@@ -40,6 +46,44 @@ class Panel < ApplicationRecord
 
   def scene_text
     metadata.to_h["sceneText"].to_s
+  end
+
+  def display_scene_text
+    return "" if no_text?
+
+    scene_text
+  end
+
+  def no_text?
+    metadata.to_h["noText"] == true
+  end
+
+  def excluded?
+    metadata.to_h["skipScene"] == true
+  end
+
+  def scene_motion
+    metadata_choice("sceneMotion", SCENE_MOTIONS, "auto")
+  end
+
+  def scene_bubble
+    metadata_choice("sceneBubble", SCENE_BUBBLES, "auto")
+  end
+
+  def scene_position
+    metadata_choice("scenePosition", SCENE_POSITIONS, "auto")
+  end
+
+  def scene_size
+    metadata_choice("sceneSize", SCENE_SIZES, "auto")
+  end
+
+  def scene_duration
+    metadata_choice("sceneDuration", SCENE_DURATIONS, "auto")
+  end
+
+  def scene_transition
+    metadata_choice("sceneTransition", SCENE_TRANSITIONS, "auto")
   end
 
   private
@@ -85,5 +129,10 @@ class Panel < ApplicationRecord
       return errors.add(:crop, "must stay within the image") if x.negative? || y.negative?
       return errors.add(:crop, "must have positive width and height") unless width.positive? && height.positive?
       errors.add(:crop, "must stay within the image") if x + width > 1.0 || y + height > 1.0
+    end
+
+    def metadata_choice(key, allowed, fallback)
+      value = metadata.to_h[key].to_s
+      allowed.include?(value) ? value : fallback
     end
 end

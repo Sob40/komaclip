@@ -3,7 +3,7 @@ Rails.application.routes.draw do
     resource :session
     resource :registration, only: %i[ new create ]
     resources :passwords, param: :token
-    resources :clip_templates, only: %i[ create destroy ] do
+    resources :clip_templates, only: %i[ index create update destroy ] do
       post :use, on: :member
     end
     resources :projects, only: %i[ new create show ] do
@@ -22,7 +22,10 @@ Rails.application.routes.draw do
         post :duplicate, on: :member
         patch :reorder, on: :collection
       end
-      resources :clips, only: %i[ create show destroy ]
+      resources :clips, only: %i[ create show update destroy ] do
+        post :regenerate, on: :member
+        patch :reorder, on: :member
+      end
     end
 
     get "app", to: "dashboard#show", as: :dashboard

@@ -1,0 +1,302 @@
+{
+  "version": "2026-06-11-01",
+  "contractVersion": "komaclip.manga-fx-packs.v1",
+  "renderer": "pixi",
+  "sourceOfTruth": "owned-or-licensed-assets-only",
+  "description": "Internal manga FX asset-pack manifest. Slots are stable integration points for owned or explicitly licensed overlays; null URLs must use procedural Pixi fallback.",
+  "storage": {
+    "recommendedBasePath": "manga-fx/",
+    "productionTarget": "cdn-or-object-storage",
+    "urlPolicy": "Only owned, commissioned, or app-redistribution-safe licensed assets may be referenced here."
+  },
+  "licensePolicy": {
+    "allowed": ["owned", "commissioned-exclusive", "app-redistribution-license"],
+    "prototypeOnly": ["stock-render-output-only"],
+    "blocked": ["unknown", "editorial-only", "commercial-output-only-without-app-redistribution"]
+  },
+  "packs": [
+    {
+      "id": "shonen-action",
+      "label": "Shonen Action",
+      "visualCategories": ["manga-action", "comic-superhero"],
+      "slots": [
+        {
+          "id": "shonen-speed-lines-radial",
+          "kind": "speed-lines",
+          "assetType": "image-sequence-or-spritesheet",
+          "role": "overlay",
+          "url": null,
+          "blendMode": "screen",
+          "anchor": "cover",
+          "animation": "radial-pulse",
+          "fallback": "drawSpeedLines",
+          "licenseStatus": "owned_required"
+        },
+        {
+          "id": "shonen-impact-frame",
+          "kind": "impact-frame",
+          "assetType": "transparent-image",
+          "role": "accent",
+          "url": "/manga-fx/shonen-action/impact-frame-owned-v1.png",
+          "blendMode": "normal",
+          "anchor": "cover",
+          "animation": "slam-pop",
+          "fallback": "drawImpactFrame",
+          "licenseStatus": "owned"
+        },
+        {
+          "id": "shonen-ink-flash",
+          "kind": "ink-flash",
+          "assetType": "image-sequence-or-video",
+          "role": "transition-accent",
+          "url": null,
+          "blendMode": "multiply",
+          "anchor": "cover",
+          "animation": "wipe-flash",
+          "fallback": "drawInkFlash",
+          "licenseStatus": "owned_required"
+        },
+        {
+          "id": "shonen-transition-speed-wipe",
+          "kind": "speed-wipe-streaks",
+          "assetType": "image-sequence-or-video",
+          "role": "transition-overlay",
+          "url": null,
+          "blendMode": "screen",
+          "anchor": "cover",
+          "animation": "lateral-wipe",
+          "fallback": "drawLateralSpeedLines",
+          "licenseStatus": "owned_required"
+        },
+        {
+          "id": "shonen-transition-panel-slam",
+          "kind": "panel-slam-impact-card",
+          "assetType": "transparent-image-or-video",
+          "role": "transition-accent",
+          "url": null,
+          "blendMode": "screen",
+          "anchor": "safe-frame",
+          "animation": "slam-pop",
+          "fallback": "drawShockBurst",
+          "licenseStatus": "owned_required"
+        },
+        {
+          "id": "shonen-transition-page-slice",
+          "kind": "paper-slice-shards",
+          "assetType": "transparent-image-or-video",
+          "role": "transition-overlay",
+          "url": null,
+          "blendMode": "screen",
+          "anchor": "cover",
+          "animation": "diagonal-slice",
+          "fallback": "drawPaperShards",
+          "licenseStatus": "owned_required"
+        },
+        {
+          "id": "shonen-title-banner",
+          "kind": "caption-title-banner",
+          "assetType": "transparent-image",
+          "role": "text-frame",
+          "url": "/manga-fx/bubbles/speech-rect-tail.svg",
+          "blendMode": "normal",
+          "anchor": "safe-frame",
+          "animation": "rise-lock",
+          "fallback": "drawCaption",
+          "licenseStatus": "owned"
+        },
+        {
+          "id": "shonen-sfx-burst-bubble",
+          "kind": "impact-sfx-bubble",
+          "assetType": "transparent-image",
+          "role": "text-frame",
+          "url": "/manga-fx/bubbles/burst-impact-white.svg",
+          "blendMode": "normal",
+          "anchor": "safe-frame",
+          "animation": "pop-lock",
+          "fallback": "drawCaptionRays",
+          "licenseStatus": "owned"
+        },
+        {
+          "id": "shonen-vertical-sfx-column",
+          "kind": "vertical-sfx-column",
+          "assetType": "transparent-image",
+          "role": "text-frame",
+          "url": "/manga-fx/bubbles/manga-vertical-soft.svg",
+          "blendMode": "normal",
+          "anchor": "right-safe",
+          "animation": "manga-reveal",
+          "fallback": "drawMangaTextGuide",
+          "licenseStatus": "owned"
+        }
+      ]
+    },
+    {
+      "id": "shojo-romance",
+      "label": "Shojo Romance",
+      "visualCategories": ["romance-fantasy"],
+      "slots": [
+        {
+          "id": "shojo-soft-sparkles",
+          "kind": "sparkles",
+          "assetType": "transparent-image",
+          "role": "overlay",
+          "url": null,
+          "blendMode": "screen",
+          "anchor": "cover",
+          "animation": "float-loop",
+          "fallback": "drawRomancePetals",
+          "licenseStatus": "owned_required"
+        },
+        {
+          "id": "shojo-flower-frame",
+          "kind": "flower-frame",
+          "assetType": "transparent-image",
+          "role": "frame",
+          "url": null,
+          "blendMode": "normal",
+          "anchor": "safe-frame",
+          "animation": "soft-breathe",
+          "fallback": "drawFantasySpark",
+          "licenseStatus": "owned_required"
+        },
+        {
+          "id": "shojo-floating-thought-card",
+          "kind": "floating-thought-card",
+          "assetType": "transparent-image",
+          "role": "text-frame",
+          "url": "/manga-fx/bubbles/thought-cloud-soft.svg",
+          "blendMode": "normal",
+          "anchor": "safe-frame",
+          "animation": "bubble-rise",
+          "fallback": "drawThoughtDots",
+          "licenseStatus": "owned"
+        }
+      ]
+    },
+    {
+      "id": "seinen-noir",
+      "label": "Seinen Noir",
+      "visualCategories": ["noir-mystery", "universal-editorial"],
+      "slots": [
+        {
+          "id": "noir-ink-grain",
+          "kind": "ink-grain",
+          "assetType": "tileable-texture",
+          "role": "texture",
+          "url": null,
+          "blendMode": "multiply",
+          "anchor": "cover",
+          "animation": "slow-drift",
+          "fallback": "drawEditorialGrain",
+          "licenseStatus": "owned_required"
+        },
+        {
+          "id": "noir-smoke-vignette",
+          "kind": "smoke-vignette",
+          "assetType": "transparent-image-or-video",
+          "role": "atmosphere",
+          "url": null,
+          "blendMode": "screen",
+          "anchor": "cover",
+          "animation": "slow-drift",
+          "fallback": "drawReadingGradient",
+          "licenseStatus": "owned_required"
+        }
+      ]
+    },
+    {
+      "id": "horror-manga",
+      "label": "Horror Manga",
+      "visualCategories": ["horror-thriller"],
+      "slots": [
+        {
+          "id": "horror-scratch-lines",
+          "kind": "scratch-lines",
+          "assetType": "transparent-image",
+          "role": "overlay",
+          "url": null,
+          "blendMode": "screen",
+          "anchor": "cover",
+          "animation": "jitter-flicker",
+          "fallback": "drawHorrorSignal",
+          "licenseStatus": "owned_required"
+        },
+        {
+          "id": "horror-dirty-fog",
+          "kind": "dirty-fog",
+          "assetType": "transparent-image-or-video",
+          "role": "atmosphere",
+          "url": null,
+          "blendMode": "screen",
+          "anchor": "cover",
+          "animation": "slow-drift",
+          "fallback": "drawHorrorSignal",
+          "licenseStatus": "owned_required"
+        }
+      ]
+    },
+    {
+      "id": "comedy-chibi",
+      "label": "Comedy / Chibi",
+      "visualCategories": ["comedy", "promo-social"],
+      "slots": [
+        {
+          "id": "comedy-pop-stamps",
+          "kind": "pop-stamps",
+          "assetType": "transparent-image",
+          "role": "accent",
+          "url": null,
+          "blendMode": "normal",
+          "anchor": "safe-frame",
+          "animation": "bounce-pop",
+          "fallback": "drawComedyPop",
+          "licenseStatus": "owned_required"
+        },
+        {
+          "id": "comedy-sweat-symbols",
+          "kind": "reaction-symbols",
+          "assetType": "transparent-image",
+          "role": "accent",
+          "url": null,
+          "blendMode": "screen",
+          "anchor": "cover",
+          "animation": "tiny-pop",
+          "fallback": "drawComedyPop",
+          "licenseStatus": "owned_required"
+        }
+      ]
+    }
+  ],
+  "presetSlots": {
+    "fx-manga-speed-impact": ["shonen-speed-lines-radial"],
+    "fx-manga-burst-focus-frame": ["shonen-impact-frame", "shonen-speed-lines-radial"],
+    "fx-manga-halftone-burst": ["shonen-impact-frame", "shonen-speed-lines-radial"],
+    "fx-impact-freeze-punch": ["shonen-impact-frame", "shonen-speed-lines-radial"],
+    "fx-panel-smash-burst": ["shonen-impact-frame"],
+    "fx-final-attack-trailer-card": ["shonen-impact-frame", "shonen-speed-lines-radial"],
+    "fx-slash-energy-cut": ["shonen-speed-lines-radial"],
+    "fx-ink-flash-impact": ["shonen-ink-flash"],
+    "fx-panel-zoom-editorial": ["noir-ink-grain"],
+    "fx-glitch-horror-signal": ["horror-scratch-lines", "horror-dirty-fog"],
+    "fx-webtoon-vertical-scroll": ["shonen-transition-page-slice"],
+    "fx-romance-petals": ["shojo-soft-sparkles", "shojo-flower-frame"],
+    "fx-petal-bloom-depth": ["shojo-soft-sparkles", "shojo-flower-frame"],
+    "fx-fantasy-spark": ["shojo-soft-sparkles"],
+    "fx-horror-signal": ["horror-scratch-lines", "horror-dirty-fog"],
+    "fx-editorial-grain": ["noir-ink-grain"],
+    "fx-comedy-pop": ["comedy-pop-stamps", "comedy-sweat-symbols"],
+    "tr-speed-wipe-pro": ["shonen-transition-speed-wipe"],
+    "tr-impact-smash-cut": ["shonen-transition-panel-slam", "shonen-impact-frame"],
+    "tr-page-flip-pro": ["shonen-transition-page-slice"],
+    "tr-glitch-tear": ["horror-scratch-lines", "horror-dirty-fog"],
+    "tr-vertical-scroll-cut": ["shonen-transition-page-slice"],
+    "tr-ink-flash-impact": ["shonen-ink-flash"],
+    "tx-hook-clean-caption": ["shonen-title-banner"],
+    "tx-editorial-safe-lower-caption": ["noir-ink-grain"],
+    "tx-manga-impact-sfx": ["shonen-sfx-burst-bubble"],
+    "tx-manga-dokan-explosion-sfx": ["shonen-sfx-burst-bubble"],
+    "tx-manga-speedline-shout-banner": ["shonen-title-banner", "shonen-speed-lines-radial"],
+    "tx-manga-dododo-pressure": ["shonen-vertical-sfx-column"],
+    "tx-webtoon-floating-thought-card": ["shojo-floating-thought-card"]
+  }
+}

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 300" role="img" aria-label="Rectangular comic speech bubble">
+  <metadata>{"id":"speech-rect-tail","contentBox":[86,82,342,98],"tail":[338,250],"style":"speech"}</metadata>
+  <defs>
+    <pattern id="dots-rect-tail" width="14" height="14" patternUnits="userSpaceOnUse">
+      <circle cx="4" cy="4" r="2.2" fill="#111" opacity=".36"/>
+    </pattern>
+  </defs>
+  <path d="M80 199c44 26 133 38 236 25 66-8 117-26 151-53v58c-31 22-84 37-151 44-98 9-188-1-236-25Z" fill="url(#dots-rect-tail)" opacity=".55"/>
+  <path d="M330 203c14 31 38 47 75 57-22-25-29-49-21-75Z" fill="#fffdf8" stroke="#111" stroke-width="7" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+  <path d="M72 54h354c27 0 46 17 46 42v89c0 26-19 43-46 43H72c-25 0-42-17-42-43V96c0-25 17-42 42-42Z" fill="#fffdf8"/>
+  <path d="M72 54h354c27 0 46 17 46 42v89c0 26-19 43-46 43H72c-25 0-42-17-42-43V96c0-25 17-42 42-42Z" fill="none" stroke="#111" stroke-width="8" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+  <path d="M80 66h330M54 97v78M455 104v71" fill="none" stroke="#111" stroke-width="2.5" opacity=".34" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+</svg>

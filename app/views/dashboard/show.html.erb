@@ -6,7 +6,6 @@
       <p class="kc-subtitle"><%= t(".body") %></p>
     </div>
 
-    <%= button_to t(".new_project"), projects_path, method: :post, class: "kc-button-primary" %>
   </header>
 
   <% if flash[:notice] %>
@@ -56,30 +55,4 @@
     <% end %>
   </section>
 
-  <% if @clip_templates.any? %>
-    <section id="templates" class="kc-panel kc-panel-pad kc-template-list mt-5">
-      <div class="kc-page-header">
-        <div>
-          <h2 class="kc-section-title"><%= t(".templates_title") %></h2>
-          <p class="kc-subtitle"><%= t(".templates_body") %></p>
-        </div>
-        <span class="kc-pill"><%= t(".template_count", count: @clip_templates.size) %></span>
-      </div>
-
-      <div class="kc-template-grid">
-        <% @clip_templates.each do |template| %>
-          <article class="kc-template-card">
-            <div>
-              <h3><%= template.name %></h3>
-              <p><%= t("content_locales.#{template.content_locale}") %> · <%= template.settings.dig("visual", "presetId") || t(".template_default_style") %></p>
-            </div>
-            <div class="kc-template-actions">
-              <%= button_to t(".use_template"), use_clip_template_path(id: template), method: :post, class: "kc-button-primary" %>
-              <%= button_to t(".delete_template"), clip_template_path(id: template), method: :delete, class: "kc-button-ghost" %>
-            </div>
-          </article>
-        <% end %>
-      </div>
-    </section>
-  <% end %>
 </main>

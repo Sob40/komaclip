@@ -35,8 +35,19 @@ class PanelsController < ApplicationController
       return
     end
 
-    metadata = @panel.metadata.to_h.except("noText")
+    metadata = @panel.metadata.to_h
     scene_text.present? ? metadata["sceneText"] = scene_text : metadata.delete("sceneText")
+    metadata["sceneTextSource"] = scene_text.present? ? "user" : ""
+    metadata["noText"] = truthy_param?(panel_params[:no_text])
+    metadata["noTextSource"] = metadata["noText"] ? "user" : ""
+    metadata["skipScene"] = truthy_param?(panel_params[:skip_scene])
+    metadata["skipSceneSource"] = metadata["skipScene"] ? "user" : ""
+    assign_scene_choice(metadata, "sceneMotion", "sceneMotionSource", panel_params[:scene_motion], Panel::SCENE_MOTIONS)
+    assign_scene_choice(metadata, "sceneBubble", "sceneBubbleSource", panel_params[:scene_bubble], Panel::SCENE_BUBBLES)
+    assign_scene_choice(metadata, "scenePosition", "scenePositionSource", panel_params[:scene_position], Panel::SCENE_POSITIONS)
+    assign_scene_choice(metadata, "sceneSize", "sceneSizeSource", panel_params[:scene_size], Panel::SCENE_SIZES)
+    assign_scene_choice(metadata, "sceneDuration", "sceneDurationSource", panel_params[:scene_duration], Panel::SCENE_DURATIONS)
+    assign_scene_choice(metadata, "sceneTransition", "sceneTransitionSource", panel_params[:scene_transition], Panel::SCENE_TRANSITIONS)
 
     @panel.update!(metadata: metadata)
     mark_material_dirty!
@@ -113,7 +124,28 @@ class PanelsController < ApplicationController
     end
 
     def panel_params
-      params.fetch(:panel, {}).permit(:scene_text)
+      params.fetch(:panel, {}).permit(
+        :scene_text,
+        :no_text,
+        :skip_scene,
+        :scene_motion,
+        :scene_bubble,
+        :scene_position,
+        :scene_size,
+        :scene_duration,
+        :scene_transition
+      )
+    end
+
+    def assign_scene_choice(metadata, key, source_key, value, allowed)
+      value = value.to_s
+      value = "auto" unless allowed.include?(value)
+      metadata[key] = value
+      metadata[source_key] = value == "auto" ? "" : "user"
+    end
+
+    def truthy_param?(value)
+      ActiveModel::Type::Boolean.new.cast(value)
     end
 
     def shift_positions_from(position)

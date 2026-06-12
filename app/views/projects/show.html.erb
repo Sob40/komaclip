@@ -1,4 +1,4 @@
-<main class="kc-main kc-editor-shell">
+<main class="kc-main kc-editor-shell <%= "is-material-pending" unless @material_ready %>">
   <% if flash[:alert] %>
     <div class="kc-flash kc-flash-alert"><%= flash[:alert] %></div>
   <% end %>
@@ -51,8 +51,9 @@
             <% @panels.each do |panel| %>
               <% asset = panel.project_asset %>
               <% scene_text = panel.scene_text %>
+              <% display_scene_text = panel.display_scene_text %>
               <% scene_text_popover_id = "scene-text-#{panel.id}" %>
-              <article class="kc-scene-card" draggable="true" data-scene-list-target="item" data-panel-id="<%= panel.id %>" data-scene-title-template="<%= t(".scene_title", position: "%{position}") %>" data-action="dragstart->scene-list#dragStart dragover->scene-list#dragOver drop->scene-list#drop dragend->scene-list#dragEnd">
+              <article class="kc-scene-card <%= "is-excluded" if panel.excluded? %> <%= "is-no-text" if panel.no_text? %>" draggable="true" data-scene-list-target="item" data-panel-id="<%= panel.id %>" data-scene-title-template="<%= t(".scene_title", position: "%{position}") %>" data-action="dragstart->scene-list#dragStart dragover->scene-list#dragOver drop->scene-list#drop dragend->scene-list#dragEnd">
                 <button class="kc-drag-handle" type="button" title="<%= t(".drag_scene") %>" aria-label="<%= t(".drag_scene_with_position", position: panel.position) %>">⋮⋮</button>
                 <button class="kc-scene-media" type="button" popovertarget="<%= scene_text_popover_id %>" title="<%= t(".scene_text_open") %>" aria-label="<%= t(".scene_text_open_for", position: panel.position) %>">
                   <% if asset.file.attached? %>
@@ -60,9 +61,20 @@
                   <% else %>
                     <span><%= t(".scene_media_missing") %></span>
                   <% end %>
+                  <% unless panel.scene_motion == "auto" && [ "auto", "cut" ].include?(panel.scene_transition) %>
+                    <span class="<%= scene_visual_preview_classes(panel).join(" ") %>" aria-hidden="true">
+                      <span class="kc-preview-effect"></span>
+                      <span class="kc-preview-transition"></span>
+                    </span>
+                  <% end %>
                   <span class="kc-scene-order"><%= panel.position %></span>
-                  <% if scene_text.present? %>
-                    <span class="kc-scene-text-preview"><%= scene_text %></span>
+                  <% if display_scene_text.present? %>
+                    <span class="kc-scene-text-preview"><%= display_scene_text %></span>
+                  <% elsif panel.no_text? %>
+                    <span class="kc-scene-state-badge"><%= t(".scene_no_text_short") %></span>
+                  <% end %>
+                  <% if panel.excluded? %>
+                    <span class="kc-scene-excluded-overlay"><%= t(".scene_excluded_short") %></span>
                   <% end %>
                 </button>
 
@@ -73,6 +85,44 @@
                       <span><%= t(".scene_text_hint", count: Panel::MAX_SCENE_TEXT_LENGTH) %></span>
                     </div>
                     <%= text_area_tag "panel[scene_text]", scene_text, id: "scene_text_#{panel.id}", maxlength: Panel::MAX_SCENE_TEXT_LENGTH, rows: 4, placeholder: t(".scene_text_placeholder") %>
+                    <div class="kc-scene-toggle-grid">
+                      <label class="kc-scene-toggle">
+                        <%= hidden_field_tag "panel[no_text]", "0" %>
+                        <%= check_box_tag "panel[no_text]", "1", panel.no_text? %>
+                        <span><%= kc_icon("eye-off") %><%= t(".scene_no_text") %></span>
+                      </label>
+                      <label class="kc-scene-toggle">
+                        <%= hidden_field_tag "panel[skip_scene]", "0" %>
+                        <%= check_box_tag "panel[skip_scene]", "1", panel.excluded? %>
+                        <span><%= kc_icon("trash") %><%= t(".scene_exclude") %></span>
+                      </label>
+                    </div>
+                    <div class="kc-scene-style-grid">
+                      <label>
+                        <span><%= t(".scene_fields.motion") %></span>
+                        <%= select_tag "panel[scene_motion]", options_for_select(Panel::SCENE_MOTIONS.map { |value| [ t(".scene_options.motion.#{value}") , value ] }, panel.scene_motion) %>
+                      </label>
+                      <label>
+                        <span><%= t(".scene_fields.bubble") %></span>
+                        <%= select_tag "panel[scene_bubble]", options_for_select(Panel::SCENE_BUBBLES.map { |value| [ t(".scene_options.bubble.#{value}") , value ] }, panel.scene_bubble) %>
+                      </label>
+                      <label>
+                        <span><%= t(".scene_fields.position") %></span>
+                        <%= select_tag "panel[scene_position]", options_for_select(Panel::SCENE_POSITIONS.map { |value| [ t(".scene_options.position.#{value}") , value ] }, panel.scene_position) %>
+                      </label>
+                      <label>
+                        <span><%= t(".scene_fields.size") %></span>
+                        <%= select_tag "panel[scene_size]", options_for_select(Panel::SCENE_SIZES.map { |value| [ t(".scene_options.size.#{value}") , value ] }, panel.scene_size) %>
+                      </label>
+                      <label>
+                        <span><%= t(".scene_fields.duration") %></span>
+                        <%= select_tag "panel[scene_duration]", options_for_select(Panel::SCENE_DURATIONS.map { |value| [ t(".scene_options.duration.#{value}") , value ] }, panel.scene_duration) %>
+                      </label>
+                      <label>
+                        <span><%= t(".scene_fields.transition") %></span>
+                        <%= select_tag "panel[scene_transition]", options_for_select(Panel::SCENE_TRANSITIONS.map { |value| [ t(".scene_options.transition.#{value}") , value ] }, panel.scene_transition) %>
+                      </label>
+                    </div>
                     <div class="kc-scene-popover-actions">
                       <button type="button" class="kc-scene-action" popovertarget="<%= scene_text_popover_id %>" popovertargetaction="hide"><%= t(".cancel") %></button>
                       <%= submit_tag t(".save_scene_text"), class: "kc-scene-action kc-scene-action-save" %>
@@ -83,13 +133,29 @@
                 <div class="kc-scene-copy">
                   <strong><%= t(".scene_title", position: panel.position) %></strong>
                   <small title="<%= asset.filename %>"><%= asset.filename %></small>
+                  <div class="kc-scene-chip-row">
+                    <% if panel.excluded? %>
+                      <span class="is-danger"><%= t(".scene_excluded") %></span>
+                    <% elsif panel.no_text? %>
+                      <span><%= t(".scene_no_text") %></span>
+                    <% elsif scene_text.present? %>
+                      <span><%= t(".scene_text_chip") %></span>
+                    <% end %>
+                    <% [ [ "motion", panel.scene_motion ], [ "duration", panel.scene_duration ], [ "transition", panel.scene_transition ] ].reject { |_group, value| value == "auto" }.each do |group, value| %>
+                      <span><%= t(".scene_options.#{group}.#{value}") %></span>
+                    <% end %>
+                  </div>
                 </div>
 
                 <div class="kc-scene-footer">
                   <div class="kc-scene-actions" aria-label="<%= t(".scene_actions") %>">
-                    <button class="kc-scene-text-chip <%= "is-empty" if scene_text.blank? %>" type="button" popovertarget="<%= scene_text_popover_id %>"><%= scene_text.present? ? t(".scene_text_chip") : t(".scene_text_add") %></button>
-                    <%= button_to "⧉", duplicate_project_panel_path(project_id: @project, id: panel), method: :post, class: "kc-scene-action kc-scene-action-icon", title: t(".duplicate_scene"), form: { "aria-label": t(".duplicate_scene") } %>
-                    <%= button_to "×", project_panel_path(project_id: @project, id: panel), method: :delete, class: "kc-scene-action kc-scene-action-icon kc-scene-action-danger", title: t(".delete_scene"), form: { "aria-label": t(".delete_scene") } %>
+                    <button class="kc-scene-text-chip <%= "is-empty" if scene_text.blank? && !panel.no_text? %>" type="button" popovertarget="<%= scene_text_popover_id %>"><%= kc_icon(panel.no_text? ? "eye-off" : "type") %><%= panel.no_text? ? t(".scene_no_text_short") : scene_text.present? ? t(".scene_text_chip") : t(".scene_text_add") %></button>
+                    <%= button_to duplicate_project_panel_path(project_id: @project, id: panel), method: :post, class: "kc-scene-action kc-scene-action-icon", title: t(".duplicate_scene"), form: { "aria-label": t(".duplicate_scene") } do %>
+                      <%= kc_icon("copy") %>
+                    <% end %>
+                    <%= button_to project_panel_path(project_id: @project, id: panel), method: :delete, class: "kc-scene-action kc-scene-action-icon kc-scene-action-danger", title: t(".delete_scene"), form: { "aria-label": t(".delete_scene") } do %>
+                      <%= kc_icon("trash") %>
+                    <% end %>
                   </div>
                 </div>
               </article>
@@ -97,7 +163,7 @@
           </div>
 
           <div class="kc-material-continue-row">
-            <div class="kc-material-ready-status"><%= t(".material_ready_status", ready: @panels.size, total: @panels.size) %></div>
+            <div class="kc-material-ready-status"><%= t(".material_ready_status", ready: @usable_panels.size, total: @panels.size) %></div>
             <%= button_to t(".continue_direction"), confirm_material_project_path(id: @project), method: :post, class: "kc-button-primary kc-material-ready-button" %>
           </div>
         </section>
@@ -180,74 +246,122 @@
           <span class="kc-step-number">3</span>
           <div>
             <p class="kc-eyebrow"><%= t(".proposal_eyebrow") %></p>
-            <h2><%= t(".proposal_title") %></h2>
-            <p><%= t(".proposal_body") %></p>
+            <h2><%= @proposal_ready ? t(".proposal_ready_title") : t(".proposal_title") %></h2>
+            <p><%= @proposal_ready ? t(".proposal_ready_body") : t(".proposal_body") %></p>
           </div>
         </div>
 
-        <section class="kc-proposal-settings">
-          <div class="kc-proposal-settings-heading">
-            <strong><%= t(".proposal_settings_title") %></strong>
-            <span><%= t(".proposal_settings_body") %></span>
-          </div>
-          <div class="kc-proposal-settings-grid">
-            <label class="kc-proposal-field">
-              <span><%= t(".proposal_fields.genre") %></span>
-              <%= select_tag :proposal_genre, options_for_select([[ t(".proposal_options.genre.drama"), "drama" ]]), class: "kc-input" %>
-              <small aria-hidden="true">&nbsp;</small>
-            </label>
-            <label class="kc-proposal-field">
-              <span><%= t(".proposal_fields.scene_time") %></span>
-              <%= select_tag :proposal_scene_time, options_for_select([[ t(".proposal_options.scene_time.auto"), "auto" ]]), class: "kc-input" %>
-              <small><%= t(".proposal_hints.scene_time") %></small>
-            </label>
-            <label class="kc-proposal-field">
-              <span><%= t(".proposal_fields.intensity") %></span>
-              <%= select_tag :proposal_intensity, options_for_select([[ t(".proposal_options.intensity.balanced"), "balanced" ]]), class: "kc-input" %>
-              <small><%= t(".proposal_hints.intensity") %></small>
-            </label>
-          </div>
-        </section>
-
-        <section class="kc-generate-panel">
-          <% if @proposal_ready %>
+        <% if @proposal_ready %>
+          <section class="kc-proposal-ready-card">
+            <div class="kc-proposal-ready-copy">
+              <strong><%= t(".proposal_ready_card_title") %></strong>
+              <span><%= t(".proposal_ready_card_body", title: @latest_clip.title, duration: @latest_clip.duration_ms / 1000, count: @latest_clip.scene_contract.fetch("shots", []).size) %></span>
+            </div>
+            <div class="kc-proposal-ready-grid">
+              <span><strong><%= t(".proposal_fields.genre") %></strong><%= t(".proposal_options.genre.#{@latest_proposal.fetch("genre", "drama")}") %></span>
+              <span><strong><%= t(".proposal_fields.scene_time") %></strong><%= t(".proposal_options.scene_time.#{@latest_proposal.fetch("sceneTime", "auto")}") %></span>
+              <span><strong><%= t(".proposal_fields.intensity") %></strong><%= t(".proposal_options.intensity.#{@latest_proposal.fetch("intensity", "balanced")}") %></span>
+            </div>
+            <% if @latest_proposal["brief"].present? || @latest_proposal["noSpoilers"].present? %>
+              <div class="kc-proposal-ready-notes">
+                <% if @latest_proposal["brief"].present? %>
+                  <p><strong><%= t(".proposal_fields.brief") %></strong><%= @latest_proposal["brief"] %></p>
+                <% end %>
+                <% if @latest_proposal["noSpoilers"].present? %>
+                  <p><strong><%= t(".proposal_fields.no_spoilers") %></strong><%= @latest_proposal["noSpoilers"] %></p>
+                <% end %>
+              </div>
+            <% end %>
             <%= link_to project_clip_path(project_id: @project, id: @latest_clip), class: "kc-button-primary kc-generate-button" do %>
-              <%= kc_icon("wand") %>
-              <%= t(".open_proposal") %>
+              <%= kc_icon("arrow-right") %>
+              <%= t(".open_editor") %>
             <% end %>
-          <% else %>
-            <%= button_to project_clips_path(project_id: @project), method: :post, class: "kc-button-primary kc-generate-button" do %>
-              <%= kc_icon("wand") %>
-              <%= t(".create_proposal") %>
+          </section>
+        <% else %>
+          <section class="kc-proposal-settings">
+            <div class="kc-proposal-settings-heading">
+              <strong><%= t(".proposal_settings_title") %></strong>
+              <span><%= t(".proposal_settings_body") %></span>
+            </div>
+            <div class="kc-proposal-settings-grid">
+              <label class="kc-proposal-field">
+                <span><%= t(".proposal_fields.genre") %></span>
+                <%= select_tag :proposal_genre, options_for_select(ClipsController::PROPOSAL_GENRES.map { |genre| [ t(".proposal_options.genre.#{genre}"), genre ] }, @proposal_defaults.fetch("genre")), class: "kc-input", form: "clip-proposal-form" %>
+                <small aria-hidden="true">&nbsp;</small>
+              </label>
+              <label class="kc-proposal-field">
+                <span><%= t(".proposal_fields.scene_time") %></span>
+                <%= select_tag :proposal_scene_time, options_for_select(ClipsController::PROPOSAL_SCENE_TIMES.map { |scene_time| [ t(".proposal_options.scene_time.#{scene_time}"), scene_time ] }, @proposal_defaults.fetch("sceneTime")), class: "kc-input", form: "clip-proposal-form" %>
+                <small><%= t(".proposal_hints.scene_time") %></small>
+              </label>
+              <label class="kc-proposal-field">
+                <span><%= t(".proposal_fields.intensity") %></span>
+                <%= select_tag :proposal_intensity, options_for_select(ClipsController::PROPOSAL_INTENSITIES.map { |intensity| [ t(".proposal_options.intensity.#{intensity}"), intensity ] }, @proposal_defaults.fetch("intensity")), class: "kc-input", form: "clip-proposal-form" %>
+                <small><%= t(".proposal_hints.intensity") %></small>
+              </label>
+            </div>
+            <div class="kc-proposal-brief-grid">
+              <label class="kc-proposal-field kc-proposal-textarea-field">
+                <span><%= t(".proposal_fields.brief") %></span>
+                <%= text_area_tag :proposal_brief, "", rows: 2, maxlength: ClipsController::PROPOSAL_TEXT_MAX_LENGTH, placeholder: t(".proposal_placeholders.brief"), class: "kc-input", form: "clip-proposal-form" %>
+              </label>
+              <label class="kc-proposal-field kc-proposal-textarea-field">
+                <span><%= t(".proposal_fields.no_spoilers") %></span>
+                <%= text_area_tag :proposal_no_spoilers, "", rows: 2, maxlength: ClipsController::PROPOSAL_TEXT_MAX_LENGTH, placeholder: t(".proposal_placeholders.no_spoilers"), class: "kc-input", form: "clip-proposal-form" %>
+              </label>
+            </div>
+          </section>
+
+          <section class="kc-generate-panel">
+            <%= form_with url: project_clips_path(project_id: @project), method: :post, id: "clip-proposal-form", class: "kc-generate-form" do %>
+              <button type="submit" class="kc-button-primary kc-generate-button">
+                <%= kc_icon("wand") %>
+                <%= t(".create_proposal") %>
+              </button>
             <% end %>
-          <% end %>
-        </section>
+          </section>
+        <% end %>
       </section>
     <% end %>
   </div>
 
-  <aside class="kc-project-preview-pane">
-    <div class="kc-phone-frame kc-project-phone">
-      <div class="kc-phone-screen">
-        <div class="kc-phone-placeholder">
-          <strong>KomaClip</strong>
-          <span><%= @proposal_ready ? t(".phone_ready") : t(".phone_empty") %></span>
+  <aside class="kc-project-preview-pane" <%= "hidden" unless @material_ready %>>
+    <% if @proposal_ready %>
+      <%= link_to project_clip_path(project_id: @project, id: @latest_clip), class: "kc-phone-frame kc-project-phone kc-project-phone-link", aria: { label: t(".open_preview") } do %>
+        <div class="kc-phone-screen">
+          <div class="kc-phone-placeholder">
+            <strong>KomaClip</strong>
+            <span><%= t(".latest_clip", title: @latest_clip.title, duration: @latest_clip.duration_ms / 1000) %></span>
+          </div>
+        </div>
+      <% end %>
+    <% else %>
+      <div class="kc-phone-frame kc-project-phone">
+        <div class="kc-phone-screen">
+          <div class="kc-phone-placeholder">
+            <strong>KomaClip</strong>
+            <span><%= @direction_ready ? t(".phone_proposal_pending") : (@material_ready ? t(".phone_direction_pending") : t(".phone_empty")) %></span>
+          </div>
         </div>
       </div>
-    </div>
+    <% end %>
     <label class="kc-preview-output-field">
-      <span><%= t(".output_view") %></span>
+      <span><%= kc_icon("target") %><%= t(".output_view") %></span>
       <select class="kc-input">
         <option><%= t(".output_reels") %></option>
       </select>
     </label>
     <div class="kc-preview-actions">
-      <button type="button" class="kc-button-primary"><%= t(".play") %></button>
-      <button type="button" class="kc-button"><%= t(".music") %></button>
       <% if @proposal_ready %>
-        <%= link_to t(".export"), project_clip_path(project_id: @project, id: @latest_clip), class: "kc-button" %>
+        <%= link_to project_clip_path(project_id: @project, id: @latest_clip), class: "kc-button-primary" do %>
+          <%= kc_icon("arrow-right") %><%= t(".open_editor") %>
+        <% end %>
+        <button type="button" class="kc-button" disabled><%= kc_icon("music") %><%= t(".music") %></button>
+        <button type="button" class="kc-button" disabled><%= kc_icon("download") %><%= t(".export_pending") %></button>
       <% else %>
-        <button type="button" class="kc-button" disabled><%= t(".export") %></button>
+        <button type="button" class="kc-button-primary" disabled><%= kc_icon("play") %><%= t(".play") %></button>
+        <button type="button" class="kc-button" disabled><%= kc_icon("music") %><%= t(".music") %></button>
+        <button type="button" class="kc-button" disabled><%= kc_icon("download") %><%= t(".export_pending") %></button>
       <% end %>
     </div>
   </aside>
