@@ -12,6 +12,81 @@ export const PIXI_PREVIEW_SIZE = Object.freeze({
   fps: 30,
 });
 
+export const PIXI_RENDER_QUALITY_PROFILES = Object.freeze({
+  thumbnail: Object.freeze({
+    name: "thumbnail",
+    maxRendererResolution: 1,
+    shaderResolution: 0.65,
+    filterResolution: 0.65,
+    blurStrengthScale: 0.82,
+    maxBlurQuality: 2,
+    maxExternalQuality: 2,
+    maxMotionKernelSize: 7,
+    rgbSplitScale: 0.75,
+    shockwaveScale: 0.75,
+    godrayGainScale: 0.8,
+    maxPanelFilters: 4,
+    allowNoise: false,
+  }),
+  preview: Object.freeze({
+    name: "preview",
+    maxRendererResolution: 1.5,
+    shaderResolution: 0.85,
+    filterResolution: 0.85,
+    blurStrengthScale: 0.92,
+    maxBlurQuality: 3,
+    maxExternalQuality: 3,
+    maxMotionKernelSize: 9,
+    rgbSplitScale: 0.9,
+    shockwaveScale: 0.9,
+    godrayGainScale: 0.92,
+    maxPanelFilters: 5,
+    allowNoise: true,
+  }),
+  high: Object.freeze({
+    name: "high",
+    maxRendererResolution: 2,
+    shaderResolution: 1,
+    filterResolution: 1,
+    blurStrengthScale: 1,
+    maxBlurQuality: 4,
+    maxExternalQuality: 4,
+    maxMotionKernelSize: 11,
+    rgbSplitScale: 1,
+    shockwaveScale: 1,
+    godrayGainScale: 1,
+    maxPanelFilters: 6,
+    allowNoise: true,
+  }),
+});
+
+export const PIXI_RENDER_PERFORMANCE_BUDGETS = Object.freeze({
+  thumbnail: Object.freeze({
+    averageFrameMs: 14,
+    lastFrameMs: 18,
+    displayObjects: 120,
+    graphics: 45,
+    filters: 4,
+    textureBytes: 96 * 1024 * 1024,
+  }),
+  preview: Object.freeze({
+    averageFrameMs: 22,
+    lastFrameMs: 28,
+    displayObjects: 240,
+    graphics: 80,
+    filters: 8,
+    textureBytes: 160 * 1024 * 1024,
+  }),
+  high: Object.freeze({
+    averageFrameMs: 33,
+    lastFrameMs: 42,
+    displayObjects: 360,
+    graphics: 120,
+    filters: 12,
+    textureBytes: 256 * 1024 * 1024,
+  }),
+});
+
 export const SUPPORTED_PIXI_LAB_IDS = Object.freeze(["all-comic-lab-styles"]);
 
 export function createPixiSceneContract({
@@ -73,10 +148,12 @@ export function normalizeComicLabDemoForPixi(demo) {
 }
 
 export class PixiPreviewRenderer {
-  constructor({ mount, pixi, pixiFilters = null } = {}) {
+  constructor({ mount, pixi, pixiFilters = null, qualityProfile = "preview" } = {}) {
     this.mount = mount || null;
     this.pixi = pixi || null;
     this.pixiFilters = pixiFilters || null;
+    this.qualityProfile = this.normalizeQualityProfile(qualityProfile);
+    this.qualitySettings = PIXI_RENDER_QUALITY_PROFILES[this.qualityProfile];
     this.app = null;
     this.scene = null;
     this.root = null;
@@ -87,8 +164,101 @@ export class PixiPreviewRenderer {
     this.playbackOptions = { loop: true, onComplete: null, completed: false };
     this.fxTextures = new Map();
     this.generatedFrameTextures = [];
-    this.frameStats = { averageMs: 0, lastMs: 0, maxMs: 0, samples: 0 };
+    this.fullFrameFilterArea = null;
+    this.qualityGovernor = {
+      enabled: this.qualityProfile !== "high",
+      level: 0,
+      maxLevel: this.qualityProfile === "thumbnail" ? 2 : 1,
+      hotFrames: 0,
+      coolFrames: 0,
+      lastPressure: 0,
+      lastStatus: "warming",
+    };
+    this.frameStats = {
+      averageMs: 0,
+      lastMs: 0,
+      maxMs: 0,
+      samples: 0,
+      maxDisplayObjects: 0,
+      maxFilters: 0,
+      maxGraphics: 0,
+      objectStats: this.emptyFrameObjectStats(),
+    };
     this.renderTick = this.renderTick.bind(this);
+  }
+
+  normalizeQualityProfile(profile) {
+    return PIXI_RENDER_QUALITY_PROFILES[profile] ? profile : "preview";
+  }
+
+  qualitySetting(name) {
+    return this.qualitySettings?.[name] ?? PIXI_RENDER_QUALITY_PROFILES.preview[name];
+  }
+
+  performanceBudget() {
+    return PIXI_RENDER_PERFORMANCE_BUDGETS[this.qualityProfile] || PIXI_RENDER_PERFORMANCE_BUDGETS.preview;
+  }
+
+  qualityGovernorState() {
+    return {
+      ...this.qualityGovernor,
+      active: Boolean(this.qualityGovernor.enabled && this.qualityGovernor.level > 0),
+    };
+  }
+
+  qualityGovernorScale(kind = "resolution") {
+    if (!this.qualityGovernor.enabled) return 1;
+    const level = Math.max(0, Math.min(this.qualityGovernor.level || 0, this.qualityGovernor.maxLevel || 0));
+    const scales = {
+      resolution: [1, 0.82, 0.68],
+      blurStrength: [1, 0.86, 0.72],
+      externalQuality: [1, 0.85, 0.72],
+      rgbSplit: [1, 0.82, 0.7],
+      shockwave: [1, 0.84, 0.72],
+      godray: [1, 0.84, 0.72],
+    }[kind] || [1, 0.85, 0.72];
+    return scales[level] || scales.at(-1) || 1;
+  }
+
+  rendererResolution() {
+    const pixelRatio = Math.max(1, window.devicePixelRatio || 1);
+    return Math.min(pixelRatio, this.qualitySetting("maxRendererResolution") || 1.5);
+  }
+
+  qualityAdjustedShaderResolution(resolution) {
+    const profileResolution = this.qualitySetting("shaderResolution") || 1;
+    const adjusted = profileResolution * this.qualityGovernorScale("resolution");
+    return Number.isFinite(resolution) ? Math.min(resolution, adjusted) : adjusted;
+  }
+
+  qualityAdjustedFilterResolution(resolution) {
+    const profileResolution = this.qualitySetting("filterResolution") || 1;
+    const adjusted = profileResolution * this.qualityGovernorScale("resolution");
+    return Number.isFinite(resolution) ? Math.min(resolution, adjusted) : adjusted;
+  }
+
+  qualityAdjustedBlurStrength(strength) {
+    if (!Number.isFinite(strength)) return strength;
+    return Math.max(0, strength * (this.qualitySetting("blurStrengthScale") || 1) * this.qualityGovernorScale("blurStrength"));
+  }
+
+  qualityAdjustedBlurQuality(quality) {
+    if (!Number.isFinite(quality)) return quality;
+    const maxQuality = Math.max(1, (this.qualitySetting("maxBlurQuality") || 3) - (this.qualityGovernor.level || 0));
+    return Math.max(1, Math.min(Math.round(quality), maxQuality));
+  }
+
+  qualityAdjustedExternalQuality(quality) {
+    if (!Number.isFinite(quality)) return quality;
+    return Math.min(quality, (this.qualitySetting("maxExternalQuality") || 3) * this.qualityGovernorScale("externalQuality"));
+  }
+
+  qualityAdjustedMotionKernelSize(kernelSize) {
+    if (!Number.isFinite(kernelSize)) return kernelSize;
+    const maxKernelSize = (this.qualitySetting("maxMotionKernelSize") || 9) - (this.qualityGovernor.level || 0) * 2;
+    let adjusted = Math.max(3, Math.min(Math.round(kernelSize), maxKernelSize));
+    if (adjusted % 2 === 0) adjusted -= 1;
+    return Math.max(3, adjusted);
   }
 
   async init() {
@@ -106,7 +276,7 @@ export class PixiPreviewRenderer {
         backgroundColor: 0x050509,
         antialias: true,
         autoDensity: true,
-        resolution: Math.min(window.devicePixelRatio || 1, 2),
+        resolution: this.rendererResolution(),
       });
       this.app.canvas.className = "pixi-preview-canvas";
       this.app.canvas.style.width = "100%";
@@ -177,18 +347,31 @@ export class PixiPreviewRenderer {
   }
 
   async loadSceneTextures(scene) {
-    const sequenceSources = (scene?.shots || [])
-      .flatMap((shot) => [shot?.panel?.src, shot?.nextPanel?.src])
-      .filter(Boolean);
-    const sources = [...new Set([
-      ...[scene?.panel?.src, scene?.nextPanel?.src].filter(Boolean),
-      ...sequenceSources,
-    ])];
+    const sources = this.sceneTextureSources(scene);
+    this.releaseUnusedSceneTextures(sources);
     await Promise.all(sources.map(async (src) => {
       if (this.textures.has(src)) return;
       const texture = await this.pixi.Assets.load(src);
       this.textures.set(src, texture);
     }));
+  }
+
+  sceneTextureSources(scene) {
+    const sequenceSources = (scene?.shots || [])
+      .flatMap((shot) => [shot?.panel?.src, shot?.nextPanel?.src])
+      .filter(Boolean);
+
+    return [...new Set([
+      ...[scene?.panel?.src, scene?.nextPanel?.src].filter(Boolean),
+      ...sequenceSources,
+    ])];
+  }
+
+  releaseUnusedSceneTextures(activeSources = []) {
+    const active = new Set(activeSources);
+    [...this.textures.keys()].forEach((src) => {
+      if (!active.has(src)) this.textures.delete(src);
+    });
   }
 
   renderFrame(timeSeconds = 0) {
@@ -332,6 +515,9 @@ export class PixiPreviewRenderer {
       hasApp: Boolean(this.app),
       hasScene: Boolean(this.scene),
       isRunning: this.isRunning,
+      qualityProfile: this.qualityProfile,
+      qualitySettings: this.qualitySettings,
+      qualityGovernor: this.qualityGovernorState(),
       currentShotIndex: this.currentShotIndex,
       rootChildren: this.root?.children?.length || 0,
       activeEffects: (this.scene?.activeEffects || []).map((effect) => ({
@@ -353,11 +539,16 @@ export class PixiPreviewRenderer {
         height: texture.height,
       })),
       frameStats: this.frameStats,
+      frameObjectStats: this.frameStats.objectStats,
+      performance: this.performanceReport(),
       fxTextureCount: this.fxTextures.size,
+      textureMemory: this.textureMemoryStats(),
+      externalFilters: this.availableExternalFilterNames(),
     };
   }
 
   recordFrameStats(frameMs) {
+    const objectStats = this.collectFrameObjectStats();
     const samples = Math.min(this.frameStats.samples + 1, 120);
     const previousWeight = this.frameStats.samples === 0 ? 0 : samples - 1;
     const averageMs = ((this.frameStats.averageMs * previousWeight) + frameMs) / samples;
@@ -366,26 +557,253 @@ export class PixiPreviewRenderer {
       averageMs,
       maxMs: Math.max(this.frameStats.maxMs, frameMs),
       samples,
+      maxDisplayObjects: Math.max(this.frameStats.maxDisplayObjects || 0, objectStats.displayObjects),
+      maxFilters: Math.max(this.frameStats.maxFilters || 0, objectStats.filters),
+      maxGraphics: Math.max(this.frameStats.maxGraphics || 0, objectStats.graphics),
+      objectStats,
     };
+    this.updateQualityGovernor();
+  }
+
+  updateQualityGovernor() {
+    if (!this.qualityGovernor.enabled) return;
+
+    const report = this.performanceReport();
+    const pressure = Number(report.pressure || 0);
+    this.qualityGovernor.lastPressure = pressure;
+    this.qualityGovernor.lastStatus = report.status;
+
+    if (pressure >= 1.04) {
+      this.qualityGovernor.hotFrames += 1;
+      this.qualityGovernor.coolFrames = 0;
+    } else if (pressure < 0.58) {
+      this.qualityGovernor.coolFrames += 1;
+      this.qualityGovernor.hotFrames = 0;
+    } else {
+      this.qualityGovernor.hotFrames = 0;
+      this.qualityGovernor.coolFrames = 0;
+    }
+
+    const hotFrameThreshold = this.qualityProfile === "thumbnail" ? 1 : 3;
+    if (this.qualityGovernor.hotFrames >= hotFrameThreshold && this.qualityGovernor.level < this.qualityGovernor.maxLevel) {
+      this.qualityGovernor.level += 1;
+      this.qualityGovernor.hotFrames = 0;
+      this.qualityGovernor.coolFrames = 0;
+      return;
+    }
+
+    if (this.qualityGovernor.coolFrames >= 90 && this.qualityGovernor.level > 0) {
+      this.qualityGovernor.level -= 1;
+      this.qualityGovernor.hotFrames = 0;
+      this.qualityGovernor.coolFrames = 0;
+    }
+  }
+
+  performanceReport() {
+    const budget = this.performanceBudget();
+    const stats = this.frameStats || {};
+    const objects = stats.objectStats || this.emptyFrameObjectStats();
+    const textureMemory = this.textureMemoryStats();
+    const checks = [
+      { key: "averageFrameMs", value: stats.averageMs || 0, budget: budget.averageFrameMs },
+      { key: "lastFrameMs", value: stats.lastMs || 0, budget: budget.lastFrameMs },
+      { key: "displayObjects", value: objects.displayObjects || 0, budget: budget.displayObjects },
+      { key: "graphics", value: objects.graphics || 0, budget: budget.graphics },
+      { key: "filters", value: objects.filters || 0, budget: budget.filters },
+      { key: "textureBytes", value: textureMemory.totalBytes || 0, budget: budget.textureBytes },
+    ].map((check) => ({
+      ...check,
+      ratio: check.budget > 0 ? check.value / check.budget : 0,
+    }));
+    const pressure = checks.reduce((max, check) => Math.max(max, check.ratio), 0);
+    const status = (stats.samples || 0) <= 0 ? "warming" : pressure >= 1 ? "hot" : pressure >= 0.82 ? "warn" : "ok";
+    return {
+      profile: this.qualityProfile,
+      status,
+      pressure,
+      governor: this.qualityGovernorState(),
+      budget,
+      bottlenecks: checks.filter((check) => check.ratio >= 0.82).map((check) => check.key),
+      checks,
+    };
+  }
+
+  emptyFrameObjectStats() {
+    return {
+      displayObjects: 0,
+      containers: 0,
+      graphics: 0,
+      sprites: 0,
+      texts: 0,
+      bitmapTexts: 0,
+      particleContainers: 0,
+      filters: 0,
+      filterAreas: 0,
+      masks: 0,
+      rootChildren: 0,
+      cachedFxTextures: this.fxTextures?.size || 0,
+      panelTextures: this.textures?.size || 0,
+      generatedFrameTextures: this.generatedFrameTextures?.length || 0,
+    };
+  }
+
+  previewFrameRectangle(padding = 0) {
+    if (!this.pixi?.Rectangle) return null;
+    if (padding <= 0 && this.fullFrameFilterArea) return this.fullFrameFilterArea;
+
+    const rect = new this.pixi.Rectangle(
+      -padding,
+      -padding,
+      PIXI_PREVIEW_SIZE.width + padding * 2,
+      PIXI_PREVIEW_SIZE.height + padding * 2,
+    );
+    if (padding <= 0) this.fullFrameFilterArea = rect;
+    return rect;
+  }
+
+  applyFilters(target, filters, options = {}) {
+    if (!target) return [];
+
+    const resolved = (Array.isArray(filters) ? filters : [filters]).filter(Boolean);
+    if (!resolved.length) {
+      target.filters = null;
+      target.filterArea = null;
+      return resolved;
+    }
+
+    target.filters = resolved;
+    if (options.fullFrame) {
+      target.filterArea = this.previewFrameRectangle(options.padding || 0);
+    }
+    return resolved;
+  }
+
+  finalizePanelFilters(filters) {
+    const resolved = (Array.isArray(filters) ? filters : [filters]).filter(Boolean);
+    const maxFilters = Math.max(1, (this.qualitySetting("maxPanelFilters") || 5) - (this.qualityGovernor.level || 0));
+    if (resolved.length <= maxFilters) return resolved.length ? resolved : null;
+
+    const withoutNoise = resolved.filter((filter) => !this.isFilterNamed(filter, "NoiseFilter"));
+    const limited = (withoutNoise.length ? withoutNoise : resolved).slice(0, maxFilters);
+    return limited.length ? limited : null;
+  }
+
+  isFilterNamed(filter, name) {
+    return filter?.constructor?.name === name;
+  }
+
+  collectFrameObjectStats() {
+    const stats = this.emptyFrameObjectStats();
+    stats.rootChildren = this.root?.children?.length || 0;
+    if (!this.root) return stats;
+
+    const visit = (node) => {
+      if (!node) return;
+
+      stats.displayObjects += 1;
+      this.countFrameObjectType(stats, node);
+
+      const filters = node.filters;
+      const filterCount = Array.isArray(filters) ? filters.filter(Boolean).length : filters ? 1 : 0;
+      stats.filters += filterCount;
+      if (filterCount > 0 && node.filterArea) stats.filterAreas += 1;
+      if (node.mask) stats.masks += 1;
+
+      node.children?.forEach?.(visit);
+    };
+
+    this.root.children?.forEach?.(visit);
+    return stats;
+  }
+
+  countFrameObjectType(stats, node) {
+    const name = node.constructor?.name || "";
+    if (this.isPixiInstance(node, "Graphics") || name === "Graphics") stats.graphics += 1;
+    if (this.isPixiInstance(node, "Sprite") || name === "Sprite") stats.sprites += 1;
+    if (this.isPixiInstance(node, "Text") || name === "Text") stats.texts += 1;
+    if (this.isPixiInstance(node, "BitmapText") || name === "BitmapText") stats.bitmapTexts += 1;
+    if (this.isPixiInstance(node, "ParticleContainer") || name === "ParticleContainer") stats.particleContainers += 1;
+    if (node.children || this.isPixiInstance(node, "Container") || name === "Container") stats.containers += 1;
+  }
+
+  isPixiInstance(node, className) {
+    const Klass = this.pixi?.[className];
+    return Boolean(Klass && node instanceof Klass);
+  }
+
+  availableExternalFilterNames() {
+    if (!this.pixiFilters) return [];
+
+    return [
+      "AdvancedBloomFilter",
+      "GlowFilter",
+      "GodrayFilter",
+      "MotionBlurFilter",
+      "RGBSplitFilter",
+      "ShockwaveFilter",
+    ].filter((name) => Boolean(this.pixiFilters[name]));
   }
 
   destroy() {
     this.scene = null;
     this.clearRoot();
+    this.destroyFxTextureCache();
+    this.releaseUnusedSceneTextures([]);
     this.app?.ticker?.remove(this.renderTick);
     this.app?.destroy?.(true);
     this.app = null;
     this.root = null;
+    this.fullFrameFilterArea = null;
   }
 
   clearRoot() {
-    if (!this.root) return;
-    this.root.removeChildren().forEach((child) => {
-      child.destroy?.({ children: true, texture: false, textureSource: false });
-    });
+    if (this.root) {
+      this.root.removeChildren().forEach((child) => {
+        child.destroy?.({ children: true, texture: false, textureSource: false });
+      });
+    }
+    this.destroyGeneratedFrameTextures();
+  }
+
+  destroyGeneratedFrameTextures() {
     this.generatedFrameTextures.splice(0).forEach((texture) => {
       texture?.destroy?.(true);
     });
+  }
+
+  destroyFxTextureCache() {
+    this.fxTextures.forEach((texture) => {
+      texture?.destroy?.(true);
+    });
+    this.fxTextures.clear();
+  }
+
+  textureMemoryStats() {
+    const fxTextureBytes = this.estimatedTextureMapBytes(this.fxTextures);
+    const panelTextureBytes = this.estimatedTextureMapBytes(this.textures);
+    const generatedFrameTextureBytes = this.estimatedTextureListBytes(this.generatedFrameTextures);
+    return {
+      fxTextureBytes,
+      panelTextureBytes,
+      generatedFrameTextureBytes,
+      totalBytes: fxTextureBytes + panelTextureBytes + generatedFrameTextureBytes,
+    };
+  }
+
+  estimatedTextureMapBytes(textures) {
+    if (!textures?.values) return 0;
+    return this.estimatedTextureListBytes([...textures.values()]);
+  }
+
+  estimatedTextureListBytes(textures = []) {
+    return textures.reduce((total, texture) => total + this.estimatedTextureBytes(texture), 0);
+  }
+
+  estimatedTextureBytes(texture) {
+    const width = Number(texture?.width || texture?.source?.width || texture?.baseTexture?.width);
+    const height = Number(texture?.height || texture?.source?.height || texture?.baseTexture?.height);
+    if (!Number.isFinite(width) || !Number.isFinite(height)) return 0;
+    return Math.max(0, Math.round(width * height * 4));
   }
 
   createCanvasTexture(key, width, height, painter) {
@@ -415,7 +833,7 @@ export class PixiPreviewRenderer {
     });
   }
 
-  textureHalftone(key = "halftone-720x1280", accent = "#111111") {
+  textureHalftone(key = "halftone-720x1280", accent = "#ffffff") {
     return this.createCanvasTexture(key, PIXI_PREVIEW_SIZE.width, PIXI_PREVIEW_SIZE.height, (ctx, width, height) => {
       ctx.clearRect(0, 0, width, height);
       ctx.fillStyle = accent;
@@ -451,6 +869,119 @@ export class PixiPreviewRenderer {
         ctx.lineTo(cx + Math.cos(angle) * outer, cy + Math.sin(angle) * outer);
         ctx.stroke();
       }
+    });
+  }
+
+  textureHalftoneDots(key = "halftone-dots-720x1280") {
+    return this.createCanvasTexture(key, PIXI_PREVIEW_SIZE.width, PIXI_PREVIEW_SIZE.height, (ctx, width, height) => {
+      ctx.clearRect(0, 0, width, height);
+      ctx.fillStyle = "#ffffff";
+      for (let y = 70; y < height; y += 52) {
+        for (let x = 42; x < width; x += 52) {
+          const pulse = 0.65 + Math.sin(x * 0.02 + y * 0.01) * 0.35;
+          ctx.globalAlpha = 0.74 + Math.sin(x * 0.017 + y * 0.013) * 0.18;
+          ctx.beginPath();
+          ctx.arc(x, y, 5 + pulse * 8, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+      ctx.globalAlpha = 1;
+    });
+  }
+
+  texturePaperGrain(key = "paper-grain-720x1280") {
+    return this.createCanvasTexture(key, PIXI_PREVIEW_SIZE.width, PIXI_PREVIEW_SIZE.height, (ctx, width, height) => {
+      ctx.clearRect(0, 0, width, height);
+      for (let i = 0; i < 128; i += 1) {
+        const x = (i * 83) % width;
+        const y = (i * 137) % height;
+        const lineWidth = 18 + (i % 7) * 12;
+        ctx.fillStyle = i % 2 ? `rgba(0,0,0,${0.12 + (i % 5) * 0.025})` : `rgba(255,255,255,${0.1 + (i % 4) * 0.02})`;
+        ctx.fillRect(x, y, lineWidth, 2);
+      }
+      for (let i = 0; i < 64; i += 1) {
+        const x = (i * 59) % width;
+        const y = (i * 97) % height;
+        const radius = 1 + (i % 3);
+        ctx.fillStyle = i % 4 === 0 ? "rgba(255,255,255,0.16)" : "rgba(0,0,0,0.2)";
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    });
+  }
+
+  textureRain(key = "rain-720x1280") {
+    return this.createCanvasTexture(key, PIXI_PREVIEW_SIZE.width, PIXI_PREVIEW_SIZE.height, (ctx, width, height) => {
+      ctx.clearRect(0, 0, width, height);
+      ctx.lineCap = "round";
+      for (let i = 0; i < 58; i += 1) {
+        const x = ((i * 47) % (width + 120)) - 60;
+        const y = ((i * 91) % (height + 160)) - 80;
+        ctx.strokeStyle = i % 5 === 0 ? "rgba(255,255,255,0.44)" : "rgba(255,255,255,0.28)";
+        ctx.lineWidth = i % 7 === 0 ? 3 : 2;
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x - 26, y + 88);
+        ctx.stroke();
+      }
+    });
+  }
+
+  textureSpeedStreaks(key = "speed-streaks-720x1280-14", count = 14) {
+    return this.createCanvasTexture(key, PIXI_PREVIEW_SIZE.width, PIXI_PREVIEW_SIZE.height, (ctx, width, height) => {
+      ctx.clearRect(0, 0, width, height);
+      ctx.lineCap = "round";
+      for (let i = 0; i < count; i += 1) {
+        const y = 90 + ((i * 79) % (height - 180));
+        const x = -80 + (i % 5) * 32;
+        ctx.strokeStyle = i % 3 === 0 ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.64)";
+        ctx.lineWidth = 3 + (i % 3);
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(width + 80, y - 230 - (i % 4) * 22);
+        ctx.stroke();
+      }
+    });
+  }
+
+  textureImpactBurst(key = "impact-burst-720x1280") {
+    return this.createCanvasTexture(key, PIXI_PREVIEW_SIZE.width, PIXI_PREVIEW_SIZE.height, (ctx, width, height) => {
+      ctx.clearRect(0, 0, width, height);
+      const cx = width * 0.5;
+      const cy = height * 0.45;
+      const count = 28;
+      ctx.fillStyle = "rgba(255,255,255,0.82)";
+      for (let i = 0; i < count; i += 1) {
+        const angle = (Math.PI * 2 * i) / count;
+        const inner = 80;
+        const outer = 840 + (i % 5) * 18;
+        ctx.globalAlpha = 0.16 + (i % 4) * 0.012;
+        ctx.beginPath();
+        ctx.moveTo(cx + Math.cos(angle - 0.035) * inner, cy + Math.sin(angle - 0.035) * inner);
+        ctx.lineTo(cx + Math.cos(angle) * outer, cy + Math.sin(angle) * outer);
+        ctx.lineTo(cx + Math.cos(angle + 0.035) * inner, cy + Math.sin(angle + 0.035) * inner);
+        ctx.closePath();
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+    });
+  }
+
+  textureFloatingParticles(key = "floating-particles-720x1280", petals = false) {
+    return this.createCanvasTexture(key, PIXI_PREVIEW_SIZE.width, PIXI_PREVIEW_SIZE.height, (ctx, width, height) => {
+      ctx.clearRect(0, 0, width, height);
+      ctx.fillStyle = "#ffffff";
+      for (let i = 0; i < 42; i += 1) {
+        const x = 46 + ((i * 83) % (width - 92));
+        const y = 80 + ((i * 137) % (height - 160));
+        ctx.globalAlpha = 0.32 + (i % 4) * 0.1;
+        ctx.beginPath();
+        if (petals) ctx.ellipse(x, y, 7 + (i % 3), 15, Math.sin(i) * 0.7, 0, Math.PI * 2);
+        else ctx.arc(x, y, 3 + (i % 5), 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
     });
   }
 
@@ -716,62 +1247,36 @@ export class PixiPreviewRenderer {
 
   drawParticleBurst({ x, y, accent = "#ffffff", count = 42, progress = 1, timeSeconds = 0, radius = 300, verticalScale = 0.78 } = {}) {
     const accentColor = parsePixiColor(accent);
-    const texture = this.textureSparkParticle();
-    if (this.pixi.ParticleContainer && this.pixi.Particle) {
-      const particles = [];
-      for (let i = 0; i < count; i += 1) {
-        const angle = (i / count) * Math.PI * 2 + Math.sin(i * 13.17) * 0.2;
-        const speed = radius * (0.26 + (i % 9) / 10) * (0.45 + progress * 0.72);
-        const drift = timeSeconds * (20 + (i % 5) * 14);
-        const px = x + Math.cos(angle) * speed + Math.sin(i + timeSeconds * 6) * 12 + (i % 2 ? drift * 0.16 : -drift * 0.08);
-        const py = y + Math.sin(angle) * speed * verticalScale + Math.cos(i * 2 + timeSeconds * 5) * 10 - drift * 0.18;
-        const scale = 0.22 + (i % 5) * 0.08 + progress * 0.18;
-        const particle = new this.pixi.Particle({
-          texture,
-          x: px,
-          y: py,
-          anchorX: 0.5,
-          anchorY: 0.5,
-          scaleX: scale * (i % 3 === 0 ? 1.9 : 1),
-          scaleY: scale * (i % 3 === 0 ? 0.55 : 1),
-          rotation: angle + timeSeconds * (0.5 + (i % 4) * 0.12),
-          tint: i % 5 === 0 ? 0xffffff : accentColor,
-          alpha: Math.max(0, 0.44 - progress * 0.08) * (i % 4 === 0 ? 1 : 0.72),
-        });
-        particles.push(particle);
-      }
-      const container = new this.pixi.ParticleContainer({
-        texture,
-        particles,
-        dynamicProperties: {
-          vertex: false,
-          position: true,
-          rotation: true,
-          uvs: false,
-          color: true,
-        },
-      });
-      container.blendMode = "screen";
-      this.root.addChild(container);
-      return;
-    }
-
-    const fallback = this.createFxLayer({ blendMode: "screen", alpha: 0.78 });
-    const g = new this.pixi.Graphics();
+    const layer = this.createFxLayer({ blendMode: "screen", alpha: 0.78 });
+    const particles = new this.pixi.Graphics();
     for (let i = 0; i < count; i += 1) {
-      const angle = (i / count) * Math.PI * 2;
-      const dist = radius * (0.25 + (i % 9) / 10) * (0.45 + progress * 0.72);
-      const px = x + Math.cos(angle) * dist;
-      const py = y + Math.sin(angle) * dist * verticalScale;
-      g.circle(px, py, 2 + (i % 4)).fill({ color: i % 5 === 0 ? 0xffffff : accentColor, alpha: 0.12 + progress * 0.12 });
+      const angle = (i / count) * Math.PI * 2 + Math.sin(i * 13.17) * 0.2;
+      const speed = radius * (0.26 + (i % 9) / 10) * (0.45 + progress * 0.72);
+      const drift = timeSeconds * (20 + (i % 5) * 14);
+      const px = x + Math.cos(angle) * speed + Math.sin(i + timeSeconds * 6) * 12 + (i % 2 ? drift * 0.16 : -drift * 0.08);
+      const py = y + Math.sin(angle) * speed * verticalScale + Math.cos(i * 2 + timeSeconds * 5) * 10 - drift * 0.18;
+      const color = i % 5 === 0 ? 0xffffff : accentColor;
+      const alpha = Math.max(0, 0.26 - progress * 0.045) * (i % 4 === 0 ? 1 : 0.7);
+      const size = 2 + (i % 5) * 1.2 + progress * 2.2;
+
+      if (i % 3 === 0) {
+        const rotation = angle + timeSeconds * (0.5 + (i % 4) * 0.12);
+        const dx = Math.cos(rotation);
+        const dy = Math.sin(rotation);
+        const len = size * (3.5 + (i % 4) * 0.7);
+        this.drawTaperedQuad(particles, px - dx * len, py - dy * len, px + dx * len, py + dy * len, size * 0.35, size * 0.75, color, alpha * 0.82);
+        this.drawTaperedQuad(particles, px - dy * len * 0.42, py + dx * len * 0.42, px + dy * len * 0.42, py - dx * len * 0.42, size * 0.25, size * 0.42, color, alpha * 0.55);
+      } else {
+        particles.circle(px, py, size).fill({ color, alpha: alpha * 0.62 });
+      }
     }
-    fallback.addChild(g);
+    layer.addChild(particles);
   }
 
   createShaderFilter(name, fragment, uniforms = {}, options = {}) {
     if (!this.pixi.Filter?.from) return null;
     try {
-      return this.pixi.Filter.from({
+      const filter = this.pixi.Filter.from({
         gl: { fragment, name },
         resources: {
           localUniforms: {
@@ -783,6 +1288,9 @@ export class PixiPreviewRenderer {
         },
         padding: options.padding || 0,
       });
+      const resolution = this.qualityAdjustedShaderResolution(options.resolution);
+      if (Number.isFinite(resolution)) filter.resolution = resolution;
+      return filter;
     } catch {
       return null;
     }
@@ -964,15 +1472,30 @@ export class PixiPreviewRenderer {
     sprite.scale.set(scale);
     sprite.rotation = options.rotation || 0;
     sprite.alpha = options.alpha ?? 1;
-    if (options.filters) sprite.filters = options.filters;
+    if (options.filters) this.applyFilters(sprite, options.filters, { fullFrame: true, padding: options.filterPadding || 0 });
     parent.addChild(sprite);
     return sprite;
   }
 
-  createFxLayer({ blendMode = "normal", alpha = 1 } = {}) {
+  drawCachedFullFrameTexture(texture, options = {}) {
+    const parent = options.parent || this.root;
+    const sprite = new this.pixi.Sprite(texture);
+    sprite.x = options.x || 0;
+    sprite.y = options.y || 0;
+    sprite.width = options.width || PIXI_PREVIEW_SIZE.width;
+    sprite.height = options.height || PIXI_PREVIEW_SIZE.height;
+    sprite.alpha = options.alpha ?? 1;
+    sprite.tint = options.tint ?? 0xffffff;
+    sprite.blendMode = options.blendMode || "normal";
+    parent.addChild(sprite);
+    return sprite;
+  }
+
+  createFxLayer({ blendMode = "normal", alpha = 1, fullFrameFilterArea = true } = {}) {
     const layer = new this.pixi.Container();
     layer.blendMode = blendMode;
     layer.alpha = alpha;
+    if (fullFrameFilterArea) layer.filterArea = this.previewFrameRectangle();
     this.root.addChild(layer);
     return layer;
   }
@@ -1089,11 +1612,13 @@ export class PixiPreviewRenderer {
 
   createBlurFilter(strength = 2, quality = 2) {
     if (!this.pixi.BlurFilter) return null;
+    const adjustedStrength = this.qualityAdjustedBlurStrength(strength);
+    const adjustedQuality = this.qualityAdjustedBlurQuality(quality);
     try {
-      return new this.pixi.BlurFilter({ strength, quality });
+      return new this.pixi.BlurFilter({ strength: adjustedStrength, quality: adjustedQuality });
     } catch {
       try {
-        return new this.pixi.BlurFilter(strength);
+        return new this.pixi.BlurFilter(adjustedStrength);
       } catch {
         return null;
       }
@@ -1104,7 +1629,25 @@ export class PixiPreviewRenderer {
     const FilterClass = this.pixiFilters?.[name];
     if (!FilterClass) return null;
     try {
-      return new FilterClass(options);
+      const { filterPadding, filterResolution, ...filterOptions } = options;
+      if (Number.isFinite(filterOptions.quality)) filterOptions.quality = this.qualityAdjustedExternalQuality(filterOptions.quality);
+      if (Number.isFinite(filterOptions.blur)) filterOptions.blur = this.qualityAdjustedBlurStrength(filterOptions.blur);
+      if (Number.isFinite(filterOptions.kernelSize)) filterOptions.kernelSize = this.qualityAdjustedMotionKernelSize(filterOptions.kernelSize);
+      const filter = new FilterClass(filterOptions);
+      if (Number.isFinite(filterPadding)) filter.padding = filterPadding;
+      const resolution = this.qualityAdjustedFilterResolution(filterResolution);
+      if (Number.isFinite(resolution)) filter.resolution = resolution;
+      return filter;
+    } catch {
+      return null;
+    }
+  }
+
+  createNoiseFilter(noise = 0.035, seed = 0) {
+    if ((this.qualityGovernor.level || 0) > 0) return null;
+    if (!this.qualitySetting("allowNoise") || !this.pixi.NoiseFilter) return null;
+    try {
+      return new this.pixi.NoiseFilter({ noise, seed });
     } catch {
       return null;
     }
@@ -1132,11 +1675,12 @@ export class PixiPreviewRenderer {
   }
 
   createExternalRgbSplitFilter(timeSeconds = 0, strength = 5) {
-    const wobble = Math.sin(timeSeconds * 2.2) * strength;
+    const adjustedStrength = strength * (this.qualitySetting("rgbSplitScale") || 1) * this.qualityGovernorScale("rgbSplit");
+    const wobble = Math.sin(timeSeconds * 2.2) * adjustedStrength;
     return this.createPixiFiltersInstance("RGBSplitFilter", {
-      red: { x: -strength - wobble * 0.35, y: wobble * 0.18 },
-      green: { x: wobble * 0.12, y: strength * 0.28 },
-      blue: { x: strength + wobble * 0.26, y: -wobble * 0.2 },
+      red: { x: -adjustedStrength - wobble * 0.35, y: wobble * 0.18 },
+      green: { x: wobble * 0.12, y: adjustedStrength * 0.28 },
+      blue: { x: adjustedStrength + wobble * 0.26, y: -wobble * 0.2 },
     });
   }
 
@@ -1151,7 +1695,7 @@ export class PixiPreviewRenderer {
   createExternalGodrayFilter(timeSeconds = 0, options = {}) {
     return this.createPixiFiltersInstance("GodrayFilter", {
       angle: options.angle ?? 32,
-      gain: options.gain ?? 0.42,
+      gain: (options.gain ?? 0.42) * (this.qualitySetting("godrayGainScale") || 1) * this.qualityGovernorScale("godray"),
       lacunarity: options.lacunarity ?? 2.6,
       parallel: options.parallel ?? true,
       time: timeSeconds * (options.speed ?? 0.22),
@@ -1162,7 +1706,7 @@ export class PixiPreviewRenderer {
     return this.createPixiFiltersInstance("ShockwaveFilter", {
       center: options.center ?? { x: PIXI_PREVIEW_SIZE.width * 0.5, y: PIXI_PREVIEW_SIZE.height * 0.48 },
       radius: options.radius ?? 520,
-      amplitude: options.amplitude ?? 18,
+      amplitude: (options.amplitude ?? 18) * (this.qualitySetting("shockwaveScale") || 1) * this.qualityGovernorScale("shockwave"),
       wavelength: options.wavelength ?? 170,
       brightness: options.brightness ?? 1.08,
       speed: options.speed ?? 240,
@@ -1204,13 +1748,8 @@ export class PixiPreviewRenderer {
         // Filters are an enhancement; the effect must still render without them.
       }
     }
-    if (this.pixi.NoiseFilter) {
-      try {
-        filters.push(new this.pixi.NoiseFilter({ noise: 0.035, seed: (timeSeconds * 0.17) % 1 }));
-      } catch {
-        // Continue without grain if the local Pixi build exposes a different signature.
-      }
-    }
+    const noise = this.createNoiseFilter(0.035, (timeSeconds * 0.17) % 1);
+    if (noise) filters.push(noise);
     return filters.length ? filters : null;
   }
 
@@ -1242,13 +1781,8 @@ export class PixiPreviewRenderer {
         // Optional enhancement.
       }
     }
-    if (this.pixi.NoiseFilter) {
-      try {
-        filters.push(new this.pixi.NoiseFilter({ noise: 0.045, seed: (timeSeconds * 0.11) % 1 }));
-      } catch {
-        // Optional enhancement.
-      }
-    }
+    const noise = this.createNoiseFilter(0.045, (timeSeconds * 0.11) % 1);
+    if (noise) filters.push(noise);
     return filters.length ? filters : null;
   }
 
@@ -1267,13 +1801,8 @@ export class PixiPreviewRenderer {
     }
     const signal = this.createHorrorSignalCorruptionFilter(timeSeconds, 0.0045 + Math.max(0, Math.sin(timeSeconds * 8.4)) * 0.004, 0.5);
     if (signal) filters.push(signal);
-    if (this.pixi.NoiseFilter) {
-      try {
-        filters.push(new this.pixi.NoiseFilter({ noise: 0.055, seed: (timeSeconds * 0.23) % 1 }));
-      } catch {
-        // Optional enhancement.
-      }
-    }
+    const noise = this.createNoiseFilter(0.055, (timeSeconds * 0.23) % 1);
+    if (noise) filters.push(noise);
     return filters.length ? filters : null;
   }
 
@@ -1306,13 +1835,8 @@ export class PixiPreviewRenderer {
         // Optional enhancement.
       }
     }
-    if (this.pixi.NoiseFilter) {
-      try {
-        filters.push(new this.pixi.NoiseFilter({ noise: 0.012, seed: (timeSeconds * 0.07) % 1 }));
-      } catch {
-        // Optional enhancement.
-      }
-    }
+    const noise = this.createNoiseFilter(0.012, (timeSeconds * 0.07) % 1);
+    if (noise) filters.push(noise);
     return filters.length ? filters : null;
   }
 
@@ -1375,13 +1899,8 @@ export class PixiPreviewRenderer {
       });
       if (godray) filters.push(godray);
     }
-    if (this.pixi.NoiseFilter) {
-      try {
-        filters.push(new this.pixi.NoiseFilter({ noise: layout.startsWith("suspense-") ? 0.055 : 0.045, seed: (timeSeconds * 0.19) % 1 }));
-      } catch {
-        // Optional enhancement.
-      }
-    }
+    const noise = this.createNoiseFilter(layout.startsWith("suspense-") ? 0.055 : 0.045, (timeSeconds * 0.19) % 1);
+    if (noise) filters.push(noise);
     return filters.length ? filters : null;
   }
 
@@ -1451,30 +1970,25 @@ export class PixiPreviewRenderer {
       const rgb = this.createExternalRgbSplitFilter(timeSeconds, layout.includes("finisher") ? 3.5 : 1.4);
       if (rgb) filters.push(rgb);
     }
-    if (this.pixi.NoiseFilter) {
-      try {
-        filters.push(new this.pixi.NoiseFilter({ noise: layout.includes("finisher") ? 0.045 : 0.026, seed: (timeSeconds * 0.21) % 1 }));
-      } catch {
-        // Optional enhancement.
-      }
-    }
+    const noise = this.createNoiseFilter(layout.includes("finisher") ? 0.045 : 0.026, (timeSeconds * 0.21) % 1);
+    if (noise) filters.push(noise);
     return filters.length ? filters : null;
   }
 
   createPanelFiltersForEffects(effects, timeSeconds) {
-    if (effects.cameraMotion) return this.createCameraMotionPanelFilters(effects.cameraMotion, timeSeconds);
+    if (effects.cameraMotion) return this.finalizePanelFilters(this.createCameraMotionPanelFilters(effects.cameraMotion, timeSeconds));
     if (effects.horrorThriller?.layout?.startsWith("thriller-") || effects.horrorThriller?.layout?.startsWith("suspense-")) {
-      return this.createThrillerSuspensePanelFilters(effects.horrorThriller, timeSeconds);
+      return this.finalizePanelFilters(this.createThrillerSuspensePanelFilters(effects.horrorThriller, timeSeconds));
     }
     if (effects.proMotion && this.isMangaActionSpecializedEffect(effects.proMotion)) {
-      return this.createMangaActionPanelFilters(effects.proMotion, timeSeconds);
+      return this.finalizePanelFilters(this.createMangaActionPanelFilters(effects.proMotion, timeSeconds));
     }
-    if (effects.speedImpact || effects.impactZoom) return this.createSpeedImpactPanelFilters(timeSeconds);
-    if (effects.softBloom) return this.createSoftBloomPanelFilters(timeSeconds);
-    if (effects.shadowCreep) return this.createShadowCreepPanelFilters(timeSeconds);
-    if (effects.proMotion?.layout === "glitch-horror-pro-vfx") return this.createGlitchHorrorPanelFilters(timeSeconds);
-    if (effects.proMotion?.layout === "petal-fall-pro-vfx") return this.createPetalBloomPanelFilters(timeSeconds);
-    if (effects.proMotion?.layout === "vertical-scroll-pro-vfx") return this.createVerticalScrollPanelFilters(timeSeconds);
+    if (effects.speedImpact || effects.impactZoom) return this.finalizePanelFilters(this.createSpeedImpactPanelFilters(timeSeconds));
+    if (effects.softBloom) return this.finalizePanelFilters(this.createSoftBloomPanelFilters(timeSeconds));
+    if (effects.shadowCreep) return this.finalizePanelFilters(this.createShadowCreepPanelFilters(timeSeconds));
+    if (effects.proMotion?.layout === "glitch-horror-pro-vfx") return this.finalizePanelFilters(this.createGlitchHorrorPanelFilters(timeSeconds));
+    if (effects.proMotion?.layout === "petal-fall-pro-vfx") return this.finalizePanelFilters(this.createPetalBloomPanelFilters(timeSeconds));
+    if (effects.proMotion?.layout === "vertical-scroll-pro-vfx") return this.finalizePanelFilters(this.createVerticalScrollPanelFilters(timeSeconds));
     return null;
   }
 
@@ -5661,15 +6175,13 @@ export class PixiPreviewRenderer {
   }
 
   drawHalftoneDots(accent, timeSeconds, alpha = 0.22) {
-    const graphics = new this.pixi.Graphics();
     const color = parsePixiColor(accent || "#ffd84d");
-    for (let y = 70; y < PIXI_PREVIEW_SIZE.height; y += 52) {
-      for (let x = 42; x < PIXI_PREVIEW_SIZE.width; x += 52) {
-        const pulse = 0.65 + Math.sin(timeSeconds * 2 + x * 0.02 + y * 0.01) * 0.35;
-        graphics.circle(x, y, 5 + pulse * 8).fill({ color, alpha });
-      }
-    }
-    this.root.addChild(graphics);
+    const sprite = this.drawCachedFullFrameTexture(this.textureHalftoneDots(), {
+      tint: color,
+      alpha: alpha * (0.92 + Math.sin(timeSeconds * 2) * 0.08),
+    });
+    sprite.x = Math.sin(timeSeconds * 0.45) * 5;
+    sprite.y = Math.cos(timeSeconds * 0.38) * 4;
   }
 
   drawFlash(accent, progress) {
@@ -5715,18 +6227,10 @@ export class PixiPreviewRenderer {
     const color = parsePixiColor(accent || "#f3df9e");
     graphics.rect(0, 0, PIXI_PREVIEW_SIZE.width, PIXI_PREVIEW_SIZE.height)
       .fill({ color, alpha: alpha * 0.55 });
-    for (let i = 0; i < 96; i += 1) {
-      const x = (i * 83) % PIXI_PREVIEW_SIZE.width;
-      const y = (i * 137) % PIXI_PREVIEW_SIZE.height;
-      const width = 18 + (i % 7) * 12;
-      graphics.rect(x, y, width, 2)
-        .fill({ color: i % 2 ? 0x000000 : 0xffffff, alpha: alpha * (0.12 + (i % 5) * 0.025) });
-    }
-    for (let i = 0; i < 36; i += 1) {
-      graphics.circle((i * 59) % PIXI_PREVIEW_SIZE.width, (i * 97) % PIXI_PREVIEW_SIZE.height, 1 + (i % 3))
-        .fill({ color: 0x000000, alpha: alpha * 0.22 });
-    }
     this.root.addChild(graphics);
+    this.drawCachedFullFrameTexture(this.texturePaperGrain(), {
+      alpha,
+    });
   }
 
   drawRuneMarks(accent, timeSeconds) {
@@ -5790,14 +6294,21 @@ export class PixiPreviewRenderer {
   }
 
   drawRain(accent, timeSeconds) {
-    const graphics = new this.pixi.Graphics();
     const color = parsePixiColor(accent || "#9fb8ff");
-    for (let i = 0; i < 42; i += 1) {
-      const x = ((i * 47 + timeSeconds * 120) % (PIXI_PREVIEW_SIZE.width + 120)) - 60;
-      const y = ((i * 91 + timeSeconds * 320) % (PIXI_PREVIEW_SIZE.height + 160)) - 80;
-      graphics.moveTo(x, y).lineTo(x - 26, y + 88).stroke({ color, width: 2, alpha: 0.22 });
+    const offset = (timeSeconds * 320) % PIXI_PREVIEW_SIZE.height;
+    const width = PIXI_PREVIEW_SIZE.width + 120;
+    const height = PIXI_PREVIEW_SIZE.height;
+    for (let i = -1; i <= 0; i += 1) {
+      this.drawCachedFullFrameTexture(this.textureRain(), {
+        x: -60 + ((timeSeconds * 120) % 120),
+        y: offset + i * height,
+        width,
+        height,
+        tint: color,
+        alpha: 0.78,
+        blendMode: "screen",
+      });
     }
-    this.root.addChild(graphics);
   }
 
   drawFileOverlay(accent, progress) {
@@ -13087,7 +13598,8 @@ export class PixiPreviewRenderer {
     const focus = { x: w * 0.5, y: h * 0.47, rx: w * 0.34, ry: h * 0.28 };
 
     const halftoneLayer = this.createFxLayer({ blendMode: "multiply", alpha: 0.18 + p * 0.16 });
-    const dots = new this.pixi.Sprite(this.textureHalftone(`halftone-${accent}`, accent));
+    const dots = new this.pixi.Sprite(this.textureHalftone());
+    dots.tint = accentColor;
     dots.width = w;
     dots.height = h;
     dots.x = Math.sin(timeSeconds * 0.8) * 8;
@@ -14726,34 +15238,29 @@ export class PixiPreviewRenderer {
   }
 
   drawSpeedStreaks(accent, timeSeconds, count, alpha) {
-    const graphics = new this.pixi.Graphics();
     const color = parsePixiColor(accent || "#ffffff");
-    for (let i = 0; i < count; i += 1) {
-      const y = 90 + ((i * 79 + timeSeconds * 160) % (PIXI_PREVIEW_SIZE.height - 180));
-      const x = -80 + (i % 5) * 32;
-      graphics.moveTo(x, y)
-        .lineTo(PIXI_PREVIEW_SIZE.width + 80, y - 230 - (i % 4) * 22)
-        .stroke({ color: i % 3 === 0 ? 0xffffff : color, width: 3 + (i % 3), alpha });
+    const texture = this.textureSpeedStreaks(`speed-streaks-720x1280-${count}`, count);
+    const offset = (timeSeconds * 160) % PIXI_PREVIEW_SIZE.height;
+    for (let i = -1; i <= 0; i += 1) {
+      this.drawCachedFullFrameTexture(texture, {
+        y: offset + i * PIXI_PREVIEW_SIZE.height,
+        tint: color,
+        alpha,
+        blendMode: "screen",
+      });
     }
-    this.root.addChild(graphics);
   }
 
   drawImpactBurst(accent, progress, timeSeconds) {
-    const graphics = new this.pixi.Graphics();
-    const cx = PIXI_PREVIEW_SIZE.width / 2;
-    const cy = PIXI_PREVIEW_SIZE.height * 0.45;
-    const count = 28;
-    for (let i = 0; i < count; i += 1) {
-      const angle = (Math.PI * 2 * i) / count + timeSeconds * 0.04;
-      const inner = 80;
-      const outer = 760 + Math.sin(progress * Math.PI) * 80;
-      graphics.moveTo(cx + Math.cos(angle - 0.035) * inner, cy + Math.sin(angle - 0.035) * inner)
-        .lineTo(cx + Math.cos(angle) * outer, cy + Math.sin(angle) * outer)
-        .lineTo(cx + Math.cos(angle + 0.035) * inner, cy + Math.sin(angle + 0.035) * inner)
-        .closePath()
-        .fill({ color: parsePixiColor(accent), alpha: 0.16 });
-    }
-    this.root.addChild(graphics);
+    const sprite = this.drawCachedFullFrameTexture(this.textureImpactBurst(), {
+      tint: parsePixiColor(accent),
+      alpha: 0.92,
+    });
+    sprite.anchor.set(0.5);
+    sprite.x = PIXI_PREVIEW_SIZE.width * 0.5;
+    sprite.y = PIXI_PREVIEW_SIZE.height * 0.5;
+    sprite.rotation = timeSeconds * 0.04;
+    sprite.scale.set(0.96 + Math.sin(progress * Math.PI) * 0.1);
   }
 
   drawSlash(accent, progress) {
@@ -14795,15 +15302,21 @@ export class PixiPreviewRenderer {
   }
 
   drawParticles(accent, timeSeconds, petals = false) {
-    const graphics = new this.pixi.Graphics();
     const color = parsePixiColor(accent);
-    for (let i = 0; i < 42; i += 1) {
-      const x = 46 + ((i * 83 + timeSeconds * 22) % (PIXI_PREVIEW_SIZE.width - 92));
-      const y = 80 + ((i * 137 + timeSeconds * 48) % (PIXI_PREVIEW_SIZE.height - 160));
-      if (petals) graphics.ellipse(x, y, 7 + (i % 3), 15, 0).fill({ color, alpha: 0.35 + (i % 4) * 0.08 });
-      else graphics.circle(x, y, 3 + (i % 5)).fill({ color, alpha: 0.32 + (i % 4) * 0.1 });
+    const texture = this.textureFloatingParticles(petals ? "floating-petals-720x1280" : "floating-particles-720x1280", petals);
+    const offsetX = (timeSeconds * 22) % PIXI_PREVIEW_SIZE.width;
+    const offsetY = (timeSeconds * 48) % PIXI_PREVIEW_SIZE.height;
+    for (let ix = -1; ix <= 0; ix += 1) {
+      for (let iy = -1; iy <= 0; iy += 1) {
+        this.drawCachedFullFrameTexture(texture, {
+          x: offsetX + ix * PIXI_PREVIEW_SIZE.width,
+          y: offsetY + iy * PIXI_PREVIEW_SIZE.height,
+          tint: color,
+          alpha: petals ? 0.9 : 0.86,
+          blendMode: "screen",
+        });
+      }
     }
-    this.root.addChild(graphics);
   }
 
   drawWipeLine(x, accent) {

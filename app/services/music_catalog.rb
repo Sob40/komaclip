@@ -42,7 +42,7 @@ class MusicCatalog
       find(DEFAULT_BY_GENRE.fetch(proposal.to_h["genre"].to_s, "i-wont-surrender"))
     end
 
-    def payload_for(id:, volume: DEFAULT_VOLUME)
+    def payload_for(id:, volume: DEFAULT_VOLUME, start_offset_ms: 0)
       track = find(id)
       return nil if track.id == "none"
 
@@ -55,12 +55,17 @@ class MusicCatalog
         "source" => track.source,
         "license" => track.license,
         "licenseUrl" => track.license_url,
-        "volume" => normalize_volume(volume)
+        "volume" => normalize_volume(volume),
+        "startOffsetMs" => normalize_start_offset_ms(start_offset_ms)
       }
     end
 
     def normalize_volume(value)
       value.to_i.clamp(0, 100)
+    end
+
+    def normalize_start_offset_ms(value)
+      value.to_i.clamp(0, 8_000)
     end
 
     private

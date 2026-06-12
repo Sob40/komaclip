@@ -248,13 +248,14 @@ class ClipsController < ApplicationController
     end
 
     def clip_params
-      params.fetch(:clip, {}).permit(:title, :music_id, :music_volume, shots: {})
+      params.fetch(:clip, {}).permit(:title, :music_id, :music_volume, :music_start_offset_ms, shots: {})
     end
 
     def updated_music_payload
       MusicCatalog.payload_for(
         id: clip_params[:music_id].presence || @clip.scene_contract.to_h.dig("music", "id") || "none",
-        volume: clip_params[:music_volume].presence || @clip.scene_contract.to_h.dig("music", "volume") || MusicCatalog::DEFAULT_VOLUME
+        volume: clip_params[:music_volume].presence || @clip.scene_contract.to_h.dig("music", "volume") || MusicCatalog::DEFAULT_VOLUME,
+        start_offset_ms: clip_params[:music_start_offset_ms].presence || @clip.scene_contract.to_h.dig("music", "startOffsetMs") || 0
       )
     end
 

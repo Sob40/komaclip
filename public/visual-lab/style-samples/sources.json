@@ -1,0 +1,86 @@
+{
+  "manga-bw": {
+    "title": "AI generated B/W manga style sample",
+    "source": "OpenAI image generation",
+    "license": "AI generated project asset",
+    "prompt_summary": "Vertical black-and-white manga page with clean ink, screentone, speed-friendly action composition and no text."
+  },
+  "manga-color": {
+    "title": "AI generated color manga style sample",
+    "source": "OpenAI image generation",
+    "license": "AI generated project asset",
+    "prompt_summary": "Vertical color manga/anime cel-shaded scene with an original character, city atmosphere and no text."
+  },
+  "webtoon-clean": {
+    "title": "AI generated clean webtoon style sample",
+    "source": "OpenAI image generation",
+    "license": "AI generated project asset",
+    "prompt_summary": "Vertical modern webtoon scene with clean lines, soft colors, simple readable shapes and no text."
+  },
+  "western-vintage": {
+    "title": "AI generated vintage western comic style sample",
+    "source": "OpenAI image generation",
+    "license": "AI generated project asset",
+    "prompt_summary": "Vertical vintage American comic inspired scene with printed dots, aged color handling and no text."
+  },
+  "pulp-halftone": {
+    "title": "AI generated pulp halftone style sample",
+    "source": "OpenAI image generation",
+    "license": "AI generated project asset",
+    "prompt_summary": "Vertical pulp adventure comic composition with strong halftone texture, bold shapes and no text."
+  },
+  "noir-high-contrast": {
+    "title": "AI generated noir high contrast style sample",
+    "source": "OpenAI image generation",
+    "license": "AI generated project asset",
+    "prompt_summary": "Vertical black-and-white noir scene with rain, deep shadows, hard lighting and no text."
+  },
+  "romance-soft": {
+    "title": "AI generated soft romance style sample",
+    "source": "OpenAI image generation",
+    "license": "AI generated project asset",
+    "prompt_summary": "Vertical soft romance comic illustration with pastel light, gentle characters and no text."
+  },
+  "horror-ink": {
+    "title": "AI generated horror ink style sample",
+    "source": "OpenAI image generation",
+    "license": "AI generated project asset",
+    "prompt_summary": "Vertical horror ink scene with heavy blacks, tense corridor atmosphere, no gore and no text."
+  },
+  "scifi-neon": {
+    "title": "AI generated sci-fi neon style sample",
+    "source": "OpenAI image generation",
+    "license": "AI generated project asset",
+    "prompt_summary": "Vertical neon sci-fi comic scene with cyberpunk lighting, futuristic depth and no text."
+  },
+  "fantasy-painterly": {
+    "title": "AI generated painterly fantasy style sample",
+    "source": "OpenAI image generation",
+    "license": "AI generated project asset",
+    "prompt_summary": "Vertical painterly fantasy comic scene with enchanted ruins, atmospheric light and no text."
+  },
+  "cartoon-chibi": {
+    "title": "AI generated chibi cartoon style sample",
+    "source": "OpenAI image generation",
+    "license": "AI generated project asset",
+    "prompt_summary": "Vertical bright chibi cartoon scene with rounded proportions, playful readable shapes and no text."
+  },
+  "realistic-painted": {
+    "title": "AI generated realistic painted comic style sample",
+    "source": "OpenAI image generation",
+    "license": "AI generated project asset",
+    "prompt_summary": "Vertical semi-realistic painted comic scene with cinematic light, natural anatomy and no text."
+  },
+  "sketch-rough": {
+    "title": "AI generated rough sketch style sample",
+    "source": "OpenAI image generation",
+    "license": "AI generated project asset",
+    "prompt_summary": "Vertical rough pencil and ink sketch scene with visible construction lines and no text."
+  },
+  "ligne-claire": {
+    "title": "AI generated ligne claire style sample",
+    "source": "OpenAI image generation",
+    "license": "AI generated project asset",
+    "prompt_summary": "Vertical European ligne claire inspired scene with clear outlines, flat colors, precise backgrounds and no text."
+  }
+}

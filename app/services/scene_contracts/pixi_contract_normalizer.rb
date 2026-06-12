@@ -48,7 +48,13 @@ module SceneContracts
 
       def normalized_music(music)
         payload = music.to_h
-        return MusicCatalog.payload_for(id: payload["id"], volume: payload["volume"]) if payload["id"].present?
+        if payload["id"].present?
+          return MusicCatalog.payload_for(
+            id: payload["id"],
+            volume: payload["volume"],
+            start_offset_ms: payload["startOffsetMs"]
+          )
+        end
 
         MusicCatalog.payload_for(id: MusicCatalog.default_for(proposal).id, volume: MusicCatalog::DEFAULT_VOLUME)
       end

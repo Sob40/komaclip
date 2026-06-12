@@ -1,0 +1,235 @@
+<%= javascript_include_tag "visual_lab_preview", "data-turbo-track": "reload", type: "module" %>
+
+<main class="kc-main kc-visual-lab" data-controller="visual-lab-preview" data-visual-lab-preview-curation-url-template-value="<%= visual_lab_curation_path(id: "__PRESET_ID__") %>">
+  <script type="application/json" data-visual-lab-preview-target="payload"><%= raw json_escape(JSON.generate(@items.index_by { |item| item.fetch(:id) })) %></script>
+  <div class="kc-visual-lab-renderer-source" data-visual-lab-preview-target="renderer" aria-hidden="true"></div>
+  <section class="kc-visual-motion-modal" data-visual-lab-preview-target="modal" hidden aria-label="<%= t(".motion_preview") %>">
+    <div class="kc-visual-motion-backdrop" data-action="click->visual-lab-preview#closeMotion"></div>
+    <article class="kc-visual-motion-panel">
+      <div class="kc-visual-motion-stage" data-visual-lab-preview-target="stage"></div>
+      <div class="kc-visual-motion-info">
+        <div>
+          <p class="kc-eyebrow"><%= t(".motion_preview") %></p>
+          <h2 data-visual-lab-preview-target="modalTitle">-</h2>
+          <p data-visual-lab-preview-target="modalMeta"></p>
+        </div>
+        <section class="kc-visual-background-picker" aria-label="<%= t(".background_picker") %>">
+          <strong><%= t(".background_picker") %></strong>
+          <div class="kc-visual-background-options">
+            <% %w[manga-bw manga-color webtoon-clean western-vintage pulp-halftone noir-high-contrast romance-soft horror-ink scifi-neon fantasy-painterly cartoon-chibi realistic-painted sketch-rough ligne-claire].each do |style| %>
+              <button type="button" class="kc-visual-background-option" data-visual-lab-preview-target="backgroundButton" data-preview-style="<%= style %>" data-action="visual-lab-preview#selectBackground">
+                <span class="kc-visual-sample-thumb" data-style-sample="<%= style %>"></span>
+                <span><%= t(".visual_styles.#{style}", default: style.humanize) %></span>
+              </button>
+            <% end %>
+          </div>
+        </section>
+        <form class="kc-visual-curation-form" data-visual-lab-preview-target="curationForm" data-action="submit->visual-lab-preview#saveCuration">
+          <div class="kc-visual-curation-head">
+            <strong><%= t(".curation.title") %></strong>
+            <small
+              data-visual-lab-preview-target="saveStatus"
+              data-default-label="<%= t(".curation.not_saved") %>"
+              data-saving-label="<%= t(".curation.saving") %>"
+              data-saved-label="<%= t(".curation.saved") %>"
+              data-error-label="<%= t(".curation.error") %>"><%= t(".curation.not_saved") %></small>
+          </div>
+          <label class="kc-visual-curation-toggle kc-visual-curation-general">
+            <%= check_box_tag "visual_preset_curation[general]", "1", false, data: { visual_lab_preview_target: "generalCheckbox" } %>
+            <span><%= t(".curation.general") %></span>
+          </label>
+          <div class="kc-visual-curation-checks" aria-label="<%= t(".curation.genres") %>">
+            <% @facets.fetch(:genres).each do |genre| %>
+              <label class="kc-visual-curation-toggle">
+                <%= check_box_tag "visual_preset_curation[genres][]", genre, false, data: { visual_lab_preview_target: "genreCheckbox" } %>
+                <span><%= t(".genres.#{genre}", default: genre.humanize) %></span>
+              </label>
+            <% end %>
+          </div>
+          <label class="kc-visual-curation-note">
+            <span><%= t(".curation.notes") %></span>
+            <%= text_area_tag "visual_preset_curation[notes]", nil, rows: 2, class: "kc-input", data: { visual_lab_preview_target: "curationNote" }, placeholder: t(".curation.notes_placeholder") %>
+          </label>
+          <button type="submit" class="kc-button-primary kc-icon-button-text">
+            <%= kc_icon("save") %>
+            <%= t(".curation.save") %>
+          </button>
+        </form>
+        <p data-visual-lab-preview-target="modalDescription"></p>
+        <small data-visual-lab-preview-target="modalTags"></small>
+        <button type="button" class="kc-button-primary kc-icon-button-text" data-action="visual-lab-preview#closeMotion">
+          <%= kc_icon("eye-off") %>
+          <%= t(".close_preview") %>
+        </button>
+      </div>
+    </article>
+  </section>
+
+  <header class="kc-page-header">
+    <div>
+      <p class="kc-eyebrow"><%= t(".eyebrow") %></p>
+      <h1 class="kc-title"><%= t(".title") %></h1>
+      <p class="kc-subtitle"><%= t(".body") %></p>
+    </div>
+    <%= link_to dashboard_path, class: "kc-button-ghost kc-icon-button-text" do %>
+      <%= kc_icon("arrow-left") %>
+      <%= t(".back") %>
+    <% end %>
+  </header>
+
+  <section class="kc-visual-lab-stats" aria-label="<%= t(".stats_label") %>">
+    <div>
+      <strong><%= @stats.fetch(:total) %></strong>
+      <span><%= t(".stats.total") %></span>
+    </div>
+    <div>
+      <strong><%= @stats.fetch(:lab) %></strong>
+      <span><%= t(".stats.lab") %></span>
+    </div>
+    <div>
+      <strong><%= @stats.fetch(:showcase) %></strong>
+      <span><%= t(".stats.showcase") %></span>
+    </div>
+    <div>
+      <strong><%= @stats.fetch(:needs_polish) %></strong>
+      <span><%= t(".stats.needs_polish") %></span>
+    </div>
+    <div>
+      <strong><%= @stats.fetch(:production) %></strong>
+      <span><%= t(".stats.production") %></span>
+    </div>
+  </section>
+
+  <section class="kc-panel kc-panel-pad kc-visual-lab-filter-panel">
+    <%= form_with url: visual_lab_path, method: :get, class: "kc-visual-lab-filters" do %>
+      <label class="kc-visual-lab-search" for="visual_lab_q">
+        <span><%= t(".filters.search") %></span>
+        <%= search_field_tag :q, @filters[:q], id: "visual_lab_q", class: "kc-input", placeholder: t(".filters.search_placeholder") %>
+      </label>
+
+      <label for="visual_lab_type">
+        <span><%= t(".filters.type") %></span>
+        <%= select_tag :type, options_for_select([[t(".filters.all"), ""]] + @facets.fetch(:types).map { |type| [t(".types.#{type}", default: type), type] }, @filters[:type]), id: "visual_lab_type", class: "kc-input" %>
+      </label>
+
+      <label for="visual_lab_genre">
+        <span><%= t(".filters.genre") %></span>
+        <%= select_tag :genre, options_for_select([[t(".filters.all"), ""]] + @facets.fetch(:genres).map { |genre| [t(".genres.#{genre}", default: genre.humanize), genre] }, @filters[:genre]), id: "visual_lab_genre", class: "kc-input" %>
+      </label>
+
+      <label for="visual_lab_category">
+        <span><%= t(".filters.category") %></span>
+        <%= select_tag :category, options_for_select([[t(".filters.all"), ""]] + @facets.fetch(:categories).map { |category| [category, category] }, @filters[:category]), id: "visual_lab_category", class: "kc-input" %>
+      </label>
+
+      <label for="visual_lab_energy">
+        <span><%= t(".filters.energy") %></span>
+        <%= select_tag :energy, options_for_select([[t(".filters.all"), ""]] + @facets.fetch(:energies).map { |energy| [energy, energy] }, @filters[:energy]), id: "visual_lab_energy", class: "kc-input" %>
+      </label>
+
+      <label for="visual_lab_status">
+        <span><%= t(".filters.status") %></span>
+        <%= select_tag :status, options_for_select([[t(".filters.all"), ""]] + @facets.fetch(:statuses).map { |status| [t(".statuses.#{status}", default: status), status] }, @filters[:status]), id: "visual_lab_status", class: "kc-input" %>
+      </label>
+
+      <div class="kc-visual-lab-filter-actions">
+        <button type="submit" class="kc-button-primary kc-icon-button-text">
+          <%= kc_icon("scan") %>
+          <%= t(".filters.apply") %>
+        </button>
+        <%= link_to t(".filters.clear"), visual_lab_path, class: "kc-button" %>
+      </div>
+    <% end %>
+  </section>
+
+  <section class="kc-visual-lab-results-head">
+    <div>
+      <h2 class="kc-section-title"><%= t(".results_title") %></h2>
+      <p class="kc-muted"><%= t(".results_count", shown: @items.size, total: @visual_lab.filtered_count) %></p>
+    </div>
+    <% if @visual_lab.limited? %>
+      <span class="kc-pill kc-pill-warm"><%= t(".limited", count: VisualLabCatalog::PAGE_SIZE) %></span>
+    <% end %>
+  </section>
+
+  <% if @items.any? %>
+    <section class="kc-visual-lab-grid">
+      <% @items.each do |item| %>
+        <article class="kc-visual-preset-card" data-visual-lab-preview-target="card" data-preset-id="<%= item.fetch(:id) %>">
+          <div class="kc-visual-preset-preview is-<%= item.fetch(:preview_tone) %>" role="img" aria-label="<%= t(".preview_alt", name: item.fetch(:name)) %>">
+            <img alt="<%= t(".preview_alt", name: item.fetch(:name)) %>" loading="lazy" data-visual-lab-preview-target="thumbnail">
+            <span class="kc-preview-frame-line"></span>
+            <span class="kc-preview-focus"></span>
+            <span class="kc-preview-burst"></span>
+            <span class="kc-preview-caption"><%= item.fetch(:type).to_s.first(2).upcase %></span>
+            <span class="kc-preview-status" data-visual-lab-preview-target="status" data-rendering-label="<%= t(".preview_rendering") %>"><%= t(".preview_waiting") %></span>
+          </div>
+
+          <button type="button" class="kc-button-primary kc-icon-button-text kc-visual-motion-button" data-action="visual-lab-preview#openMotion">
+            <%= kc_icon("play") %>
+            <%= t(".play_motion") %>
+          </button>
+
+          <div class="kc-visual-preset-main">
+            <div class="kc-visual-preset-title-row">
+              <div>
+                <h3><%= item.fetch(:name) %></h3>
+                <code><%= item.fetch(:id) %></code>
+              </div>
+              <span class="kc-pill"><%= t(".types.#{item.fetch(:type)}", default: item.fetch(:type)) %></span>
+            </div>
+
+            <p><%= truncate(item.fetch(:ai_description).to_s, length: 150) %></p>
+
+            <div class="kc-visual-preset-tags">
+              <span><%= item.fetch(:visual_category) %></span>
+              <% if item.fetch(:mechanic).present? %>
+                <span><%= item.fetch(:mechanic) %></span>
+              <% end %>
+              <% if item.fetch(:energy).present? %>
+                <span><%= item.fetch(:energy) %></span>
+              <% end %>
+              <% if item.fetch(:reel_slot).present? %>
+                <span><%= item.fetch(:reel_slot) %></span>
+              <% end %>
+              <% if item.fetch(:curation_general) %>
+                <span><%= t(".genres.general") %></span>
+              <% end %>
+              <% item.fetch(:curated_genres).each do |genre| %>
+                <span><%= t(".genres.#{genre}", default: genre.humanize) %></span>
+              <% end %>
+            </div>
+
+            <details class="kc-visual-preset-details">
+              <summary><%= t(".details") %></summary>
+              <dl>
+                <div>
+                  <dt><%= t(".detail_labels.quality") %></dt>
+                  <dd><%= t(".statuses.#{item.fetch(:quality_status)}", default: item.fetch(:quality_status)) %></dd>
+                </div>
+                <div>
+                  <dt><%= t(".detail_labels.genres") %></dt>
+                  <dd><%= item.fetch(:matched_genres).presence&.map { |genre| t(".genres.#{genre}", default: genre.humanize) }&.join(", ") || t(".no_genres") %></dd>
+                </div>
+                <div>
+                  <dt><%= t(".detail_labels.ai") %></dt>
+                  <dd><%= item.fetch(:ai_description) %></dd>
+                </div>
+                <div>
+                  <dt><%= t(".detail_labels.tags") %></dt>
+                  <dd><%= item.fetch(:tags).join(", ") %></dd>
+                </div>
+              </dl>
+            </details>
+          </div>
+        </article>
+      <% end %>
+    </section>
+  <% else %>
+    <section class="kc-panel kc-panel-pad kc-visual-lab-empty">
+      <h2 class="kc-section-title"><%= t(".empty_title") %></h2>
+      <p class="kc-muted"><%= t(".empty_body") %></p>
+      <%= link_to t(".filters.clear"), visual_lab_path, class: "kc-button-primary" %>
+    </section>
+  <% end %>
+</main>

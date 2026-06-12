@@ -6,6 +6,8 @@ Rails.application.routes.draw do
     resources :clip_templates, only: %i[ index create update destroy ] do
       post :use, on: :member
     end
+    get "visual_lab", to: "visual_lab#index", as: :visual_lab
+    patch "visual_lab/:id/curation", to: "visual_lab#update_curation", as: :visual_lab_curation
     resources :projects, only: %i[ new create show ] do
       post :confirm_material, on: :member
       post :choose_direction, on: :member

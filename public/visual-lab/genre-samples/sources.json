@@ -1,0 +1,68 @@
+{
+  "general": {
+    "title": "Little Nemo 1905-1914 by Winsor McCay",
+    "source": "https://archive.org/details/LittleNemo1905-1914ByWinsorMccay",
+    "license": "Public Domain Mark 1.0",
+    "license_url": "http://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  "action": {
+    "title": "Fantastic Comics 05",
+    "source": "https://archive.org/details/scan50",
+    "license": "Public Domain Mark 1.0",
+    "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  "romance": {
+    "title": "Range Romances #2",
+    "source": "https://archive.org/details/RangeRomances2",
+    "license": "Public Domain Mark 1.0",
+    "license_url": "http://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  "horror": {
+    "title": "Pre-Code Graphic Horror Comics",
+    "source": "https://archive.org/details/Pre-Code-graphic-horror",
+    "license": "Public Domain Mark 1.0",
+    "license_url": "http://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  "thriller": {
+    "title": "Underworld Crime #1",
+    "source": "https://archive.org/details/UnderworldCrime1",
+    "license": "Public Domain Mark 1.0",
+    "license_url": "http://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  "scifi": {
+    "title": "Attack on Planet Mars",
+    "source": "https://archive.org/details/AttackOnPlanetMars",
+    "license": "Public Domain",
+    "license_url": "http://creativecommons.org/licenses/publicdomain/"
+  },
+  "fantasy": {
+    "title": "Fantastic Comics 05",
+    "source": "https://archive.org/details/scan50",
+    "license": "Public Domain Mark 1.0",
+    "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  "comedy": {
+    "title": "Bringing Up Father, Series 1",
+    "source": "https://archive.org/details/BringingUpFatherSeries1",
+    "license": "Public Domain Mark 1.0",
+    "license_url": "http://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  "drama": {
+    "title": "Sergeant Preston of the Yukon Comics #16-19",
+    "source": "https://archive.org/details/SergeantPrestonOfTheYukon-Comics-16-19",
+    "license": "Public Domain Mark 1.0",
+    "license_url": "http://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  "webtoon": {
+    "title": "Little Nemo 1905-1914 by Winsor McCay",
+    "source": "https://archive.org/details/LittleNemo1905-1914ByWinsorMccay",
+    "license": "Public Domain Mark 1.0",
+    "license_url": "http://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  "promo": {
+    "title": "Fantastic Comics 05",
+    "source": "https://archive.org/details/scan50",
+    "license": "Public Domain Mark 1.0",
+    "license_url": "https://creativecommons.org/publicdomain/mark/1.0/"
+  }
+}

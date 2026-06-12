@@ -8,10 +8,11 @@ class MusicCatalogTest < ActiveSupport::TestCase
   end
 
   test "builds safe payloads and clamps volume" do
-    payload = MusicCatalog.payload_for(id: "cyberpunk-city", volume: 160)
+    payload = MusicCatalog.payload_for(id: "cyberpunk-city", volume: 160, start_offset_ms: 12_500)
 
     assert_equal "cyberpunk-city", payload.fetch("id")
     assert_equal 100, payload.fetch("volume")
+    assert_equal 8000, payload.fetch("startOffsetMs")
     assert_equal "/music/cyberpunk-city.mp3", payload.fetch("url")
     assert_nil MusicCatalog.payload_for(id: "none")
   end

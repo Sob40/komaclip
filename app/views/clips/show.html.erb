@@ -9,7 +9,7 @@
 
   <section class="kc-studio-grid">
     <div class="kc-grid">
-      <details class="kc-global-settings-panel">
+      <details class="kc-global-settings-panel" open>
         <summary class="kc-global-settings-summary">
           <span>
             <span class="kc-eyebrow"><%= t(".global_settings_eyebrow") %></span>
@@ -17,7 +17,7 @@
           </span>
           <span class="kc-global-settings-summary-meta">
             <span class="kc-duration-pill" data-total-duration-badge><%= t(".duration_seconds", seconds: (@clip.duration_ms.to_f / 1000).round(1)) %></span>
-            <%= kc_icon("scan") %>
+            <span class="kc-global-settings-chevron" aria-hidden="true"><%= kc_icon("chevron-down") %></span>
           </span>
         </summary>
 
@@ -45,26 +45,41 @@
           </div>
         <% end %>
         <div class="kc-global-music-panel">
-          <label>
-            <span><%= kc_icon("music") %><%= t(".music_track") %></span>
-            <select name="clip[music_id]" form="clip-editor-form" class="kc-input">
-              <% @music_catalog.each do |track| %>
-                <option
-                  value="<%= track.id %>"
-                  data-url="<%= track.url %>"
-                  data-title="<%= track.title %>"
-                  data-artist="<%= track.artist %>"
-                  data-mood="<%= track.mood %>"
-                  data-source="<%= track.source %>"
-                  data-license="<%= track.license %>"
-                  data-license-url="<%= track.license_url %>"
-                  <%= "selected" if (@music["id"].presence || "none") == track.id %>>
-                  <%= track.id == "none" ? t(".music_none") : "#{track.title} · #{track.mood}" %>
-                </option>
-              <% end %>
-            </select>
-          </label>
-          <label>
+          <%= hidden_field_tag "clip[music_start_offset_ms]", @music.fetch("startOffsetMs", 0), form: "clip-editor-form", data: { music_start_offset: true } %>
+          <div class="kc-global-music-track">
+            <label>
+              <span><%= kc_icon("music") %><%= t(".music_track") %></span>
+              <select name="clip[music_id]" form="clip-editor-form" class="kc-input">
+                <% @music_catalog.each do |track| %>
+                  <option
+                    value="<%= track.id %>"
+                    data-url="<%= track.url %>"
+                    data-title="<%= track.title %>"
+                    data-artist="<%= track.artist %>"
+                    data-mood="<%= track.mood %>"
+                    data-source="<%= track.source %>"
+                    data-license="<%= track.license %>"
+                    data-license-url="<%= track.license_url %>"
+                    <%= "selected" if (@music["id"].presence || "none") == track.id %>>
+                    <%= track.id == "none" ? t(".music_none") : "#{track.title} · #{track.mood}" %>
+                  </option>
+                <% end %>
+              </select>
+            </label>
+          </div>
+          <button
+            type="button"
+            class="kc-button kc-icon-button-text kc-audio-fit-button"
+            data-action="clip-preview#fitCutsToMusic"
+            data-audio-fit-idle-label="<%= t(".fit_music_cuts") %>"
+            data-audio-fit-busy-label="<%= t(".fit_music_cuts_busy") %>"
+            data-audio-fit-done-label="<%= t(".fit_music_cuts_done") %>"
+            data-audio-fit-error-label="<%= t(".fit_music_cuts_error") %>"
+            data-audio-fit-no-music-label="<%= t(".fit_music_cuts_no_music") %>">
+            <%= kc_icon("waveform") %>
+            <span data-audio-fit-label><%= t(".fit_music_cuts") %></span>
+          </button>
+          <label class="kc-global-music-volume">
             <span><%= t(".music_volume") %></span>
             <input type="range" name="clip[music_volume]" form="clip-editor-form" min="0" max="100" value="<%= @music.fetch("volume", MusicCatalog::DEFAULT_VOLUME) %>">
           </label>
@@ -233,15 +248,23 @@
 
     <aside class="kc-preview-pane">
       <section class="kc-panel kc-panel-pad">
-        <div class="kc-preview-stage-shell" data-clip-preview-target="platformFrame" data-platform="instagram_reels">
+        <div class="kc-preview-stage-shell" data-clip-preview-target="platformFrame" data-platform="instagram_reels" data-guides="visible">
           <div class="kc-phone-frame kc-real-preview-frame">
             <div class="kc-phone-screen">
               <div data-clip-preview-target="stage" class="kc-phone-stage"></div>
               <div class="kc-platform-guides" aria-hidden="true">
-                <span class="kc-platform-safe-zone"></span>
-                <span class="kc-platform-ui kc-platform-ui-top"></span>
-                <span class="kc-platform-ui kc-platform-ui-bottom"></span>
-                <span class="kc-platform-ui kc-platform-ui-right"></span>
+                <span class="kc-platform-safe-zone">
+                  <span class="kc-platform-guide-label"><%= t(".platform_guides_safe_zone") %></span>
+                </span>
+                <span class="kc-platform-ui kc-platform-ui-top">
+                  <span class="kc-platform-guide-label"><%= t(".platform_guides_top_ui") %></span>
+                </span>
+                <span class="kc-platform-ui kc-platform-ui-bottom">
+                  <span class="kc-platform-guide-label"><%= t(".platform_guides_bottom_ui") %></span>
+                </span>
+                <span class="kc-platform-ui kc-platform-ui-right">
+                  <span class="kc-platform-guide-label kc-platform-guide-label-vertical"><%= t(".platform_guides_right_ui") %></span>
+                </span>
               </div>
             </div>
           </div>
@@ -269,14 +292,27 @@
         </div>
 
         <div class="kc-preview-output-row">
-          <label class="kc-platform-select kc-platform-select-inline">
-            <span><%= t(".preview_platform") %></span>
-            <select data-action="clip-preview#setPreviewPlatform" aria-label="<%= t(".preview_platform") %>">
-              <option value="instagram_reels"><%= t(".preview_platforms.instagram_reels") %></option>
-              <option value="tiktok"><%= t(".preview_platforms.tiktok") %></option>
-              <option value="youtube_shorts"><%= t(".preview_platforms.youtube_shorts") %></option>
-            </select>
-          </label>
+          <div class="kc-platform-control-row">
+            <label class="kc-platform-select kc-platform-select-inline">
+              <span><%= t(".preview_platform") %></span>
+              <select id="clip_preview_platform" name="clip_preview_platform" data-action="clip-preview#setPreviewPlatform" aria-label="<%= t(".preview_platform") %>">
+                <option value="instagram_reels"><%= t(".preview_platforms.instagram_reels") %></option>
+                <option value="tiktok"><%= t(".preview_platforms.tiktok") %></option>
+                <option value="youtube_shorts"><%= t(".preview_platforms.youtube_shorts") %></option>
+              </select>
+            </label>
+            <button
+              type="button"
+              class="kc-button kc-icon-button kc-platform-guides-toggle"
+              data-action="clip-preview#togglePlatformGuides"
+              aria-label="<%= t(".platform_guides_toggle_hide") %>"
+              aria-pressed="false"
+              data-hide-label="<%= t(".platform_guides_toggle_hide") %>"
+              data-show-label="<%= t(".platform_guides_toggle_show") %>">
+              <span class="kc-platform-guides-eye"><%= kc_icon("eye") %></span>
+              <span class="kc-platform-guides-eye-off"><%= kc_icon("eye-off") %></span>
+            </button>
+          </div>
           <button type="button" class="kc-button kc-icon-button-text" disabled>
             <%= kc_icon("download") %>
             <%= t(".export_video") %>

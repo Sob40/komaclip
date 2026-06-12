@@ -435,6 +435,11 @@
   resolved "https://registry.yarnpkg.com/@types/earcut/-/earcut-3.0.0.tgz#c21ab8372c47f8af1bec63cb36eecb6917b6c5b6"
   integrity sha512-k/9fOUGO39yd2sCjrbAJvGDEQvRwRnQIZlBz43roGwUZo5SHAmyVvSFyaVVZkicRVCaDXPKlbxrUcBuJoSWunQ==
 
+"@types/gradient-parser@^0.1.2":
+  version "0.1.5"
+  resolved "https://registry.yarnpkg.com/@types/gradient-parser/-/gradient-parser-0.1.5.tgz#7b25d5f080f41f0d713207894c3f2f490155462a"
+  integrity sha512-r7K3NkJz3A95WkVVmjs0NcchhHstC2C/VIYNX4JC6tieviUNo774FFeOHjThr3Vw/WCeMP9kAT77MKbIRlO/4w==
+
 "@webgpu/types@^0.1.69":
   version "0.1.70"
   resolved "https://registry.yarnpkg.com/@webgpu/types/-/types-0.1.70.tgz#2beaf197eb97e0020a218d8158251ee3af7ba583"
@@ -644,6 +649,13 @@ picomatch@^4.0.3:
   version "4.0.4"
   resolved "https://registry.yarnpkg.com/picomatch/-/picomatch-4.0.4.tgz#fd6f5e00a143086e074dffe4c924b8fb293b0589"
   integrity sha512-QP88BAKvMam/3NxH6vj2o21R6MjxZUAd6nlwAS/pnGvN9IVLocLHxGYIzFhg6fUQ+5th6P4dv4eW9jX3DSIj7A==
+
+pixi-filters@^6.1.5:
+  version "6.1.5"
+  resolved "https://registry.yarnpkg.com/pixi-filters/-/pixi-filters-6.1.5.tgz#3591c6a9c1efda6a1edc298756bee33fd034e156"
+  integrity sha512-Ewb/J+kxAbaNN+0/ATJbglAJG+skGJfh7BIDP3ILIDdD6wWk1p0pGa25pVf1T8hGBOQSUNVAmwwJBwkj+cyLLA==
+  dependencies:
+    "@types/gradient-parser" "^0.1.2"
 
 pixi.js@^8.19.0:
   version "8.19.0"

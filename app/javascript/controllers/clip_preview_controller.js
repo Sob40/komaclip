@@ -1,6 +1,12 @@
 import { Controller } from "@hotwired/stimulus"
 import * as PIXI from "pixi.js"
 import { Application, Assets, Container, Graphics, Sprite, Text, TextStyle } from "pixi.js"
+import { AdvancedBloomFilter } from "pixi-filters/advanced-bloom"
+import { GlowFilter } from "pixi-filters/glow"
+import { GodrayFilter } from "pixi-filters/godray"
+import { MotionBlurFilter } from "pixi-filters/motion-blur"
+import { RGBSplitFilter } from "pixi-filters/rgb-split"
+import { ShockwaveFilter } from "pixi-filters/shockwave"
 import { PixiPreviewRenderer } from "../lib/panel2reels_pixi_preview_renderer"
 
 const TRANSITION_MS = 520
@@ -16,6 +22,18 @@ const MIN_SHOT_DURATION_MS = 700
 const MAX_SHOT_DURATION_MS = 8000
 const DEFAULT_MUSIC_VOLUME = 42
 const MUSIC_FADE_OUT_MS = 2000
+const MUSIC_ANALYSIS_HOP_SIZE = 2048
+const MUSIC_ANALYSIS_MIN_PEAK_SPACING_SECONDS = 0.26
+const MUSIC_ANALYSIS_MAX_START_OFFSET_SECONDS = 4
+const MUSIC_ANALYSIS_MIN_START_OFFSET_SECONDS = 0.45
+const PIXI_FILTERS = Object.freeze({
+  AdvancedBloomFilter,
+  GlowFilter,
+  GodrayFilter,
+  MotionBlurFilter,
+  RGBSplitFilter,
+  ShockwaveFilter
+})
 
 export default class extends Controller {
   static targets = ["stage", "payload", "status", "playButton", "playLabel", "progress", "time", "currentTitle", "platformFrame"]
@@ -67,7 +85,7 @@ export default class extends Controller {
 
   async setupReferenceRenderer() {
     try {
-      this.referenceRenderer = new PixiPreviewRenderer({ mount: this.stageTarget, pixi: PIXI })
+      this.referenceRenderer = new PixiPreviewRenderer({ mount: this.stageTarget, pixi: PIXI, pixiFilters: PIXI_FILTERS, qualityProfile: "preview" })
       await this.referenceRenderer.init()
       this.referenceRenderer.pause()
       this.app = this.referenceRenderer.app
@@ -134,6 +152,16 @@ export default class extends Controller {
     if (!this.hasPlatformFrameTarget) return
 
     this.platformFrameTarget.dataset.platform = event.target.value || "instagram_reels"
+  }
+
+  togglePlatformGuides(event) {
+    if (!this.hasPlatformFrameTarget) return
+
+    const button = event.currentTarget
+    const nextHidden = this.platformFrameTarget.dataset.guides !== "hidden"
+    this.platformFrameTarget.dataset.guides = nextHidden ? "hidden" : "visible"
+    button.setAttribute("aria-pressed", String(nextHidden))
+    button.setAttribute("aria-label", nextHidden ? button.dataset.showLabel : button.dataset.hideLabel)
   }
 
   selectEditorShot(event) {
@@ -462,6 +490,7 @@ export default class extends Controller {
     this.audio.dataset.url = music.url
     this.audio.loop = false
     this.audio.preload = "metadata"
+    this.configureAudioElement(music)
     this.updateAudioVolume(0, music)
     this.element.dataset.previewAudioReady = "true"
   }
@@ -509,6 +538,7 @@ export default class extends Controller {
       this.audio.dataset.url = music.url
       this.audio.loop = false
       this.audio.preload = "metadata"
+      this.configureAudioElement(music)
       this.element.dataset.previewAudioReady = "true"
       this.element.dataset.previewMusicId = music.id
       if (shouldResume) {
@@ -525,9 +555,22 @@ export default class extends Controller {
     this.element.dataset.previewMusicId = music.id
   }
 
+  configureAudioElement(music) {
+    if (!this.audio) return
+
+    const syncWhenReady = () => {
+      this.syncAudioTime(music)
+      this.updateAudioVolume(this.playheadMs, music)
+    }
+
+    this.audio.addEventListener("loadedmetadata", syncWhenReady)
+    this.audio.addEventListener("canplay", syncWhenReady, { once: true })
+  }
+
   selectedMusicPayload() {
     const select = this.element.querySelector("select[name='clip[music_id]']")
     const volume = this.element.querySelector("input[name='clip[music_volume]']")?.value || DEFAULT_MUSIC_VOLUME
+    const startOffsetMs = this.element.querySelector("input[name='clip[music_start_offset_ms]']")?.value || 0
     const option = select?.selectedOptions?.[0]
     if (!option || option.value === "none" || !option.dataset.url) return null
 
@@ -540,17 +583,268 @@ export default class extends Controller {
       source: option.dataset.source,
       license: option.dataset.license,
       licenseUrl: option.dataset.licenseUrl,
-      volume
+      volume,
+      startOffsetMs: this.normalizedMusicStartOffsetMs(startOffsetMs)
     }
   }
 
-  syncAudioTime() {
+  async fitCutsToMusic(event) {
+    event.preventDefault()
+    event.stopPropagation()
+    if (this.isPlaying) this.pause()
+
+    const button = event.currentTarget
+    const music = this.selectedMusicPayload()
+    if (!music?.url) {
+      this.setAudioFitButtonState(button, "idle", button.dataset.audioFitNoMusicLabel)
+      return
+    }
+
+    this.setAudioFitButtonState(button, "busy", button.dataset.audioFitBusyLabel)
+
+    try {
+      const analysis = await this.analyzeMusic(music.url)
+      const startOffsetMs = this.setMusicStartOffset(analysis.startOffsetMs)
+      const startOffsetSeconds = startOffsetMs / 1000
+      const beats = analysis.beats
+        .map((beat) => ({ ...beat, time: beat.time - startOffsetSeconds }))
+        .filter((beat) => beat.time > 0.04)
+      const cutTimes = this.musicAlignedCutTimes(beats, this.durationMs / 1000, this.shots.length)
+      this.applyMusicAlignedCuts(cutTimes)
+      this.syncAudioTime()
+      this.element.dataset.previewAudioFitBeats = String(analysis.beats.length)
+      this.element.dataset.previewAudioFitCuts = String(cutTimes.length)
+      this.element.dataset.previewAudioStartOffsetMs = String(startOffsetMs)
+      this.setAudioFitButtonState(button, "done", button.dataset.audioFitDoneLabel)
+    } catch (error) {
+      console.error(error)
+      this.setAudioFitButtonState(button, "error", button.dataset.audioFitErrorLabel)
+    }
+  }
+
+  setAudioFitButtonState(button, state, label) {
+    if (!button) return
+
+    const labelTarget = button.querySelector("[data-audio-fit-label]")
+    button.dataset.state = state
+    button.disabled = state === "busy"
+    if (labelTarget && label) labelTarget.textContent = label
+
+    if (state !== "busy") {
+      window.clearTimeout(this.audioFitButtonTimer)
+      this.audioFitButtonTimer = window.setTimeout(() => {
+        button.dataset.state = "idle"
+        button.disabled = false
+        if (labelTarget) labelTarget.textContent = button.dataset.audioFitIdleLabel
+      }, 1600)
+    }
+  }
+
+  async analyzeMusic(url) {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext
+    if (!AudioContextClass) return { beats: this.fallbackMusicBeats(), startOffsetMs: 0 }
+
+    const context = new AudioContextClass()
+
+    try {
+      const response = await fetch(url, { credentials: "same-origin" })
+      if (!response.ok) throw new Error(`Audio fetch failed with ${response.status}`)
+
+      const arrayBuffer = await response.arrayBuffer()
+      const audioBuffer = await context.decodeAudioData(arrayBuffer.slice(0))
+      const frames = this.musicEnergyFrames(audioBuffer)
+      return {
+        beats: this.pickAudioEnergyPeaks(frames),
+        startOffsetMs: this.detectMusicStartOffsetMs(frames)
+      }
+    } finally {
+      context.close?.()
+    }
+  }
+
+  musicEnergyFrames(audioBuffer) {
+    const sampleRate = audioBuffer.sampleRate
+    const channelCount = Math.min(audioBuffer.numberOfChannels, 2)
+    const durationSeconds = Math.min(
+      audioBuffer.duration,
+      Math.max((this.durationMs / 1000) + MUSIC_ANALYSIS_MAX_START_OFFSET_SECONDS, 0.1)
+    )
+    const sampleLimit = Math.min(audioBuffer.length, Math.floor(durationSeconds * sampleRate))
+    const frames = []
+    const channels = Array.from({ length: channelCount }, (_, index) => audioBuffer.getChannelData(index))
+
+    for (let start = 0; start < sampleLimit; start += MUSIC_ANALYSIS_HOP_SIZE) {
+      const end = Math.min(start + MUSIC_ANALYSIS_HOP_SIZE, sampleLimit)
+      let sum = 0
+
+      for (let sampleIndex = start; sampleIndex < end; sampleIndex += 2) {
+        let mono = 0
+        channels.forEach((channel) => { mono += Math.abs(channel[sampleIndex] || 0) })
+        sum += mono / channelCount
+      }
+
+      frames.push({
+        time: (start + ((end - start) / 2)) / sampleRate,
+        energy: sum / Math.max((end - start) / 2, 1)
+      })
+    }
+
+    return frames
+  }
+
+  pickAudioEnergyPeaks(frames) {
+    if (frames.length < 3) return this.fallbackMusicBeats()
+
+    const fluxes = frames.map((frame, index) => {
+      if (index === 0) return { time: frame.time, flux: 0 }
+      return { time: frame.time, flux: Math.max(0, frame.energy - (frames[index - 1].energy * 0.92)) }
+    })
+    const mean = fluxes.reduce((sum, frame) => sum + frame.flux, 0) / fluxes.length
+    const variance = fluxes.reduce((sum, frame) => sum + ((frame.flux - mean) ** 2), 0) / fluxes.length
+    const threshold = mean + (Math.sqrt(variance) * 0.72)
+    const minSpacing = MUSIC_ANALYSIS_MIN_PEAK_SPACING_SECONDS
+    const peaks = []
+
+    for (let index = 1; index < fluxes.length - 1; index += 1) {
+      const previous = fluxes[index - 1]
+      const current = fluxes[index]
+      const next = fluxes[index + 1]
+      if (current.flux < threshold || current.flux < previous.flux || current.flux < next.flux) continue
+
+      const lastPeak = peaks[peaks.length - 1]
+      if (lastPeak && current.time - lastPeak.time < minSpacing) {
+        if (current.flux > lastPeak.score) peaks[peaks.length - 1] = { time: current.time, score: current.flux }
+      } else {
+        peaks.push({ time: current.time, score: current.flux })
+      }
+    }
+
+    return peaks.length >= Math.max(2, this.shots.length - 2) ? peaks : this.fallbackMusicBeats()
+  }
+
+  detectMusicStartOffsetMs(frames) {
+    if (frames.length < 3) return 0
+
+    const offsetWindow = frames.filter((frame) => frame.time <= MUSIC_ANALYSIS_MAX_START_OFFSET_SECONDS)
+    if (offsetWindow.length < 3) return 0
+
+    const energies = offsetWindow.map((frame) => frame.energy)
+    const sorted = [...energies].sort((a, b) => a - b)
+    const upperEnergy = sorted[Math.floor(sorted.length * 0.86)] || 0
+    const peakEnergy = sorted[sorted.length - 1] || 0
+    const threshold = Math.max(0.004, upperEnergy * 0.18, peakEnergy * 0.055)
+    const requiredFrames = 2
+    const frameStepSeconds = frames[1] ? Math.max(frames[1].time - frames[0].time, 0) : 0
+    let consecutive = 0
+
+    for (const frame of offsetWindow) {
+      if (frame.energy >= threshold) {
+        consecutive += 1
+        if (consecutive >= requiredFrames) {
+          const offsetSeconds = Math.max(0, frame.time - ((requiredFrames - 1) * frameStepSeconds))
+          if (offsetSeconds < MUSIC_ANALYSIS_MIN_START_OFFSET_SECONDS) return 0
+
+          return Math.round(Math.min(offsetSeconds, MUSIC_ANALYSIS_MAX_START_OFFSET_SECONDS) * 1000)
+        }
+      } else {
+        consecutive = 0
+      }
+    }
+
+    return 0
+  }
+
+  fallbackMusicBeats() {
+    const durationSeconds = Math.max(this.durationMs / 1000, 0.1)
+    const interval = 0.5
+    const beats = []
+
+    for (let time = interval; time < durationSeconds; time += interval) {
+      beats.push({ time, score: 1 })
+    }
+
+    return beats
+  }
+
+  musicAlignedCutTimes(beats, durationSeconds, shotCount) {
+    if (shotCount <= 1 || durationSeconds <= 0) return []
+
+    const minDuration = MIN_SHOT_DURATION_MS / 1000
+    const maxDuration = MAX_SHOT_DURATION_MS / 1000
+    const totalDuration = Math.max(durationSeconds, shotCount * minDuration)
+    const originalCuts = []
+    let originalCursor = 0
+
+    this.shots.slice(0, -1).forEach((shot) => {
+      originalCursor += (Number(shot.durationMs) || MIN_SHOT_DURATION_MS) / 1000
+      originalCuts.push(originalCursor)
+    })
+
+    const cutTimes = []
+    const used = new Set()
+    let previousCut = 0
+
+    for (let cutIndex = 1; cutIndex < shotCount; cutIndex += 1) {
+      const remainingShots = shotCount - cutIndex
+      const minCut = Math.max(previousCut + minDuration, totalDuration - (remainingShots * maxDuration))
+      const maxCut = Math.min(previousCut + maxDuration, totalDuration - (remainingShots * minDuration))
+      const originalTarget = originalCuts[cutIndex - 1] || (totalDuration * (cutIndex / shotCount))
+      const target = Math.min(Math.max(originalTarget, minCut), maxCut)
+      const searchWindow = Math.max(0.55, Math.min(1.8, (totalDuration / shotCount) * 0.58))
+      const candidate = beats
+        .map((beat, beatIndex) => ({ ...beat, beatIndex, distance: Math.abs(beat.time - target) }))
+        .filter((beat) => !used.has(beat.beatIndex) && beat.time >= minCut && beat.time <= maxCut && beat.distance <= searchWindow)
+        .sort((a, b) => (a.distance - b.distance) || (b.score - a.score))[0]
+      const cutTime = candidate ? candidate.time : target
+
+      if (candidate) used.add(candidate.beatIndex)
+      cutTimes.push(Math.min(Math.max(cutTime, minCut), maxCut))
+      previousCut = cutTimes[cutTimes.length - 1]
+    }
+
+    return cutTimes
+  }
+
+  applyMusicAlignedCuts(cutTimes) {
+    const shots = this.payload.contract.shots || []
+    const boundaries = [0, ...cutTimes, this.durationMs / 1000]
+
+    shots.forEach((shot, index) => {
+      const durationMs = this.clampedDurationMs((boundaries[index + 1] - boundaries[index]) * 1000)
+      shot.customDurationMs = durationMs
+      shot.durationMs = durationMs
+      shot.sceneDuration = "custom"
+    })
+
+    this.syncShotTimings()
+    this.shots = this.normalizedShots()
+    this.durationMs = this.clipDurationMs()
+    this.syncReferenceScene()
+    this.updateDurationBadges()
+    this.seekTo(0)
+
+    const firstDurationInput = this.element.querySelector("[data-duration-input-for]")
+    firstDurationInput?.dispatchEvent(new Event("change", { bubbles: true }))
+  }
+
+  syncAudioTime(musicOverride = null) {
     if (!this.audio) return
 
-    this.updateAudioVolume(this.playheadMs)
-    if (!Number.isFinite(this.audio.duration) || this.audio.duration <= 0) return
+    const music = musicOverride || this.selectedMusicPayload() || this.payload.contract.music || {}
+    this.updateAudioVolume(this.playheadMs, music)
 
-    this.audio.currentTime = Math.min(this.playheadMs / 1000, Math.max(this.audio.duration - 0.05, 0))
+    const startOffsetSeconds = this.musicStartOffsetSeconds(music)
+    const audioTime = startOffsetSeconds + (this.playheadMs / 1000)
+    const maxAudioTime = Number.isFinite(this.audio.duration) && this.audio.duration > 0
+      ? Math.max(this.audio.duration - 0.05, 0)
+      : audioTime
+
+    try {
+      this.audio.currentTime = Math.min(audioTime, maxAudioTime)
+      this.element.dataset.previewAudioCurrentTime = this.audio.currentTime.toFixed(3)
+    } catch {
+      this.audio.addEventListener("loadedmetadata", () => this.syncAudioTime(music), { once: true })
+    }
   }
 
   audioVolume(value) {
@@ -578,9 +872,33 @@ export default class extends Controller {
     return Math.sin(progress * Math.PI * 0.5)
   }
 
+  normalizedMusicStartOffsetMs(value) {
+    return Math.max(0, Math.min(Number.parseInt(value, 10) || 0, 8000))
+  }
+
+  musicStartOffsetSeconds(music = null) {
+    return this.normalizedMusicStartOffsetMs(music?.startOffsetMs) / 1000
+  }
+
+  setMusicStartOffset(value) {
+    const startOffsetMs = this.normalizedMusicStartOffsetMs(value)
+    const input = this.element.querySelector("input[name='clip[music_start_offset_ms]']")
+    if (input) input.value = String(startOffsetMs)
+    if (this.payload.contract.music) this.payload.contract.music.startOffsetMs = startOffsetMs
+    this.element.dataset.previewAudioStartOffsetMs = String(startOffsetMs)
+
+    return startOffsetMs
+  }
+
   handleEditorChange(event) {
     const target = event.target
-    if (target.name === "clip[music_id]" || target.name === "clip[music_volume]") {
+    if (target.name === "clip[music_id]") {
+      this.setMusicStartOffset(0)
+      this.refreshAudioFromControls()
+      return
+    }
+
+    if (target.name === "clip[music_volume]" || target.name === "clip[music_start_offset_ms]") {
       this.refreshAudioFromControls()
       return
     }
@@ -846,10 +1164,7 @@ export default class extends Controller {
       this.element.dataset.previewTextAssetsLoaded = String(this.loadedAssetCountForSlots(textAssetSlots))
 
       this.referenceRenderer.renderFrame(playheadMs / 1000)
-      if (this.referenceRenderer.frameStats) {
-        this.element.dataset.previewFrameMs = this.referenceRenderer.frameStats.lastMs.toFixed(2)
-        this.element.dataset.previewAverageFrameMs = this.referenceRenderer.frameStats.averageMs.toFixed(2)
-      }
+      this.updateReferenceRendererStats()
       this.updateStatus(shot, playheadMs)
       return
     }
@@ -908,6 +1223,48 @@ export default class extends Controller {
     this.drawRhythmAccent(rhythm, playheadMs / 1000)
     this.drawFinish()
     this.updateStatus(shot, playheadMs)
+  }
+
+  updateReferenceRendererStats() {
+    const stats = this.referenceRenderer?.frameStats
+    if (!stats) return
+
+    const objects = stats.objectStats || {}
+    this.element.dataset.previewFrameMs = stats.lastMs.toFixed(2)
+    this.element.dataset.previewAverageFrameMs = stats.averageMs.toFixed(2)
+    this.element.dataset.previewMaxFrameMs = stats.maxMs.toFixed(2)
+    this.element.dataset.previewFrameSamples = String(stats.samples || 0)
+    this.element.dataset.previewDisplayObjects = String(objects.displayObjects || 0)
+    this.element.dataset.previewContainers = String(objects.containers || 0)
+    this.element.dataset.previewGraphics = String(objects.graphics || 0)
+    this.element.dataset.previewSprites = String(objects.sprites || 0)
+    this.element.dataset.previewTexts = String(objects.texts || 0)
+    this.element.dataset.previewBitmapTexts = String(objects.bitmapTexts || 0)
+    this.element.dataset.previewParticleContainers = String(objects.particleContainers || 0)
+    this.element.dataset.previewFilters = String(objects.filters || 0)
+    this.element.dataset.previewFilterAreas = String(objects.filterAreas || 0)
+    this.element.dataset.previewMasks = String(objects.masks || 0)
+    this.element.dataset.previewRootChildren = String(objects.rootChildren || 0)
+    this.element.dataset.previewCachedFxTextures = String(objects.cachedFxTextures || 0)
+    this.element.dataset.previewPanelTextures = String(objects.panelTextures || 0)
+    this.element.dataset.previewGeneratedFrameTextures = String(objects.generatedFrameTextures || 0)
+    this.element.dataset.previewMaxDisplayObjects = String(stats.maxDisplayObjects || 0)
+    this.element.dataset.previewMaxFilters = String(stats.maxFilters || 0)
+    this.element.dataset.previewMaxGraphics = String(stats.maxGraphics || 0)
+    this.element.dataset.previewExternalFilters = this.referenceRenderer.availableExternalFilterNames().join(",")
+    this.updateReferenceRendererPerformance()
+  }
+
+  updateReferenceRendererPerformance() {
+    const report = this.referenceRenderer?.performanceReport?.()
+    if (!report) return
+
+    this.element.dataset.previewQualityProfile = report.profile || "preview"
+    this.element.dataset.previewPerformanceStatus = report.status || "unknown"
+    this.element.dataset.previewPerformancePressure = Number(report.pressure || 0).toFixed(2)
+    this.element.dataset.previewPerformanceBottlenecks = (report.bottlenecks || []).join(",")
+    this.element.dataset.previewQualityGovernorLevel = String(report.governor?.level || 0)
+    this.element.dataset.previewQualityGovernorActive = String(report.governor?.active === true)
   }
 
   activeShotFor(playheadMs) {

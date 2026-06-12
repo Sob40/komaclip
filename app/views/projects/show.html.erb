@@ -326,42 +326,52 @@
   </div>
 
   <aside class="kc-project-preview-pane" <%= "hidden" unless @material_ready %>>
-    <% if @proposal_ready %>
-      <%= link_to project_clip_path(project_id: @project, id: @latest_clip), class: "kc-phone-frame kc-project-phone kc-project-phone-link", aria: { label: t(".open_preview") } do %>
-        <div class="kc-phone-screen">
-          <div class="kc-phone-placeholder">
-            <strong>KomaClip</strong>
-            <span><%= t(".latest_clip", title: @latest_clip.title, duration: @latest_clip.duration_ms / 1000) %></span>
+    <div class="kc-project-preview-shell">
+      <% preview_frame = capture do %>
+        <div class="kc-preview-stage-shell" data-platform="instagram_reels" data-guides="hidden">
+          <div class="kc-phone-frame kc-real-preview-frame kc-project-phone">
+            <div class="kc-phone-screen">
+              <div class="kc-phone-stage kc-project-preview-stage-placeholder">
+                <div class="kc-phone-placeholder">
+                  <strong>KomaClip</strong>
+                  <span><%= @proposal_ready ? t(".latest_clip", title: @latest_clip.title, duration: @latest_clip.duration_ms / 1000) : (@direction_ready ? t(".phone_proposal_pending") : (@material_ready ? t(".phone_direction_pending") : t(".phone_empty"))) %></span>
+                </div>
+              </div>
+              <div class="kc-platform-guides" aria-hidden="true">
+                <span class="kc-platform-safe-zone">
+                  <span class="kc-platform-guide-label"><%= t("clips.show.platform_guides_safe_zone") %></span>
+                </span>
+                <span class="kc-platform-ui kc-platform-ui-top">
+                  <span class="kc-platform-guide-label"><%= t("clips.show.platform_guides_top_ui") %></span>
+                </span>
+                <span class="kc-platform-ui kc-platform-ui-bottom">
+                  <span class="kc-platform-guide-label"><%= t("clips.show.platform_guides_bottom_ui") %></span>
+                </span>
+                <span class="kc-platform-ui kc-platform-ui-right">
+                  <span class="kc-platform-guide-label kc-platform-guide-label-vertical"><%= t("clips.show.platform_guides_right_ui") %></span>
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       <% end %>
-    <% else %>
-      <div class="kc-phone-frame kc-project-phone">
-        <div class="kc-phone-screen">
-          <div class="kc-phone-placeholder">
-            <strong>KomaClip</strong>
-            <span><%= @direction_ready ? t(".phone_proposal_pending") : (@material_ready ? t(".phone_direction_pending") : t(".phone_empty")) %></span>
-          </div>
-        </div>
-      </div>
-    <% end %>
-    <label class="kc-preview-output-field">
-      <span><%= kc_icon("target") %><%= t(".output_view") %></span>
-      <select class="kc-input">
-        <option><%= t(".output_reels") %></option>
-      </select>
-    </label>
-    <div class="kc-preview-actions">
+
       <% if @proposal_ready %>
-        <%= link_to project_clip_path(project_id: @project, id: @latest_clip), class: "kc-button-primary" do %>
-          <%= kc_icon("arrow-right") %><%= t(".open_editor") %>
+        <%= link_to project_clip_path(project_id: @project, id: @latest_clip), class: "kc-project-preview-link", aria: { label: t(".open_preview") } do %>
+          <%= preview_frame %>
         <% end %>
-        <button type="button" class="kc-button" disabled><%= kc_icon("music") %><%= t(".music") %></button>
-        <button type="button" class="kc-button" disabled><%= kc_icon("download") %><%= t(".export_pending") %></button>
       <% else %>
-        <button type="button" class="kc-button-primary" disabled><%= kc_icon("play") %><%= t(".play") %></button>
-        <button type="button" class="kc-button" disabled><%= kc_icon("music") %><%= t(".music") %></button>
-        <button type="button" class="kc-button" disabled><%= kc_icon("download") %><%= t(".export_pending") %></button>
+        <div class="kc-project-preview-locked-frame">
+          <%= preview_frame %>
+        </div>
+      <% end %>
+
+      <% if @proposal_ready %>
+        <div class="kc-preview-actions">
+          <%= link_to project_clip_path(project_id: @project, id: @latest_clip), class: "kc-button-primary kc-icon-button-text" do %>
+            <%= kc_icon("arrow-right") %><%= t(".open_editor") %>
+          <% end %>
+        </div>
       <% end %>
     </div>
   </aside>

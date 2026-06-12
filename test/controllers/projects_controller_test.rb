@@ -91,7 +91,8 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
     assert_select "select[name=proposal_genre]", count: 0
     assert_select "a", text: /Open editor/
     assert_select "a[href=?]", project_clip_path(project_id: projects(:one), id: clips(:one)), minimum: 2
-    assert_select ".kc-project-phone-link[href=?]", project_clip_path(project_id: projects(:one), id: clips(:one))
+    assert_select ".kc-project-preview-link[href=?]", project_clip_path(project_id: projects(:one), id: clips(:one))
+    assert_select ".kc-project-preview-shell .kc-preview-stage-shell[data-platform='instagram_reels'][data-guides='hidden']"
   end
 
   test "show previews scene text over material thumbnail" do

@@ -158,7 +158,7 @@ class ClipsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".kc-flash-notice", false
     assert_select "a", { text: /Back to project/, count: 0 }
     assert_select ".kc-global-settings-panel"
-    assert_select ".kc-global-settings-panel:not([open])"
+    assert_select ".kc-global-settings-panel[open]"
     assert_select ".kc-global-settings-summary", text: /Clean chapter/
     assert_select "select[name=direction_goal]", count: 0
     assert_select "select[name=direction_style]"
@@ -170,6 +170,9 @@ class ClipsControllerTest < ActionDispatch::IntegrationTest
     assert_select "button", text: /Rebuild all/, count: 0
     assert_select "select[data-action='clip-preview#setPreviewPlatform'] option", 3
     assert_select ".kc-preview-output-row select[data-action='clip-preview#setPreviewPlatform']"
+    assert_select ".kc-preview-output-row button[data-action='clip-preview#togglePlatformGuides']"
+    assert_select ".kc-platform-guides .kc-platform-guide-label", 4
+    assert_select ".kc-platform-safe-zone .kc-platform-guide-label", text: /Recommended text zone/
     assert_select ".kc-preview-output-row button[disabled]", text: /Export/
     assert_select ".kc-preview-stage-shell[data-platform='instagram_reels']"
     assert_select "[data-clip-preview-target='status']", count: 0
@@ -181,6 +184,8 @@ class ClipsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".kc-global-music-panel select[name='clip[music_id]']"
     assert_select "select[name='clip[music_id]'] option", 43
     assert_select ".kc-global-music-panel input[name='clip[music_volume]'][type=range]"
+    assert_select ".kc-global-music-panel input[name='clip[music_start_offset_ms]'][type=hidden]"
+    assert_select ".kc-global-music-panel button[data-action='clip-preview#fitCutsToMusic']", text: /Fit audio/
     assert_select ".kc-preview-music-panel", count: 0
     assert_select ".kc-autosave-pill", count: 0
     assert_select ".kc-clip-shot-selector[name=clip_scene_inspector]", minimum: 1
@@ -263,7 +268,8 @@ class ClipsControllerTest < ActionDispatch::IntegrationTest
           }
         },
         music_id: "cyberpunk-city",
-        music_volume: "31"
+        music_volume: "31",
+        music_start_offset_ms: "1200"
       }
     }
 
@@ -288,6 +294,7 @@ class ClipsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "intense", shot.fetch("motion").fetch("intensity")
     assert_equal "cyberpunk-city", clip.scene_contract.fetch("music").fetch("id")
     assert_equal 31, clip.scene_contract.fetch("music").fetch("volume")
+    assert_equal 1200, clip.scene_contract.fetch("music").fetch("startOffsetMs")
     assert_equal clip.metadata.fetch("music"), clip.scene_contract.fetch("music")
   end
 
